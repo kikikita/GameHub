@@ -38,7 +38,7 @@ async def return_to_constructor(user_hash: str):
         gr.update(visible=True),  # constructor_interface
         gr.update(visible=False),  # game_interface
         gr.update(visible=False),  # error_message
-        gr.update(value=new_hash),  # user_id_state
+        new_hash,  # user_id_state
     )
 
 
@@ -119,7 +119,7 @@ async def start_game_with_music(
         gr.update(),
         gr.update(),  # game components unchanged
         gr.update(),  # custom choice unchanged
-        gr.update(value=user_hash_new),
+        user_hash_new,
     )
 
     # First, get the game interface updates
@@ -132,7 +132,7 @@ async def start_game_with_music(
         char_personality,
         genre,
     )
-    yield result + (gr.update(value=user_hash_new),)
+    yield result + (user_hash_new,)
 
 
 with gr.Blocks(
