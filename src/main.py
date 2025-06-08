@@ -38,7 +38,7 @@ async def return_to_constructor(user_hash: str):
         gr.update(visible=True),  # constructor_interface
         gr.update(visible=False),  # game_interface
         gr.update(visible=False),  # error_message
-        gr.update(value=new_hash),  # local_storage
+        new_hash,  # user_id_state
     )
 
 
@@ -96,7 +96,7 @@ def update_preview(setting, name, age, background, personality, genre):
 
 
 async def start_game_with_music(
-    user_hash: str,
+    user_hash: str | None,
     setting_desc: str,
     char_name: str,
     char_age: str,
@@ -105,6 +105,11 @@ async def start_game_with_music(
     genre: str,
 ):
     """Start the game with custom settings and initialize music"""
+    if not user_hash:
+        user_hash_new = str(uuid.uuid4())
+    else:
+        user_hash_new = user_hash
+
     yield (
         gr.update(visible=True),  # loading indicator
         gr.update(),  # constructor_interface
@@ -114,11 +119,12 @@ async def start_game_with_music(
         gr.update(),
         gr.update(),  # game components unchanged
         gr.update(),  # custom choice unchanged
+        user_hash_new,
     )
 
     # First, get the game interface updates
     result = await start_game_with_settings(
-        user_hash,
+        user_hash_new,
         setting_desc,
         char_name,
         char_age,
@@ -126,7 +132,7 @@ async def start_game_with_music(
         char_personality,
         genre,
     )
-    yield result
+    yield result + (user_hash_new,)
 
 
 with gr.Blocks(
@@ -138,7 +144,7 @@ with gr.Blocks(
     with gr.Column(visible=False, elem_id="loading-indicator") as loading_indicator:
         gr.HTML("<div class='loading-text'>🚀 Starting your adventure...</div>")
 
-    local_storage = gr.BrowserState(str(uuid.uuid4()), "user_hash")
+    user_id_state = gr.State(None)
 
     # Constructor Interface (visible by default)
     with gr.Column(
@@ -315,7 +321,7 @@ with gr.Blocks(
     start_btn.click(
         fn=start_game_with_music,
         inputs=[
-            local_storage,
+            user_id_state,
             setting_description,
             char_name,
             char_age,
@@ -332,37 +338,38 @@ with gr.Blocks(
             game_image,
             game_choices,
             custom_choice,
+            user_id_state,
         ],
     )
 
     back_btn.click(
         fn=return_to_constructor,
-        inputs=[local_storage],
+        inputs=[user_id_state],
         outputs=[
             loading_indicator,
             constructor_interface,
             game_interface,
             error_message,
-            local_storage,
+            user_id_state,
         ],
     )
 
     game_choices.change(
         fn=update_scene,
-        inputs=[local_storage, game_choices],
+        inputs=[user_id_state, game_choices],
         outputs=[game_text, game_image, game_choices, custom_choice],
     )
 
     custom_choice.submit(
         fn=update_scene,
-        inputs=[local_storage, custom_choice],
+        inputs=[user_id_state, custom_choice],
         outputs=[game_text, game_image, game_choices, custom_choice],
     )
 
     demo.unload(cleanup_music_session)
     demo.load(
         fn=update_audio,
-        inputs=[local_storage],
+        inputs=[user_id_state],
         outputs=[audio_out],
     )
 
