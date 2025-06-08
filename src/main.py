@@ -45,7 +45,13 @@ async def return_to_constructor(user_hash: str):
 async def update_scene(user_hash: str, choice):
     logger.info(f"Updating scene with choice: {choice}")
     if not isinstance(choice, str):
-        return gr.update(), gr.update(), gr.update(), gr.update()
+        return (
+            gr.update(),
+            gr.update(),
+            gr.update(),
+            gr.update(),
+            gr.update(value=user_hash),
+        )
 
     result = await process_step(
         user_hash=user_hash,
@@ -64,6 +70,7 @@ async def update_scene(user_hash: str, choice):
             gr.update(value=ending_image),
             gr.Radio(choices=[], label="", value=None, visible=False),
             gr.update(value="", visible=False),
+            gr.update(value=user_hash),
         )
 
     scene = result["scene"]
@@ -77,6 +84,7 @@ async def update_scene(user_hash: str, choice):
             elem_classes=["choice-buttons"],
         ),
         gr.update(value=""),
+        gr.update(value=user_hash),
     )
 
 
@@ -353,20 +361,20 @@ with gr.Blocks(
     game_choices.change(
         fn=update_scene,
         inputs=[user_id_state, game_choices],
-        outputs=[game_text, game_image, game_choices, custom_choice],
+        outputs=[game_text, game_image, game_choices, custom_choice, user_id_state],
     )
 
     custom_choice.submit(
         fn=update_scene,
         inputs=[user_id_state, custom_choice],
-        outputs=[game_text, game_image, game_choices, custom_choice],
+        outputs=[game_text, game_image, game_choices, custom_choice, user_id_state],
     )
 
     demo.unload(cleanup_music_session)
     demo.load(
         fn=update_audio,
         inputs=[user_id_state],
-        outputs=[audio_out],
+        outputs=[audio_out, user_id_state],
     )
 
 demo.queue()
