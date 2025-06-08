@@ -38,14 +38,20 @@ async def return_to_constructor(user_hash: str):
         gr.update(visible=True),  # constructor_interface
         gr.update(visible=False),  # game_interface
         gr.update(visible=False),  # error_message
-        gr.update(value=new_hash),  # local_storage
+        gr.update(value=new_hash),  # user_id_state
     )
 
 
 async def update_scene(user_hash: str, choice):
     logger.info(f"Updating scene with choice: {choice}")
     if not isinstance(choice, str):
-        return gr.update(), gr.update(), gr.update(), gr.update()
+        return (
+            gr.update(),
+            gr.update(),
+            gr.update(),
+            gr.update(),
+            gr.update(value=user_hash),
+        )
 
     result = await process_step(
         user_hash=user_hash,
@@ -64,6 +70,7 @@ async def update_scene(user_hash: str, choice):
             gr.update(value=ending_image),
             gr.Radio(choices=[], label="", value=None, visible=False),
             gr.update(value="", visible=False),
+            gr.update(value=user_hash),
         )
 
     scene = result["scene"]
@@ -77,6 +84,7 @@ async def update_scene(user_hash: str, choice):
             elem_classes=["choice-buttons"],
         ),
         gr.update(value=""),
+        gr.update(value=user_hash),
     )
 
 
@@ -105,6 +113,7 @@ async def start_game_with_music(
     genre: str,
 ):
     """Start the game with custom settings and initialize music"""
+    user_hash_new = user_hash or str(uuid.uuid4())
     yield (
         gr.update(visible=True),  # loading indicator
         gr.update(),  # constructor_interface
@@ -114,11 +123,12 @@ async def start_game_with_music(
         gr.update(),
         gr.update(),  # game components unchanged
         gr.update(),  # custom choice unchanged
+        gr.update(value=user_hash_new),
     )
 
     # First, get the game interface updates
     result = await start_game_with_settings(
-        user_hash,
+        user_hash_new,
         setting_desc,
         char_name,
         char_age,
@@ -126,7 +136,7 @@ async def start_game_with_music(
         char_personality,
         genre,
     )
-    yield result
+    yield result + (gr.update(value=user_hash_new),)
 
 
 with gr.Blocks(
@@ -138,7 +148,7 @@ with gr.Blocks(
     with gr.Column(visible=False, elem_id="loading-indicator") as loading_indicator:
         gr.HTML("<div class='loading-text'>🚀 Starting your adventure...</div>")
 
-    local_storage = gr.BrowserState(str(uuid.uuid4()), "user_hash")
+    user_id_state = gr.State(None)
 
     # Constructor Interface (visible by default)
     with gr.Column(
@@ -315,7 +325,7 @@ with gr.Blocks(
     start_btn.click(
         fn=start_game_with_music,
         inputs=[
-            local_storage,
+            user_id_state,
             setting_description,
             char_name,
             char_age,
@@ -332,38 +342,39 @@ with gr.Blocks(
             game_image,
             game_choices,
             custom_choice,
+            user_id_state,
         ],
     )
 
     back_btn.click(
         fn=return_to_constructor,
-        inputs=[local_storage],
+        inputs=[user_id_state],
         outputs=[
             loading_indicator,
             constructor_interface,
             game_interface,
             error_message,
-            local_storage,
+            user_id_state,
         ],
     )
 
     game_choices.change(
         fn=update_scene,
-        inputs=[local_storage, game_choices],
-        outputs=[game_text, game_image, game_choices, custom_choice],
+        inputs=[user_id_state, game_choices],
+        outputs=[game_text, game_image, game_choices, custom_choice, user_id_state],
     )
 
     custom_choice.submit(
         fn=update_scene,
-        inputs=[local_storage, custom_choice],
-        outputs=[game_text, game_image, game_choices, custom_choice],
+        inputs=[user_id_state, custom_choice],
+        outputs=[game_text, game_image, game_choices, custom_choice, user_id_state],
     )
 
     demo.unload(cleanup_music_session)
     demo.load(
         fn=update_audio,
-        inputs=[local_storage],
-        outputs=[audio_out],
+        inputs=[user_id_state],
+        outputs=[audio_out, user_id_state],
     )
 
 demo.queue()

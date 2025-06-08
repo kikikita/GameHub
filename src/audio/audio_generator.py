@@ -5,6 +5,7 @@ import queue
 import logging
 import io
 import time
+import gradio as gr
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +97,7 @@ def update_audio(user_hash):
     while True:
         if user_hash not in sessions:
             time.sleep(0.5)
+            yield None, gr.update(value=user_hash)
             continue
         queue = sessions[user_hash]['queue']
         pcm_data = queue.get() # This is raw PCM audio bytes
@@ -125,4 +127,4 @@ def update_audio(user_hash):
             wf.setframerate(SAMPLE_RATE)
             wf.writeframes(pcm_data)
         wav_bytes = wav_buffer.getvalue()
-        yield wav_bytes
+        yield wav_bytes, gr.update(value=user_hash)
