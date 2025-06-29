@@ -6,8 +6,9 @@ from datetime import datetime
 import logging
 import asyncio
 import gradio as gr
-
+from config import settings
 from services.google import GoogleClientFactory
+from agent.utils import with_retries
 
 logger = logging.getLogger(__name__)
 
@@ -49,16 +50,15 @@ async def generate_image(prompt: str) -> tuple[str, str] | None:
 
     try:
         async with GoogleClientFactory.image() as client:
-            response = await asyncio.wait_for(
-                client.models.generate_content(
+            response = await with_retries(
+                lambda: client.models.generate_content(
                     model="gemini-2.0-flash-preview-image-generation",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         response_modalities=["TEXT", "IMAGE"],
                         safety_settings=safety_settings,
                     ),
-                ),
-                40,
+                )
             )
 
         # Process the response parts
@@ -116,8 +116,8 @@ async def modify_image(image_path: str, modification_prompt: str) -> str | None:
             input_image = Image.open(image_path)
 
             # Make the API call with both text and image
-            response = await asyncio.wait_for(
-                client.models.generate_content(
+            response = await with_retries(
+                lambda: client.models.generate_content(
                     model="gemini-2.0-flash-preview-image-generation",
                     contents=[modification_prompt, input_image],
                     config=types.GenerateContentConfig(
@@ -125,7 +125,6 @@ async def modify_image(image_path: str, modification_prompt: str) -> str | None:
                         safety_settings=safety_settings,
                     ),
                 ),
-                40,
             )
 
         # Process the response parts

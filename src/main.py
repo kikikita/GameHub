@@ -5,8 +5,6 @@ from audio.audio_generator import (
     cleanup_music_session,
 )
 import logging
-from agent.llm_agent import process_user_input
-from images.image_generator import modify_image
 from agent.runner import process_step
 import uuid
 from game_constructor import (
@@ -17,9 +15,9 @@ from game_constructor import (
     load_character_suggestion,
     start_game_with_settings,
 )
-import asyncio
-from game_setting import get_user_story
-from config import settings
+from app_description import app_description
+
+CONCURRENCY_LIMIT = 10000
 
 
 logger = logging.getLogger(__name__)
@@ -31,15 +29,21 @@ async def return_to_constructor(user_hash: str):
 
     await reset_user_state(user_hash)
     await cleanup_music_session(user_hash)
-    # Generate a new hash to avoid stale state
-    new_hash = str(uuid.uuid4())
     return (
         gr.update(visible=False),  # loading_indicator
         gr.update(visible=True),  # constructor_interface
         gr.update(visible=False),  # game_interface
         gr.update(visible=False),  # error_message
-        new_hash,  # user_id_state
     )
+
+num_visits = 0
+
+async def generate_user_hash():
+    hash = str(uuid.uuid4())
+    global num_visits
+    num_visits += 1
+    logger.info(f"Generated user hash: {hash}, num_visits: {num_visits}")
+    return gr.update(value=hash)
 
 
 async def update_scene(user_hash: str, choice):
@@ -96,7 +100,7 @@ def update_preview(setting, name, age, background, personality, genre):
 
 
 async def start_game_with_music(
-    user_hash: str | None,
+    user_hash: str,
     setting_desc: str,
     char_name: str,
     char_age: str,
@@ -105,11 +109,6 @@ async def start_game_with_music(
     genre: str,
 ):
     """Start the game with custom settings and initialize music"""
-    if not user_hash:
-        user_hash_new = str(uuid.uuid4())
-    else:
-        user_hash_new = user_hash
-
     yield (
         gr.update(visible=True),  # loading indicator
         gr.update(),  # constructor_interface
@@ -119,12 +118,11 @@ async def start_game_with_music(
         gr.update(),
         gr.update(),  # game components unchanged
         gr.update(),  # custom choice unchanged
-        user_hash_new,
     )
 
     # First, get the game interface updates
     result = await start_game_with_settings(
-        user_hash_new,
+        user_hash,
         setting_desc,
         char_name,
         char_age,
@@ -132,7 +130,7 @@ async def start_game_with_music(
         char_personality,
         genre,
     )
-    yield result + (user_hash_new,)
+    yield result
 
 
 with gr.Blocks(
@@ -144,24 +142,22 @@ with gr.Blocks(
     with gr.Column(visible=False, elem_id="loading-indicator") as loading_indicator:
         gr.HTML("<div class='loading-text'>🚀 Starting your adventure...</div>")
 
-    user_id_state = gr.State(None)
+    ls_user_hash = gr.BrowserState("", "user_hash")
 
     # Constructor Interface (visible by default)
     with gr.Column(
-        visible=True, elem_id="constructor-interface"
+        visible=True, elem_id="constructor-interface", elem_classes=["constructor-page"]
     ) as constructor_interface:
-        gr.Markdown("# 🎮 Interactive Game Constructor")
-        gr.Markdown(
-            "Create your own interactive story game by defining the setting, character, and genre!"
-        )
+        with gr.Row():
+            app_description()
 
-        # Error message area
-        error_message = gr.Textbox(
-            label="⚠️ Error",
-            visible=False,
-            interactive=False,
-            elem_classes=["error-message"],
-        )
+        with gr.Row():
+            error_message = gr.Textbox(
+                label="⚠️ Error",
+                visible=False,
+                interactive=False,
+                elem_classes=["error-message"],
+            )
 
         with gr.Row():
             with gr.Column(scale=2):
@@ -239,10 +235,6 @@ with gr.Blocks(
                     start_btn = gr.Button("▶️ Start Game", variant="primary", size="lg")
 
     with gr.Column(visible=False, elem_id="game-interface") as game_interface:
-        gr.Markdown("# 🎮 Your Interactive Story")
-
-        with gr.Row():
-            gr.Markdown("### Playing your custom game!")
         back_btn = gr.Button(
             "⬅️ Back to Constructor",
             variant="secondary",
@@ -321,7 +313,7 @@ with gr.Blocks(
     start_btn.click(
         fn=start_game_with_music,
         inputs=[
-            user_id_state,
+            ls_user_hash,
             setting_description,
             char_name,
             char_age,
@@ -338,40 +330,45 @@ with gr.Blocks(
             game_image,
             game_choices,
             custom_choice,
-            user_id_state,
         ],
     )
 
     back_btn.click(
         fn=return_to_constructor,
-        inputs=[user_id_state],
+        inputs=[ls_user_hash],
         outputs=[
             loading_indicator,
             constructor_interface,
             game_interface,
             error_message,
-            user_id_state,
         ],
     )
 
     game_choices.change(
         fn=update_scene,
-        inputs=[user_id_state, game_choices],
+        inputs=[ls_user_hash, game_choices],
         outputs=[game_text, game_image, game_choices, custom_choice],
+        concurrency_limit=CONCURRENCY_LIMIT,
     )
 
     custom_choice.submit(
         fn=update_scene,
-        inputs=[user_id_state, custom_choice],
+        inputs=[ls_user_hash, custom_choice],
         outputs=[game_text, game_image, game_choices, custom_choice],
     )
 
     demo.unload(cleanup_music_session)
     demo.load(
+        fn=generate_user_hash,
+        inputs=[],
+        outputs=[ls_user_hash],
+    )
+    ls_user_hash.change(
         fn=update_audio,
-        inputs=[user_id_state],
+        inputs=[ls_user_hash],
         outputs=[audio_out],
     )
 
-demo.queue()
+
+demo.queue(default_concurrency_limit=CONCURRENCY_LIMIT)
 demo.launch(ssr_mode=False)

@@ -5,6 +5,7 @@ from dataclasses import asdict
 from typing import Dict, Optional
 import uuid
 
+from agent.utils import with_retries
 from agent.image_agent import generate_image_prompt
 from agent.tools import generate_scene_image
 
@@ -36,7 +37,7 @@ async def process_step(
         assert choice_text, "choice_text is required"
         graph_state.choice_text = choice_text
 
-    final_state = await llm_game_graph.ainvoke(asdict(graph_state))
+    final_state = await with_retries(lambda: llm_game_graph.ainvoke(asdict(graph_state)))
 
     user_state: UserState = await get_user_state(user_hash)
     response: Dict = {}

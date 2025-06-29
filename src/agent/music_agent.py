@@ -3,7 +3,8 @@ from agent.llm import create_light_llm
 from agent.prompts import GAME_STATE_PROMPT
 from langchain_core.messages import SystemMessage, HumanMessage
 import logging
-from agent.redis_state import get_user_state, set_user_state
+from agent.redis_state import get_user_state
+from agent.utils import with_retries
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +38,6 @@ class MusicPrompt(BaseModel):
     prompt: str
 
 
-llm = create_light_llm(0.1).with_structured_output(MusicPrompt)
-
-
 async def generate_music_prompt(user_hash: str, scene_description: str, last_choice = "No choice yet") -> str:
     logger.info(f"Generating music prompt for the current scene: {scene_description}")
 
@@ -54,8 +52,10 @@ async def generate_music_prompt(user_hash: str, scene_description: str, last_cho
         scene_description=scene_description
     )
     
-    response = await llm.ainvoke(
+    llm = create_light_llm(0.1).with_structured_output(MusicPrompt)
+    
+    response = await with_retries(lambda: llm.ainvoke(
         [SystemMessage(content=system_prompt), HumanMessage(content=scene)]
-    )
-    logger.info(f"Music prompt generated")
+    ))
+    logger.info("Music prompt generated")
     return response.prompt

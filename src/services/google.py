@@ -19,9 +19,7 @@ class ApiKeyPool:
         self._sync_lock = threading.Lock()
 
     def _load_keys(self) -> None:
-        keys_raw = (
-            getattr(settings, "gemini_api_keys", None) or settings.gemini_api_key
-        )
+        keys_raw = settings.gemini_api_keys
         keys_str = keys_raw.get_secret_value()
         keys = [k.strip() for k in keys_str.split(',') if k.strip()] if keys_str else []
         if not keys:

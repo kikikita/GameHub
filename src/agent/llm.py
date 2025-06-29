@@ -1,6 +1,9 @@
 """Utility functions for working with the language model."""
 
+import asyncio
 import logging
+
+from google.api_core.exceptions import DeadlineExceeded
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from config import settings
@@ -22,22 +25,29 @@ def create_llm(
     top_p: float = settings.top_p,
 ) -> ChatGoogleGenerativeAI:
     """Create a standard LLM instance."""
-    return ChatGoogleGenerativeAI(
+    llm = ChatGoogleGenerativeAI(
         model=MODEL_NAME,
         google_api_key=_get_api_key(),
         temperature=temperature,
         top_p=top_p,
         thinking_budget=1024,
+        timeout=settings.request_timeout,
+        max_retries=3,
     )
+    return llm
     
     
 def create_light_llm(temperature: float = settings.temperature, top_p: float = settings.top_p):
-    return ChatGoogleGenerativeAI(
+    """Create a light LLM instance with a shorter timeout."""
+    llm = ChatGoogleGenerativeAI(
         model="gemini-2.0-flash",
         google_api_key=_get_api_key(),
         temperature=temperature,
-        top_p=top_p
+        top_p=top_p,
+        timeout=settings.request_timeout,
+        max_retries=3,
     )
+    return llm
 
 
 def create_precise_llm() -> ChatGoogleGenerativeAI:

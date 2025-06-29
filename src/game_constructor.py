@@ -1,16 +1,14 @@
 import gradio as gr
 import json
 import uuid
-from game_setting import Character, GameSetting, get_user_story
-from game_state import story, state, get_current_scene
-from agent.llm_agent import process_user_input
-from images.image_generator import generate_image
 from game_setting import Character, GameSetting
 from agent.runner import process_step
 from audio.audio_generator import start_music_generation, change_music_tone
 from agent.music_agent import generate_music_prompt
 import asyncio
-from config import settings
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 # Predefined suggestions for demo
@@ -87,7 +85,15 @@ def save_game_config(
 ):
     """Save the game configuration to a JSON file"""
     if not all(
-        [setting_desc, char_name, char_age, char_background, char_personality, genre]
+        s.strip()
+        for s in [
+            setting_desc,
+            char_name,
+            char_age,
+            char_background,
+            char_personality,
+            genre,
+        ]
     ):
         return "❌ Please fill in all fields before saving."
 
@@ -127,8 +133,8 @@ async def start_game_with_settings(
         [setting_desc, char_name, char_age, char_background, char_personality, genre]
     ):
         return (
-            gr.update(visible=True),  # constructor_interface
             gr.update(visible=False),  # loading indicator
+            gr.update(visible=True),  # constructor_interface
             gr.update(visible=False),  # game_interface
             gr.update(
                 value="❌ Please fill in all fields before starting the game.",

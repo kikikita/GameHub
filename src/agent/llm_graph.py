@@ -60,7 +60,11 @@ async def node_init_game(state: GraphState) -> GraphState:
     first_scene = await generate_scene.ainvoke(
         {"user_hash": state.user_hash, "last_choice": "start"}
     )
-    change_scene = await generate_image_prompt(state.user_hash, first_scene["description"])
+    init_description = (
+        f"{first_scene['description']}\n"
+        "NOTE FOR THE ASSISTANT: YOU MUST GENERATE A NEW IMAGE FOR THE STARTING SCENE"
+    )
+    change_scene = await generate_image_prompt(state.user_hash, init_description)
     logger.info(f"Change scene: {change_scene}")
     await generate_scene_image.ainvoke(
         {

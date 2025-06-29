@@ -2,9 +2,10 @@ from pydantic import BaseModel, Field
 from typing import Literal, Optional
 from agent.llm import create_light_llm
 from langchain_core.messages import SystemMessage, HumanMessage
-from agent.redis_state import get_user_state, set_user_state
+from agent.redis_state import get_user_state
 from agent.prompts import GAME_STATE_PROMPT
 import logging
+from agent.utils import with_retries
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +66,6 @@ class ChangeScene(BaseModel):
     )
     scene_description: Optional[str] = None
 
-
-image_prompt_generator_llm = create_light_llm(0.1).with_structured_output(ChangeScene)
-
 async def generate_image_prompt(user_hash: str, scene_description: str, last_choice = "No choice yet") -> ChangeScene:
     """
     Generates a detailed image prompt string based on a scene description.
@@ -85,12 +83,14 @@ async def generate_image_prompt(user_hash: str, scene_description: str, last_cho
         last_choice=last_choice,
         scene_description=scene_description
     )
+    
+    image_prompt_generator_llm = create_light_llm(0.1).with_structured_output(ChangeScene)
 
-    response = await image_prompt_generator_llm.ainvoke(
+    response = await with_retries(lambda: image_prompt_generator_llm.ainvoke(
         [
             SystemMessage(content=IMAGE_GENERATION_SYSTEM_PROMPT),
             HumanMessage(content=scene),
         ]
-    )
+    ))
     logger.info(f"Image prompt generated")
     return response

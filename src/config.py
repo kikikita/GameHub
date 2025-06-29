@@ -23,12 +23,11 @@ class BaseAppSettings(BaseSettings):
 
 
 class AppSettings(BaseAppSettings):
-    gemini_api_key: SecretStr
     gemini_api_keys: SecretStr
     # assistant_api_key: SecretStr
     top_p: float = 0.95
     temperature: float = 0.5
     pregenerate_next_scene: bool = True
-    
+    request_timeout: int = 20
 
 settings = AppSettings()

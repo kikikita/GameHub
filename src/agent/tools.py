@@ -18,6 +18,7 @@ from agent.models import (
 )
 from agent.prompts import ENDING_CHECK_PROMPT, SCENE_PROMPT, STORY_FRAME_PROMPT
 from agent.redis_state import get_user_state, set_user_state
+from agent.utils import with_retries
 from images.image_generator import modify_image, generate_image
 from agent.image_agent import ChangeScene
 
@@ -43,7 +44,7 @@ async def generate_story_frame(
         character=character,
         genre=genre,
     )
-    resp: StoryFrameLLM = await llm.ainvoke(prompt)
+    resp: StoryFrameLLM = await with_retries(lambda: llm.ainvoke(prompt))
     story_frame = StoryFrame(
         lore=resp.lore,
         goal=resp.goal,
@@ -77,10 +78,10 @@ async def generate_scene(
         history="; ".join(f"{c.scene_id}:{c.choice_text}" for c in state.user_choices),
         last_choice=last_choice,
     )
-    resp: SceneLLM = await llm.ainvoke(prompt)
+    resp: SceneLLM = await with_retries(lambda: llm.ainvoke(prompt))
     if len(resp.choices) < 2:
-        resp = await llm.ainvoke(
-            prompt + "\nThe scene must contain exactly two choices."
+        resp = await with_retries(
+            lambda: llm.ainvoke(prompt + "\nThe scene must contain exactly two choices.")
         )
     scene_id = str(uuid.uuid4())
     choices = [
@@ -163,7 +164,7 @@ async def check_ending(
         history=history,
         endings=",".join(f"{e.id}:{e.condition}" for e in state.story_frame.endings),
     )
-    resp: EndingCheckResult = await llm.ainvoke(prompt)
+    resp: EndingCheckResult = await with_retries(lambda: llm.ainvoke(prompt))
     if resp.ending_reached and resp.ending:
         state.ending = resp.ending
         await set_user_state(user_hash, state)

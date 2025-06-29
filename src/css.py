@@ -1,17 +1,37 @@
 # Custom CSS for fullscreen image with overlay and styled form components
 custom_css = """
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.constructor-page {
+    height: 100vh !important;
+    overflow-y: auto !important;
+    padding-bottom: var(--size-8);
+    padding-right: var(--size-8);
+}
+
+.app {
+    padding-right: 0 !important;
+}
+
+gradio-app {
+    height: 100% !important;
+}
+
 /* -------- FULLSCREEN BACKGROUND & NARRATIVE -------- */
 .image-container {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
     z-index: 1 !important;
 }
 .image-container img {
     width: 100vw !important;
-    height: 100vh !important;
     object-fit: cover !important;
 }
 
@@ -26,6 +46,8 @@ custom_css = """
     padding: 40px 20px 20px !important;
     z-index: 10 !important;
     color: white !important;
+    max-height: 100vh !important;
+    overflow-y: auto !important;
 }
 .overlay-content .form {
     background: transparent !important;
