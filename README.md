@@ -59,6 +59,7 @@ async def player_step(state: GraphState) -> GraphState:
 This fragment illustrates how the graph decides the next events following a player's choice. Music and image generation are initiated concurrently.
 
 ## User Interface
+<img width="1536" height="1024" alt="interface" src="https://github.com/user-attachments/assets/52597acb-4994-4434-98c3-3390e409f7d4" />
 
 Our goal was to make playing as enjoyable as story creation. The Gradio-based builder lets you specify the setting, main character, and genre of your future story. After clicking "Start Game," the user instantly immerses themselves in the narrative: text, background illustrations, interactive action choices, and dynamic music.
 
