@@ -7,6 +7,7 @@ authors:
 ---
 
 # LLMGameHub: How We Won the Gradio Agents & MCP Hackathon 2025
+<img width="1300" height="650" alt="thumbnail" src="https://github.com/user-attachments/assets/b209dca3-9bd5-4ab1-9f17-1452dff10223" />
 
 *Create. Play. Imagine.*
 
@@ -23,6 +24,7 @@ LLMGameHub is a playground for generative adventures. You describe a world, choo
 Each session lasts around five minutes, featuring several choices, interactive forks, and an ending.
 
 ## 🚀 How Does it Work?
+<img width="1536" height="1024" alt="f70fa09a-9ee9-4861-9eb7-ac13cfe7b870" src="https://github.com/user-attachments/assets/db78a779-47d4-41b9-8afa-11865c0a8b69" />
 
 At the core of LLMGameHub is a set of specialized agents, each responsible for a particular aspect of the game:
 
