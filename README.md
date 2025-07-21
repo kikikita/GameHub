@@ -71,7 +71,7 @@ We also prioritized content safety, implementing prompt checks to eliminate any 
 
 ## What’s Next?
 
-We've already published the project on [Hugging Face Spaces](https://huggingface.co/spaces/Agents-MCP-Hackathon/LLMGameHub) and continue its development by adding new genres and improving music generation. A demo of the project is available [here](https://youtu.be/pQfP9lA1QUM).
+We've already published the project on [Hugging Face Spaces](https://huggingface.co/spaces/Agents-MCP-Hackathon/LLMGameHub) and continue its development by adding new genres and improving music generation. A demo of the project is available on [youtube](https://youtu.be/pQfP9lA1QUM).
 
 ## Conclusion
 
