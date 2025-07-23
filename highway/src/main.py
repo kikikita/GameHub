@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from src.config import settings
 from src.routes.gradio_proxy import gradio_router
 from src.routes.auth import auth_router
+from src.api.auth.router import router as api_router
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,6 +27,7 @@ app.add_middleware(
 
 app.include_router(gradio_router)
 app.include_router(auth_router)
+app.include_router(api_router)
 
 @app.get("/")
 def read_root():
