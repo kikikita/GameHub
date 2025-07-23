@@ -23,5 +23,6 @@ class AppSettings(BaseAppSettings):
     tg_bot_token: SecretStr
     debug_mode: bool = False
     gradio_app_url: str
+    database_url: str
 
 settings = AppSettings()
