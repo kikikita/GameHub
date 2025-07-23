@@ -15,7 +15,6 @@ from game_constructor import (
     load_character_suggestion,
     start_game_with_settings,
 )
-from app_description import app_description
 
 CONCURRENCY_LIMIT = 10000
 
@@ -148,9 +147,6 @@ with gr.Blocks(
     with gr.Column(
         visible=True, elem_id="constructor-interface", elem_classes=["constructor-page"]
     ) as constructor_interface:
-        with gr.Row():
-            app_description()
-
         with gr.Row():
             error_message = gr.Textbox(
                 label="⚠️ Error",
@@ -357,7 +353,6 @@ with gr.Blocks(
         outputs=[game_text, game_image, game_choices, custom_choice],
     )
 
-    demo.unload(cleanup_music_session)
     demo.load(
         fn=generate_user_hash,
         inputs=[],

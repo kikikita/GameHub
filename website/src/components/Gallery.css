@@ -1,0 +1,36 @@
+.gallery {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: #ffffff;
+}
+
+.gallery h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.gallery-description {
+  max-width: 600px;
+  margin: 0 auto 40px;
+  color: #666;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gallery-item {
+  overflow: hidden;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+} 

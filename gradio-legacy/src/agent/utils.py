@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import Awaitable, Callable, TypeVar
 
-from src.config import settings
+from config import settings
 
 logger = logging.getLogger(__name__)
 

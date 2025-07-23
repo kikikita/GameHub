@@ -1,9 +1,6 @@
 """Utility functions for working with the language model."""
-
-import asyncio
 import logging
 
-from google.api_core.exceptions import DeadlineExceeded
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from config import settings
@@ -12,7 +9,7 @@ from services.google import ApiKeyPool
 logger = logging.getLogger(__name__)
 
 _pool = ApiKeyPool()
-MODEL_NAME = "gemini-2.5-flash-preview-05-20"
+MODEL_NAME = "gemini-2.5-flash"
 
 
 def _get_api_key() -> str:

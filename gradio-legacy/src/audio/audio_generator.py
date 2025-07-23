@@ -1,16 +1,13 @@
 import asyncio
 from google.genai import types
 import wave
-import queue
 import logging
 import io
+import gradio as gr
 from config import settings
 from services.google import GoogleClientFactory
 
 logger = logging.getLogger(__name__)
-
-
-
 
 async def generate_music(user_hash: str, music_tone: str, receive_audio):
     if user_hash in sessions:
@@ -102,43 +99,61 @@ async def cleanup_music_session(user_hash: str):
 
 
 async def update_audio(user_hash: str):
-    """Continuously stream audio from the queue as WAV bytes."""
+    """
+    Continuously stream audio from the queue as WAV bytes, and clean up
+    when the user disconnects.
+    """
     if user_hash == "":
         return
 
     logger.info(f"Starting audio update loop for user hash: {user_hash}")
-    while True:
-        if user_hash not in sessions:
-            await asyncio.sleep(0.5)
-            continue
-        queue = sessions[user_hash]["queue"]
-        pcm_data = await queue.get()  # This is raw PCM audio bytes
+    try:
+        while True:
+            if user_hash not in sessions:
+                await asyncio.sleep(0.5)
+                continue
 
-        if not isinstance(pcm_data, bytes):
-            logger.warning(
-                f"Expected bytes from audio_queue, got {type(pcm_data)}. Skipping."
-            )
-            continue
+            try:
+                queue = sessions[user_hash]["queue"]
+                pcm_data = await asyncio.wait_for(queue.get(), timeout=1.0)
+            except asyncio.TimeoutError:
+                continue  # Check for disconnect again
+            except (KeyError, AttributeError):
+                logger.warning(
+                    f"Session or queue for {user_hash} not found. Stopping audio loop."
+                )
+                break
 
-        # Lyria provides stereo, 16-bit PCM at 48kHz.
-        # Ensure the number of bytes is consistent with stereo 16-bit audio.
-        # Each frame = NUM_CHANNELS * SAMPLE_WIDTH bytes.
-        # If len(pcm_data) is not a multiple of (NUM_CHANNELS * SAMPLE_WIDTH),
-        # it might indicate an incomplete chunk or an issue.
-        bytes_per_frame = NUM_CHANNELS * SAMPLE_WIDTH
-        if len(pcm_data) % bytes_per_frame != 0:
-            logger.warning(
-                f"Received PCM data with length {len(pcm_data)}, which is not a multiple of "
-                f"bytes_per_frame ({bytes_per_frame}). This might cause issues with WAV formatting."
-            )
-            # Depending on strictness, you might want to skip this chunk:
-            # continue
+            if not isinstance(pcm_data, bytes):
+                logger.warning(
+                    f"Expected bytes from audio_queue, got {type(pcm_data)}. Skipping."
+                )
+                continue
 
-        wav_buffer = io.BytesIO()
-        with wave.open(wav_buffer, "wb") as wf:
-            wf.setnchannels(NUM_CHANNELS)
-            wf.setsampwidth(SAMPLE_WIDTH)  # Corresponds to 16-bit audio
-            wf.setframerate(SAMPLE_RATE)
-            wf.writeframes(pcm_data)
-        wav_bytes = wav_buffer.getvalue()
-        yield wav_bytes
+            # Lyria provides stereo, 16-bit PCM at 48kHz.
+            # Ensure the number of bytes is consistent with stereo 16-bit audio.
+            # Each frame = NUM_CHANNELS * SAMPLE_WIDTH bytes.
+            # If len(pcm_data) is not a multiple of (NUM_CHANNELS * SAMPLE_WIDTH),
+            # it might indicate an incomplete chunk or an issue.
+            bytes_per_frame = NUM_CHANNELS * SAMPLE_WIDTH
+            if len(pcm_data) % bytes_per_frame != 0:
+                logger.warning(
+                    f"Received PCM data with length {len(pcm_data)}, which is not a multiple of "
+                    f"bytes_per_frame ({bytes_per_frame}). This might cause issues with WAV formatting."
+                )
+                # Depending on strictness, you might want to skip this chunk:
+                # continue
+
+            wav_buffer = io.BytesIO()
+            with wave.open(wav_buffer, "wb") as wf:
+                wf.setnchannels(NUM_CHANNELS)
+                wf.setsampwidth(SAMPLE_WIDTH)  # Corresponds to 16-bit audio
+                wf.setframerate(SAMPLE_RATE)
+                wf.writeframes(pcm_data)
+            wav_bytes = wav_buffer.getvalue()
+            yield wav_bytes
+    finally:
+        logger.info(
+            f"Audio update loop finished for {user_hash}. Cleaning up music session."
+        )
+        await cleanup_music_session(user_hash)

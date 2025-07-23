@@ -1,0 +1,15 @@
+services:
+  highway:
+    build:
+      context: ./highway
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8000"
+      - "8678:5678"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
