@@ -12,6 +12,8 @@ COPY poetry.lock pyproject.toml ./
 
 # Install project dependencies
 RUN poetry install --no-root
+COPY ./alembic ./alembic
+COPY alembic.ini .
 
 # Copy .env file
 COPY ./.env ./.env
@@ -23,4 +25,4 @@ COPY ./src ./src
 EXPOSE 8000
 
 # Command to run the application
-CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["bash", "-c", "alembic upgrade head && poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000"]
