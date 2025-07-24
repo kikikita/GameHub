@@ -19,7 +19,7 @@ class GameSession(Base):
     share_code: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4)
 
     user: Mapped["User"] = relationship(back_populates="sessions")
-    template: Mapped["GameTemplate" | None] = relationship(back_populates="sessions")
+    template: Mapped["GameTemplate | None"] = relationship(back_populates="sessions")
     scenes: Mapped[list["Scene"]] = relationship(back_populates="session")
 
     def __repr__(self) -> str:
