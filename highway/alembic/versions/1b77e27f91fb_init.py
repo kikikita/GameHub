@@ -23,8 +23,8 @@ def upgrade() -> None:
     """Upgrade schema."""
     op.create_table(
         'users',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False),
-        sa.Column('tg_id', sa.Text(), nullable=False),
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('tg_id', sa.BigInteger(), nullable=False),
         sa.Column('username', sa.Text(), nullable=True),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.text('true')),
@@ -34,7 +34,7 @@ def upgrade() -> None:
     op.create_table(
         'game_templates',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('users.id'), nullable=False),
         sa.Column('setting_desc', sa.Text(), nullable=True),
         sa.Column('char_name', sa.Text(), nullable=True),
         sa.Column('char_age', sa.Text(), nullable=True),
@@ -48,7 +48,7 @@ def upgrade() -> None:
     op.create_table(
         'game_sessions',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('users.id'), nullable=False),
         sa.Column('template_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('game_templates.id'), nullable=True),
         sa.Column('started_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('ended_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -76,7 +76,7 @@ def upgrade() -> None:
     op.create_table(
         'subscriptions',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('users.id'), nullable=False),
         sa.Column('plan', sa.Text(), nullable=True),
         sa.Column('started_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('expires_at', sa.TIMESTAMP(timezone=True), nullable=True),
