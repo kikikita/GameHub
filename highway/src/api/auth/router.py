@@ -9,17 +9,20 @@ import json
 
 router = APIRouter(prefix="/api/v1")
 
+
 class RegisterIn(BaseModel):
-    tg_id: str
+    tg_id: int
     username: str | None = None
 
+
 class UserOut(BaseModel):
-    id: str
-    tg_id: str
+    id: int
+    tg_id: int
     username: str | None = None
 
     class Config:
         from_attributes = True
+
 
 @router.post("/auth/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 async def register_user(payload: RegisterIn, session: AsyncSession = Depends(get_session)):
@@ -31,6 +34,7 @@ async def register_user(payload: RegisterIn, session: AsyncSession = Depends(get
     await session.commit()
     await session.refresh(user)
     return user
+
 
 @router.get("/users/me", response_model=UserOut)
 async def get_me(user_data: dict = Depends(authenticated_user), session: AsyncSession = Depends(get_session)):

@@ -25,4 +25,5 @@ class AppSettings(BaseAppSettings):
     gradio_app_url: str
     database_url: str
 
+
 settings = AppSettings()

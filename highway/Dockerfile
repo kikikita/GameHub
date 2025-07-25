@@ -8,21 +8,20 @@ WORKDIR /app
 RUN pip install poetry
 
 # Copy the dependency files
-COPY poetry.lock pyproject.toml ./
+COPY highway/poetry.lock highway/pyproject.toml ./
 
 # Install project dependencies
 RUN poetry install --no-root
-COPY ./alembic ./alembic
-COPY alembic.ini .
 
-# Copy .env file
-COPY ./.env ./.env
+COPY highway/alembic ./alembic
+COPY highway/alembic.ini .
+COPY highway/src ./src
 
-# Copy the rest of the application code
-COPY ./src ./src
+# Copy .env file from the root
+COPY .env .env
 
 # Expose the port the app runs on
 EXPOSE 8000
 
 # Command to run the application
-CMD ["bash", "-c", "alembic upgrade head && poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000"]
+CMD ["bash", "-c", "poetry run alembic upgrade head && poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000"]

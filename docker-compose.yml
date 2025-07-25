@@ -1,12 +1,13 @@
 services:
   highway:
     build:
-      context: ./highway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: highway/Dockerfile
+    container_name: backend_imm
     depends_on:
       - postgres
-    environment:
-      DATABASE_URL: postgresql+asyncpg://immuser:immpass@postgres:5432/immersiadb
+    env_file:
+      - .env
     ports:
       - "8888:8000"
       - "8678:5678"
@@ -16,14 +17,15 @@ services:
 
   postgres:
     image: postgres:15
+    container_name: postgres_imm
     volumes:
       - pgdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: immersiadb
-      POSTGRES_USER: immuser
-      POSTGRES_PASSWORD: immpass
+    env_file:
+      - .env
     networks:
       - app-network
+    ports:
+      - "5432:5432"
     restart: unless-stopped
 
 networks:

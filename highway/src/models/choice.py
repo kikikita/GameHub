@@ -20,4 +20,3 @@ class Choice(Base):
 
     def __repr__(self) -> str:
         return f"Choice(id={self.id}, scene_id={self.scene_id})"
-

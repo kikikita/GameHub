@@ -27,4 +27,3 @@ class GameTemplate(Base):
 
     def __repr__(self) -> str:
         return f"GameTemplate(id={self.id}, user_id={self.user_id})"
-

@@ -22,4 +22,3 @@ class Subscription(Base):
 
     def __repr__(self) -> str:
         return f"Subscription(id={self.id}, user_id={self.user_id}, plan={self.plan})"
-

@@ -23,4 +23,3 @@ class Scene(Base):
 
     def __repr__(self) -> str:
         return f"Scene(id={self.id}, session_id={self.session_id}, order_num={self.order_num})"
-
