@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, TIMESTAMP, Text, ForeignKey
+from sqlalchemy import Boolean, TIMESTAMP, Text, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,7 +12,7 @@ class GameTemplate(Base):
     __tablename__ = "game_templates"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     setting_desc: Mapped[str | None] = mapped_column(Text, nullable=True)
     char_name: Mapped[str | None] = mapped_column(Text, nullable=True)
     char_age: Mapped[str | None] = mapped_column(Text, nullable=True)
