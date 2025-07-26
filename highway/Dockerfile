@@ -16,6 +16,8 @@ RUN poetry install --no-root
 COPY highway/alembic ./alembic
 COPY highway/alembic.ini .
 COPY highway/src ./src
+# Include images for scene generation
+COPY highway/images ./images
 
 # Copy .env file from the root
 COPY .env .env
