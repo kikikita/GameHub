@@ -7,6 +7,11 @@ from settings import settings
 from filters.chat_filters import AdminFilter
 from handlers.basic import user_headers
 
+
+def _get_headers(uid: int) -> dict | None:
+    """Return auth headers for a user or None if not registered."""
+    return user_headers.get(uid)
+
 templates_store = {}
 sessions_store = {}
 
@@ -42,6 +47,10 @@ async def health_command(message: Message):
 
 @router.message(AdminFilter(), Command("create_template"))
 async def create_template_cmd(message: Message):
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     url = f"{settings.bots.app_url}/api/v1/templates"
     payload = {
         "setting_desc": "Test world",
@@ -51,7 +60,7 @@ async def create_template_cmd(message: Message):
         "char_personality": "Personality",
         "genre": "Adventure",
     }
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.post(url, json=payload)
     if resp.status_code == 201:
         templates_store[message.from_user.id] = resp.json()["id"]
@@ -60,17 +69,25 @@ async def create_template_cmd(message: Message):
 
 @router.message(AdminFilter(), Command("list_templates"))
 async def list_templates_cmd(message: Message):
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     url = f"{settings.bots.app_url}/api/v1/templates"
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.get(url)
     await message.answer(str(resp.json()))
 
 
 @router.message(AdminFilter(), Command("start_session"))
 async def start_session_cmd(message: Message):
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     template_id = templates_store.get(message.from_user.id)
     url = f"{settings.bots.app_url}/api/v1/sessions"
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.post(url, json={"template_id": template_id})
     if resp.status_code == 201:
         sessions_store[message.from_user.id] = resp.json()["id"]
@@ -83,8 +100,12 @@ async def make_choice_cmd(message: Message):
     if not session_id:
         await message.answer("Нет активной сессии")
         return
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     url = f"{settings.bots.app_url}/api/v1/sessions/{session_id}/choice"
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.post(url, json={"choice_text": "test choice"})
     await message.answer(str(resp.json()))
 
@@ -95,31 +116,47 @@ async def history_cmd(message: Message):
     if not session_id:
         await message.answer("Нет активной сессии")
         return
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     url = f"{settings.bots.app_url}/api/v1/sessions/{session_id}/history"
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.get(url)
     await message.answer(str(resp.json()))
 
 
 @router.message(AdminFilter(), Command("plans"))
 async def plans_cmd(message: Message):
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     url = f"{settings.bots.app_url}/api/v1/plans"
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.get(url)
     await message.answer(str(resp.json()))
 
 
 @router.message(AdminFilter(), Command("subscribe"))
 async def subscribe_cmd(message: Message):
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     url = f"{settings.bots.app_url}/api/v1/subscribe"
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.post(url)
     await message.answer(str(resp.json()))
 
 
 @router.message(AdminFilter(), Command("status"))
 async def status_cmd(message: Message):
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
     url = f"{settings.bots.app_url}/api/v1/subscription/status"
-    async with httpx.AsyncClient(timeout=5.0, headers=user_headers.get(message.from_user.id)) as client:
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.get(url)
     await message.answer(str(resp.json()))
