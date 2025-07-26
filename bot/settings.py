@@ -28,7 +28,7 @@ def get_settings(path: str):
         bots=Bots(
             bot_token=env.str("TG_BOT_TOKEN"),
             admin_id=env.int("ADMIN_ID"),
-            app_url=env.str("APP_URL", "http://app:8000"),
+            app_url=env.str("APP_URL", "http://highway:8000"),
             debug=env.bool("DEBUG", False)
         ),
     )

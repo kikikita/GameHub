@@ -23,7 +23,7 @@ services:
     environment:
       - TG_BOT_TOKEN=${TG_BOT_TOKEN}
       - ADMIN_ID=${ADMIN_ID}
-      - APP_URL=http://app:8000
+      - APP_URL=http://highway:8000
       - API_KEY=SECRET_TOKEN
     ports:
       - "25678:5678"
