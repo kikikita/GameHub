@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
 from src.models.subscription import Subscription
-import json
-import uuid
+from src.api.utils import resolve_user_id
 
 router = APIRouter(prefix="/api/v1", tags=["payments"])
 
@@ -20,7 +19,7 @@ async def plans():
 
 @router.post("/subscribe")
 async def subscribe(plan: str = "pro", user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
+    user_id = await resolve_user_id(db, user_data)
     sub = Subscription(user_id=user_id, plan=plan, status="pending")
     db.add(sub)
     await db.commit()
@@ -30,7 +29,7 @@ async def subscribe(plan: str = "pro", user_data: dict = Depends(authenticated_u
 
 @router.get("/subscription/status")
 async def subscription_status(user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
+    user_id = await resolve_user_id(db, user_data)
     res = await db.execute(select(Subscription).where(Subscription.user_id == user_id).order_by(Subscription.started_at.desc()))
     sub = res.scalars().first()
     if not sub:

@@ -7,7 +7,7 @@ from src.models.scene import Scene
 from src.models.game_session import GameSession
 from .schemas import SceneCreate, SceneOut
 from .scene_service import create_and_store_scene
-import json
+from src.api.utils import resolve_user_id
 import uuid
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["scenes"])
@@ -20,7 +20,8 @@ async def generate_scene(id: str, payload: SceneCreate | None = None, user_data:
     res = await db.get(GameSession, sid)
     if not res:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    if str(res.user_id) != str(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id")):
+    user_id = await resolve_user_id(db, user_data)
+    if res.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     scene = await create_and_store_scene(db, sid, payload.choice_text if payload else None)
     return SceneOut(id=str(scene.id), description=scene.description, image_url=scene.image_path, choices_json=scene.generated_choices)
