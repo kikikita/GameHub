@@ -16,13 +16,13 @@ router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
 
 @router.post("", response_model=SessionOut, status_code=status.HTTP_201_CREATED)
 async def create_session(payload: SessionCreate, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = uuid.UUID(str(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id")))
+    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
     template_id = uuid.UUID(payload.template_id) if payload.template_id else None
     session_obj = GameSession(user_id=user_id, template_id=template_id)
     db.add(session_obj)
     await db.commit()
     await db.refresh(session_obj)
-    return session_obj
+    return SessionOut(id=str(session_obj.id), started_at=session_obj.started_at, share_code=str(session_obj.share_code))
 
 
 @router.get("/{id}", response_model=SceneOut | None)
