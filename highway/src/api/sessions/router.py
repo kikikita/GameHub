@@ -7,8 +7,8 @@ from src.models.game_session import GameSession
 from src.models.scene import Scene
 from .schemas import SessionCreate, SessionOut
 from src.api.scenes.schemas import SceneOut
+from src.api.utils import resolve_user_id
 import uuid
-import json
 import os
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
 
 @router.post("", response_model=SessionOut, status_code=status.HTTP_201_CREATED)
 async def create_session(payload: SessionCreate, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
+    user_id = await resolve_user_id(db, user_data)
     template_id = uuid.UUID(payload.template_id) if payload.template_id else None
     session_obj = GameSession(user_id=user_id, template_id=template_id)
     db.add(session_obj)

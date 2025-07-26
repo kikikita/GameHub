@@ -2,8 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
-import json
-import uuid
 from .schemas import TemplateCreate, TemplateOut, TemplateShareOut
 from .template_service import (
     create_template,
@@ -12,13 +10,15 @@ from .template_service import (
     list_templates,
     share_template,
 )
+from src.api.utils import resolve_user_id
+import uuid
 
 router = APIRouter(prefix="/api/v1/templates", tags=["templates"])
 
 
 @router.post("", response_model=TemplateOut, status_code=status.HTTP_201_CREATED)
 async def create_my_template(payload: TemplateCreate, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
+    user_id = await resolve_user_id(db, user_data)
     template = await create_template(db, user_id, payload.model_dump())
     return TemplateOut(
         id=str(template.id),
@@ -35,7 +35,7 @@ async def create_my_template(payload: TemplateCreate, user_data: dict = Depends(
 
 @router.get("", response_model=list[TemplateOut])
 async def list_my_templates(user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
+    user_id = await resolve_user_id(db, user_data)
     templates = await list_templates(db, user_id)
     return [
         TemplateOut(
@@ -55,7 +55,7 @@ async def list_my_templates(user_data: dict = Depends(authenticated_user), db: A
 
 @router.get("/{template_id}", response_model=TemplateOut)
 async def read_template(template_id: str, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
+    user_id = await resolve_user_id(db, user_data)
     template = await get_template(db, user_id, uuid.UUID(template_id))
     if not template:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -74,7 +74,7 @@ async def read_template(template_id: str, user_data: dict = Depends(authenticate
 
 @router.post("/{template_id}/share", response_model=TemplateShareOut)
 async def share_my_template(template_id: str, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
-    user_id = int(user_data.get("user_id") or user_data.get("id") or json.loads(user_data.get("user", "{}")).get("id"))
+    user_id = await resolve_user_id(db, user_data)
     template = await share_template(db, user_id, uuid.UUID(template_id))
     if not template:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
