@@ -19,7 +19,7 @@ services:
     build:
       context: ./bot
       dockerfile: Dockerfile
-    container_name: bot_ra
+    container_name: bot_imm
     environment:
       - TG_BOT_TOKEN=${TG_BOT_TOKEN}
       - ADMIN_ID=${ADMIN_ID}
@@ -32,7 +32,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - app
+      - highway
     restart: unless-stopped
 
   postgres:

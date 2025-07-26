@@ -4,7 +4,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from keyboards.reply import get_main_kb, remove_kb
+from keyboards.reply import remove_kb
 from settings import settings
 import time
 import hmac
@@ -41,7 +41,7 @@ async def start_command(message: Message):
     user_headers[message.from_user.id] = {"Authorization": f"tma {init_data}"}
 
     welcome = f"👋 Hi, <b>{message.from_user.first_name}</b>!"
-    await message.answer(welcome, parse_mode=ParseMode.HTML, reply_markup=get_main_kb())
+    await message.answer(welcome, parse_mode=ParseMode.HTML)
 
 
 @router.message(Command(commands=["help"]))

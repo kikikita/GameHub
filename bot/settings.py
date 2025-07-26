@@ -16,19 +16,8 @@ class Bots:
 
 
 @dataclass
-class LLM:
-    provider: str
-    model: str
-    temperature: float
-    top_p: float
-    openai_api_key: str
-    google_api_key: str
-
-
-@dataclass
 class Settings:
     bots: Bots
-    llm: LLM
 
 
 def get_settings(path: str):

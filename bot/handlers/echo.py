@@ -2,7 +2,6 @@ from aiogram import Router, F
 from aiogram.enums import ParseMode
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from keyboards.inline import consent_kb
 from settings import settings
 
 router = Router()
