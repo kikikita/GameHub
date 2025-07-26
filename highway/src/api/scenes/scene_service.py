@@ -12,7 +12,9 @@ async def create_and_store_scene(db: AsyncSession, session_id: uuid.UUID, choice
     max_order = res.scalar_one()
     order_num = 1 if max_order is None else max_order + 1
     images_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "..", "images")
-    image_files = [f for f in os.listdir(images_dir) if f.lower().endswith((".jpg", ".png"))]
+    image_files: list[str] = []
+    if os.path.isdir(images_dir):
+        image_files = [f for f in os.listdir(images_dir) if f.lower().endswith((".jpg", ".png"))]
     image_path = None
     if image_files:
         image_path = os.path.join("images", random.choice(image_files))
