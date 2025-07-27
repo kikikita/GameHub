@@ -1,3 +1,5 @@
+"""Subscription model representing user payments."""
+
 import uuid
 from datetime import datetime
 
@@ -9,16 +11,29 @@ from . import Base
 
 
 class Subscription(Base):
+    """Stores information about active or past user subscriptions."""
+
     __tablename__ = "subscriptions"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     plan: Mapped[str | None] = mapped_column(Text, nullable=True)
-    started_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.utcnow)
-    expires_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
+    started_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        default=datetime.utcnow,
+    )
+    expires_at: Mapped[datetime | None] = mapped_column(
+        TIMESTAMP(timezone=True),
+        nullable=True,
+    )
     status: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="subscriptions")
 
     def __repr__(self) -> str:
-        return f"Subscription(id={self.id}, user_id={self.user_id}, plan={self.plan})"
+        return (
+            f"Subscription(id={self.id}, user_id={self.user_id}, "
+            f"plan={self.plan})"
+        )
