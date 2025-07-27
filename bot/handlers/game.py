@@ -63,6 +63,7 @@ async def _send_scene(
     session_id: str,
     state: FSMContext,
 ):
+    """Send scene description and handle next choice state."""
     text = scene.get("description") or ""
     choices = []
     if scene.get("choices_json"):
@@ -95,11 +96,15 @@ async def _send_scene(
 
 
 def _get_headers(uid: int) -> dict | None:
+    """Return auth headers for a user or ``None`` if missing."""
+
     return user_headers.get(uid)
 
 
 @router.message(Command("play"))
 async def play_cmd(message: Message, state: FSMContext):
+    """Begin game setup by sending initial template."""
+
     data = DEFAULT_TEMPLATE.copy()
     txt = _build_setup_text(data)
     kb = setup_keyboard()
@@ -110,6 +115,8 @@ async def play_cmd(message: Message, state: FSMContext):
 
 @router.callback_query(F.data.startswith("edit:"))
 async def edit_field(call: CallbackQuery, state: FSMContext):
+    """Prompt the user to edit a template field."""
+
     field = call.data.split(":", 1)[1]
     prompts = {
         "setting_desc": "Введите описание сеттинга",
@@ -119,7 +126,10 @@ async def edit_field(call: CallbackQuery, state: FSMContext):
         "char_personality": "Введите характер персонажа",
         "genre": "Введите жанр",
     }
-    msg = await call.message.answer(prompts[field], reply_markup=cancel_keyboard())
+    msg = await call.message.answer(
+        prompts[field],
+        reply_markup=cancel_keyboard(),
+    )
     await state.update_data(edit_field=field, prompt_id=msg.message_id)
     await state.set_state(GameSetup.waiting_input)
     await call.answer()
@@ -127,6 +137,8 @@ async def edit_field(call: CallbackQuery, state: FSMContext):
 
 @router.callback_query(GameSetup.waiting_input, F.data == "cancel")
 async def cancel_input(call: CallbackQuery, state: FSMContext):
+    """Cancel input and reset state."""
+
     await call.message.delete()
     await state.set_state(None)
     await call.answer()
@@ -134,6 +146,8 @@ async def cancel_input(call: CallbackQuery, state: FSMContext):
 
 @router.message(GameSetup.waiting_input)
 async def receive_input(message: Message, state: FSMContext):
+    """Process user input and update the template."""
+
     data = await state.get_data()
     field = data.get("edit_field")
     template = data.get("template", {})
@@ -160,6 +174,8 @@ async def receive_input(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "start_game")
 async def start_game(call: CallbackQuery, state: FSMContext):
+    """Create template and start a new game session."""
+
     data = await state.get_data()
     template = data.get("template") or DEFAULT_TEMPLATE.copy()
 
@@ -212,6 +228,8 @@ async def start_game(call: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("choice:"))
 async def make_choice(call: CallbackQuery, state: FSMContext):
+    """Handle choice selection via inline button."""
+
     choice = call.data.split(":", 1)[1]
     data = await state.get_data()
     session_id = data.get("session_id")
@@ -262,6 +280,8 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
 
 @router.message(GamePlay.waiting_choice)
 async def choice_text(message: Message, state: FSMContext):
+    """Handle text choice input during gameplay."""
+
     choice = message.text
     data = await state.get_data()
     session_id = data.get("session_id")
@@ -309,6 +329,8 @@ async def choice_text(message: Message, state: FSMContext):
 
 @router.message(Command("my_games"))
 async def my_games_cmd(message: Message):
+    """Show list of active games."""
+
     games = active_sessions.get(message.from_user.id)
     if not games:
         await message.answer("Нет активных игр")
@@ -319,6 +341,8 @@ async def my_games_cmd(message: Message):
 
 @router.callback_query(F.data.startswith("resume:"))
 async def resume_game(call: CallbackQuery, state: FSMContext):
+    """Resume a selected game session."""
+
     session_id = call.data.split(":", 1)[1]
     headers = _get_headers(call.from_user.id)
     if not headers:
@@ -340,6 +364,8 @@ async def resume_game(call: CallbackQuery, state: FSMContext):
 
 @router.message(Command("end_game"))
 async def end_game_cmd(message: Message, state: FSMContext):
+    """Finish current game session and clean up state."""
+
     data = await state.get_data()
     session_id = data.get("session_id")
     if not session_id:
@@ -367,4 +393,3 @@ async def end_game_cmd(message: Message, state: FSMContext):
             pass
     await state.clear()
     await message.answer("Сессия завершена")
-
