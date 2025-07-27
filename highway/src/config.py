@@ -22,7 +22,6 @@ class BaseAppSettings(BaseSettings):
 class AppSettings(BaseAppSettings):
     tg_bot_token: SecretStr
     debug_mode: bool = False
-    gradio_app_url: str
     database_url: str
     gemini_api_keys: SecretStr | None = None
     redis_url: str = "redis://localhost"
