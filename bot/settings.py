@@ -16,6 +16,8 @@ logging.basicConfig(
 
 @dataclass
 class Bots:
+    """Telegram bot settings."""
+
     bot_token: str
     admin_id: int
     app_url: str
@@ -24,6 +26,8 @@ class Bots:
 
 @dataclass
 class Settings:
+    """Application settings container."""
+
     bots: Bots
 
 

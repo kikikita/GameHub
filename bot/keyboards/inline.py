@@ -1,3 +1,5 @@
+"""Inline keyboards used in game interactions."""
+
 from typing import Iterable
 
 from aiogram.types import InlineKeyboardMarkup
@@ -5,6 +7,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 def example_keyboard() -> InlineKeyboardMarkup:
+    """Return a demo inline keyboard used for tests."""
+
     kb = InlineKeyboardBuilder()
     kb.button(text="✅ Button1", callback_data="example:Button1")
     kb.button(text="❌ Button2", callback_data="example:Button2")
@@ -27,6 +31,8 @@ def setup_keyboard() -> InlineKeyboardMarkup:
 
 
 def cancel_keyboard() -> InlineKeyboardMarkup:
+    """Keyboard with a single cancel button."""
+
     kb = InlineKeyboardBuilder()
     kb.button(text="Отмена", callback_data="cancel")
     kb.adjust(1)
@@ -34,6 +40,8 @@ def cancel_keyboard() -> InlineKeyboardMarkup:
 
 
 def choices_keyboard(choices: Iterable[str]) -> InlineKeyboardMarkup:
+    """Keyboard with a list of choices."""
+
     kb = InlineKeyboardBuilder()
     for choice in choices:
         kb.button(text=choice, callback_data=f"choice:{choice}")
@@ -42,6 +50,8 @@ def choices_keyboard(choices: Iterable[str]) -> InlineKeyboardMarkup:
 
 
 def games_keyboard(games: Iterable[dict]) -> InlineKeyboardMarkup:
+    """Keyboard to resume active games."""
+
     kb = InlineKeyboardBuilder()
     for game in games:
         title = game.get("title") or str(game.get("id"))

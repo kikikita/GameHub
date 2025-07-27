@@ -1,8 +1,12 @@
+"""Utility for configuring default bot commands."""
+
 from aiogram import Bot
 from aiogram.types import BotCommand, BotCommandScopeDefault
 
 
-async def set_commands(bot: Bot):
+async def set_commands(bot: Bot) -> None:
+    """Register default commands for the bot."""
+
     commands = [
         BotCommand(command="start", description="Register user"),
         BotCommand(command="play", description="Create and play game"),
