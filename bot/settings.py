@@ -1,10 +1,17 @@
-from environs import Env
-from dataclasses import dataclass
-import logging
+"""Configuration loader for the bot."""
 
-logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s - [%(levelname)s] - %(name)s - "
-                        "(%(filename)s).%(funcName)s(%(lineno)d) -%(message)s")
+import logging
+from dataclasses import dataclass
+
+from environs import Env
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=(
+        "%(asctime)s - [%(levelname)s] - %(name)s - "
+        "(%(filename)s).%(funcName)s(%(lineno)d) -%(message)s"
+    ),
+)
 
 
 @dataclass
@@ -20,7 +27,9 @@ class Settings:
     bots: Bots
 
 
-def get_settings(path: str):
+def get_settings(path: str) -> Settings:
+    """Load settings from a .env file."""
+
     env = Env()
     env.read_env(path)
 
@@ -34,5 +43,4 @@ def get_settings(path: str):
     )
 
 
-settings = get_settings('.env')
-print(settings)
+settings = get_settings(".env")

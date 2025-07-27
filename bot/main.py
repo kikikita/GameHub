@@ -1,29 +1,34 @@
-from aiogram import Bot, Dispatcher
-from settings import settings
-from handlers import (
-    admin,
-    basic,
-    echo,
-    game
-)
+"""Telegram bot entry point."""
+
 import asyncio
 import logging
-from utils.commands import set_commands
+
+from aiogram import Bot, Dispatcher
+
+from handlers import admin, basic, echo, game
 from middlewares.typing import TypingMiddleware
+from settings import settings
+from utils.commands import set_commands
 
 logger = logging.getLogger(__name__)
 
 
 async def start_bot(bot: Bot):
+    """Notify admin that the bot has started."""
+
     await set_commands(bot)
-    await bot.send_message(settings.bots.admin_id, text='Bot started!')
+    await bot.send_message(settings.bots.admin_id, text="Bot started!")
 
 
 async def stop_bot(bot: Bot):
-    await bot.send_message(settings.bots.admin_id, text='Bot stopped!')
+    """Notify admin that the bot has stopped."""
+
+    await bot.send_message(settings.bots.admin_id, text="Bot stopped!")
 
 
 async def start():
+    """Initialize and start polling."""
+
     bot = Bot(token=settings.bots.bot_token)
     dp = Dispatcher()
 
