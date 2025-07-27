@@ -63,12 +63,3 @@ class GoogleClientFactory:
         finally:
             pass
 
-    @classmethod
-    @asynccontextmanager
-    async def audio(cls):
-        key = await cls._pool.get_key()
-        client = genai.Client(api_key=key, http_options={"api_version": "v1alpha"})
-        try:
-            yield client.aio
-        finally:
-            pass

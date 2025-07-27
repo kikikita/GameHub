@@ -1,7 +1,6 @@
 """Endpoints related to gameplay sessions."""
 
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, status
-import asyncio
+from fastapi import APIRouter, Depends, HTTPException, status
 import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +10,6 @@ from src.core.database import get_session
 from src.models.game_session import GameSession
 from src.models.scene import Scene
 from src.models.game_template import GameTemplate
-from src.game.audio.audio_generator import start_music_generation, update_audio
 from src.config import settings
 from src.api.scenes.scene_service import create_and_store_scene
 from .schemas import SessionCreate, SessionOut
@@ -41,10 +39,6 @@ async def create_session(
     if template_id:
         tmpl = await db.get(GameTemplate, template_id)
         if tmpl:
-            if settings.gemini_api_keys:
-                asyncio.create_task(
-                    start_music_generation(str(session_obj.id), "neutral")
-                )
             await create_and_store_scene(db, session_obj, None)
 
     return SessionOut(
@@ -98,13 +92,3 @@ async def delete_session(
     await db.commit()
 
 
-@router.websocket("/{session_id}/audio")
-async def audio_stream(ws: WebSocket, session_id: str) -> None:
-    """Stream generated audio chunks to the client via WebSocket."""
-
-    await ws.accept()
-    try:
-        async for chunk in update_audio(session_id):
-            await ws.send_bytes(chunk)
-    finally:
-        await ws.close()

@@ -18,6 +18,8 @@ from keyboards.inline import (
 )
 from utils.states import GameSetup, GamePlay
 
+http_client = httpx.AsyncClient(base_url=settings.bots.app_url)
+
 
 router = Router()
 
@@ -184,37 +186,42 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         await call.answer("Сначала выполните /start", show_alert=True)
         return
 
-    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
-        resp = await client.post(
-            f"{settings.bots.app_url}/api/v1/templates",
-            json={
-                "setting_desc": template.get("setting_desc"),
-                "char_name": template.get("char_name"),
-                "char_age": template.get("char_age"),
-                "char_background": template.get("char_background"),
-                "char_personality": template.get("char_personality"),
-                "genre": template.get("genre"),
-            },
-        )
-        if resp.status_code != 201:
-            await call.answer("Ошибка шаблона", show_alert=True)
-            return
-        tmpl_id = resp.json()["id"]
-        resp = await client.post(
-            f"{settings.bots.app_url}/api/v1/sessions",
-            json={"template_id": tmpl_id},
-        )
-        if resp.status_code != 201:
-            await call.answer("Ошибка сессии", show_alert=True)
-            return
-        session_id = resp.json()["id"]
-        resp = await client.get(
-            f"{settings.bots.app_url}/api/v1/sessions/{session_id}"
-        )
-        if resp.status_code != 200:
-            await call.answer("Ошибка сцены", show_alert=True)
-            return
-        scene = resp.json()
+    resp = await http_client.post(
+        "/api/v1/templates",
+        json={
+            "setting_desc": template.get("setting_desc"),
+            "char_name": template.get("char_name"),
+            "char_age": template.get("char_age"),
+            "char_background": template.get("char_background"),
+            "char_personality": template.get("char_personality"),
+            "genre": template.get("genre"),
+        },
+        headers=headers,
+        timeout=10.0,
+    )
+    if resp.status_code != 201:
+        await call.answer("Ошибка шаблона", show_alert=True)
+        return
+    tmpl_id = resp.json()["id"]
+    resp = await http_client.post(
+        "/api/v1/sessions",
+        json={"template_id": tmpl_id},
+        headers=headers,
+        timeout=10.0,
+    )
+    if resp.status_code != 201:
+        await call.answer("Ошибка сессии", show_alert=True)
+        return
+    session_id = resp.json()["id"]
+    resp = await http_client.get(
+        f"/api/v1/sessions/{session_id}",
+        headers=headers,
+        timeout=10.0,
+    )
+    if resp.status_code != 200:
+        await call.answer("Ошибка сцены", show_alert=True)
+        return
+    scene = resp.json()
 
     active_sessions.setdefault(call.from_user.id, []).append(
         {"id": session_id, "title": template.get("genre")}
@@ -241,15 +248,16 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
         await call.answer()
         return
 
-    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
-        resp = await client.post(
-            f"{settings.bots.app_url}/api/v1/sessions/{session_id}/choice",
-            json={"choice_text": choice},
-        )
-        if resp.status_code != 201:
-            await call.answer("Ошибка", show_alert=True)
-            return
-        scene = resp.json()
+    resp = await http_client.post(
+        f"/api/v1/sessions/{session_id}/choice",
+        json={"choice_text": choice},
+        headers=headers,
+        timeout=10.0,
+    )
+    if resp.status_code != 201:
+        await call.answer("Ошибка", show_alert=True)
+        return
+    scene = resp.json()
 
     await call.bot.edit_message_reply_markup(
         chat_id=call.message.chat.id,
@@ -292,14 +300,15 @@ async def choice_text(message: Message, state: FSMContext):
     await message.delete()
     if not session_id or not headers:
         return
-    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
-        resp = await client.post(
-            f"{settings.bots.app_url}/api/v1/sessions/{session_id}/choice",
-            json={"choice_text": choice},
-        )
-        if resp.status_code != 201:
-            return
-        scene = resp.json()
+    resp = await http_client.post(
+        f"/api/v1/sessions/{session_id}/choice",
+        json={"choice_text": choice},
+        headers=headers,
+        timeout=10.0,
+    )
+    if resp.status_code != 201:
+        return
+    scene = resp.json()
 
     await message.bot.edit_message_reply_markup(
         chat_id=message.chat.id,
@@ -352,14 +361,15 @@ async def resume_game(call: CallbackQuery, state: FSMContext):
     if not headers:
         await call.answer("Сначала выполните /start", show_alert=True)
         return
-    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
-        resp = await client.get(
-            f"{settings.bots.app_url}/api/v1/sessions/{session_id}"
-        )
-        if resp.status_code != 200:
-            await call.answer("Ошибка", show_alert=True)
-            return
-        scene = resp.json()
+    resp = await http_client.get(
+        f"/api/v1/sessions/{session_id}",
+        headers=headers,
+        timeout=10.0,
+    )
+    if resp.status_code != 200:
+        await call.answer("Ошибка", show_alert=True)
+        return
+    scene = resp.json()
 
     await call.message.delete()
     await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
@@ -377,10 +387,11 @@ async def end_game_cmd(message: Message, state: FSMContext):
         return
     headers = _get_headers(message.from_user.id)
     if headers:
-        async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-            await client.delete(
-                f"{settings.bots.app_url}/api/v1/sessions/{session_id}"
-            )
+        await http_client.delete(
+            f"/api/v1/sessions/{session_id}",
+            headers=headers,
+            timeout=5.0,
+        )
     for g in active_sessions.get(message.from_user.id, []):
         if g["id"] == session_id:
             active_sessions[message.from_user.id].remove(g)

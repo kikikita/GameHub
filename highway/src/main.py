@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
-from src.routes.gradio_proxy import gradio_router
 from src.routes.auth import auth_router
 from src.api.auth.router import router as api_router
 from src.api.templates.router import router as templates_router
@@ -33,7 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(gradio_router)
 app.include_router(auth_router)
 app.include_router(api_router)
 app.include_router(templates_router)
