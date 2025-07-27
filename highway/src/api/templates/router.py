@@ -1,5 +1,9 @@
+"""Routes for working with game templates."""
+
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
 from .schemas import TemplateCreate, TemplateOut, TemplateShareOut
@@ -11,13 +15,25 @@ from .template_service import (
     share_template,
 )
 from src.api.utils import resolve_user_id
-import uuid
 
-router = APIRouter(prefix="/api/v1/templates", tags=["templates"])
+router = APIRouter(
+    prefix="/api/v1/templates",
+    tags=["templates"],
+)
 
 
-@router.post("", response_model=TemplateOut, status_code=status.HTTP_201_CREATED)
-async def create_my_template(payload: TemplateCreate, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
+@router.post(
+    "",
+    response_model=TemplateOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_my_template(
+    payload: TemplateCreate,
+    user_data: dict = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
+) -> TemplateOut:
+    """Create a template for the authenticated user."""
+
     user_id = await resolve_user_id(db, user_data)
     template = await create_template(db, user_id, payload.model_dump())
     return TemplateOut(
@@ -34,7 +50,12 @@ async def create_my_template(payload: TemplateCreate, user_data: dict = Depends(
 
 
 @router.get("", response_model=list[TemplateOut])
-async def list_my_templates(user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
+async def list_my_templates(
+    user_data: dict = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
+) -> list[TemplateOut]:
+    """Return templates created by the current user."""
+
     user_id = await resolve_user_id(db, user_data)
     templates = await list_templates(db, user_id)
     return [
@@ -54,7 +75,13 @@ async def list_my_templates(user_data: dict = Depends(authenticated_user), db: A
 
 
 @router.get("/{template_id}", response_model=TemplateOut)
-async def read_template(template_id: str, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
+async def read_template(
+    template_id: str,
+    user_data: dict = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
+) -> TemplateOut:
+    """Fetch a template belonging to the current user."""
+
     user_id = await resolve_user_id(db, user_data)
     template = await get_template(db, user_id, uuid.UUID(template_id))
     if not template:
@@ -73,7 +100,13 @@ async def read_template(template_id: str, user_data: dict = Depends(authenticate
 
 
 @router.post("/{template_id}/share", response_model=TemplateShareOut)
-async def share_my_template(template_id: str, user_data: dict = Depends(authenticated_user), db: AsyncSession = Depends(get_session)):
+async def share_my_template(
+    template_id: str,
+    user_data: dict = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
+) -> TemplateShareOut:
+    """Make a template public and return a share code."""
+
     user_id = await resolve_user_id(db, user_data)
     template = await share_template(db, user_id, uuid.UUID(template_id))
     if not template:
@@ -82,7 +115,12 @@ async def share_my_template(template_id: str, user_data: dict = Depends(authenti
 
 
 @router.get("/shared/{code}", response_model=TemplateOut)
-async def get_shared(code: str, db: AsyncSession = Depends(get_session)):
+async def get_shared(
+    code: str,
+    db: AsyncSession = Depends(get_session),
+) -> TemplateOut:
+    """Retrieve a template by its public share code."""
+
     template = await get_shared_template(db, code)
     if not template:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
