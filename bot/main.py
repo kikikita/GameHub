@@ -3,7 +3,8 @@ from settings import settings
 from handlers import (
     admin,
     basic,
-    echo
+    echo,
+    game
 )
 import asyncio
 import logging
@@ -34,7 +35,8 @@ async def start():
     dp.include_routers(
         admin.router,
         basic.router,
-        echo.router
+        game.router,
+        echo.router,
     )
 
     try:

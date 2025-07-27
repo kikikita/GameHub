@@ -1,0 +1,337 @@
+"""Game interaction handlers."""
+
+from __future__ import annotations
+
+import httpx
+from aiogram import Router, F
+from aiogram.filters import Command
+from aiogram.types import Message, CallbackQuery
+from aiogram.fsm.context import FSMContext
+
+from settings import settings
+from .basic import user_headers
+from keyboards.inline import (
+    setup_keyboard,
+    cancel_keyboard,
+    choices_keyboard,
+    games_keyboard,
+)
+from utils.states import GameSetup, GamePlay
+
+
+router = Router()
+
+# In-memory store for active sessions
+active_sessions: dict[int, list[dict]] = {}
+
+
+def _build_setup_text(data: dict) -> str:
+    return (
+        "Для начала новой игры, укажите сеттинг, персонажа и жанр.\n"
+        f"Сеттинг: {data.get('setting') or '-'}\n"
+        f"Персонаж: {data.get('character') or '-'}\n"
+        f"Жанр: {data.get('genre') or '-'}"
+    )
+
+
+async def _send_scene(
+    chat_id: int,
+    bot,
+    scene: dict,
+    session_id: str,
+    state: FSMContext,
+):
+    text = scene.get("description") or ""
+    choices = []
+    if scene.get("choices_json"):
+        choices = scene["choices_json"].get("choices", [])
+    reply_kb = choices_keyboard(choices) if choices else None
+
+    is_photo = False
+    if scene.get("image_url"):
+        msg = await bot.send_photo(
+            chat_id, scene["image_url"], caption=text, reply_markup=reply_kb
+        )
+        is_photo = True
+    else:
+        msg = await bot.send_message(chat_id, text, reply_markup=reply_kb)
+
+    if choices:
+        await state.set_state(GamePlay.waiting_choice)
+        await state.update_data(
+            session_id=session_id,
+            last_scene_id=msg.message_id,
+            last_scene_text=text,
+            last_scene_photo=is_photo,
+        )
+    else:
+        await state.clear()
+        for g in active_sessions.get(chat_id, []):
+            if g["id"] == session_id:
+                active_sessions[chat_id].remove(g)
+                break
+
+
+def _get_headers(uid: int) -> dict | None:
+    return user_headers.get(uid)
+
+
+@router.message(Command("play"))
+async def play_cmd(message: Message, state: FSMContext):
+    data = {"setting": None, "character": None, "genre": None}
+    txt = _build_setup_text(data)
+    kb = setup_keyboard(None, None, None)
+    msg = await message.answer(txt, reply_markup=kb)
+    await state.clear()
+    await state.update_data(base_id=msg.message_id, template=data)
+
+
+@router.callback_query(F.data.startswith("edit:"))
+async def edit_field(call: CallbackQuery, state: FSMContext):
+    field = call.data.split(":", 1)[1]
+    prompts = {
+        "setting": "Введите сеттинг",
+        "character": "Введите персонажа",
+        "genre": "Введите жанр",
+    }
+    msg = await call.message.answer(prompts[field], reply_markup=cancel_keyboard())
+    await state.update_data(edit_field=field, prompt_id=msg.message_id)
+    await state.set_state(GameSetup.waiting_input)
+    await call.answer()
+
+
+@router.callback_query(GameSetup.waiting_input, F.data == "cancel")
+async def cancel_input(call: CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await state.set_state(None)
+    await call.answer()
+
+
+@router.message(GameSetup.waiting_input)
+async def receive_input(message: Message, state: FSMContext):
+    data = await state.get_data()
+    field = data.get("edit_field")
+    template = data.get("template", {})
+    template[field] = message.text
+    prompt_id = data.get("prompt_id")
+    base_id = data.get("base_id")
+    await state.update_data(template=template)
+    await message.delete()
+    if prompt_id:
+        try:
+            await message.bot.delete_message(message.chat.id, prompt_id)
+        except Exception:
+            pass
+    txt = _build_setup_text(template)
+    kb = setup_keyboard(
+        template.get("setting"), template.get("character"), template.get("genre")
+    )
+    await message.bot.edit_message_text(
+        txt, message.chat.id, base_id, reply_markup=kb
+    )
+    await state.set_state(None)
+
+
+@router.callback_query(F.data == "start_game")
+async def start_game(call: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    template = data.get("template")
+    if not template or not all(template.values()):
+        await call.answer("Заполните все поля", show_alert=True)
+        return
+
+    headers = _get_headers(call.from_user.id)
+    if not headers:
+        await call.answer("Сначала выполните /start", show_alert=True)
+        return
+
+    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+        resp = await client.post(
+            f"{settings.bots.app_url}/api/v1/templates", json={
+                "setting_desc": template["setting"],
+                "char_name": template["character"],
+                "genre": template["genre"],
+            }
+        )
+        if resp.status_code != 201:
+            await call.answer("Ошибка шаблона", show_alert=True)
+            return
+        tmpl_id = resp.json()["id"]
+        resp = await client.post(
+            f"{settings.bots.app_url}/api/v1/sessions",
+            json={"template_id": tmpl_id},
+        )
+        if resp.status_code != 201:
+            await call.answer("Ошибка сессии", show_alert=True)
+            return
+        session_id = resp.json()["id"]
+        resp = await client.get(
+            f"{settings.bots.app_url}/api/v1/sessions/{session_id}"
+        )
+        if resp.status_code != 200:
+            await call.answer("Ошибка сцены", show_alert=True)
+            return
+        scene = resp.json()
+
+    active_sessions.setdefault(call.from_user.id, []).append(
+        {"id": session_id, "title": template.get("genre")}
+    )
+
+    await call.message.delete()
+    await _send_scene(
+        call.message.chat.id, call.bot, scene, session_id, state
+    )
+
+
+@router.callback_query(F.data.startswith("choice:"))
+async def make_choice(call: CallbackQuery, state: FSMContext):
+    choice = call.data.split(":", 1)[1]
+    data = await state.get_data()
+    session_id = data.get("session_id")
+    last_scene_id = data.get("last_scene_id")
+    last_text = data.get("last_scene_text", "")
+    last_photo = data.get("last_scene_photo", False)
+    headers = _get_headers(call.from_user.id)
+    if not session_id or not headers:
+        await call.answer()
+        return
+
+    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+        resp = await client.post(
+            f"{settings.bots.app_url}/api/v1/sessions/{session_id}/choice",
+            json={"choice_text": choice},
+        )
+        if resp.status_code != 201:
+            await call.answer("Ошибка", show_alert=True)
+            return
+        scene = resp.json()
+
+    await call.bot.edit_message_reply_markup(
+        call.message.chat.id, last_scene_id, reply_markup=None
+    )
+    try:
+        if last_photo:
+            await call.bot.edit_message_caption(
+                call.message.chat.id,
+                last_scene_id,
+                caption=f"{last_text}\n\nВы выбрали: {choice}",
+            )
+        else:
+            await call.bot.edit_message_text(
+                f"{last_text}\n\nВы выбрали: {choice}",
+                call.message.chat.id,
+                last_scene_id,
+            )
+    except Exception:
+        pass
+
+    await _send_scene(
+        call.message.chat.id, call.bot, scene, session_id, state
+    )
+    await call.answer()
+
+
+@router.message(GamePlay.waiting_choice)
+async def choice_text(message: Message, state: FSMContext):
+    choice = message.text
+    data = await state.get_data()
+    session_id = data.get("session_id")
+    last_scene_id = data.get("last_scene_id")
+    last_text = data.get("last_scene_text", "")
+    last_photo = data.get("last_scene_photo", False)
+    headers = _get_headers(message.from_user.id)
+    await message.delete()
+    if not session_id or not headers:
+        return
+    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+        resp = await client.post(
+            f"{settings.bots.app_url}/api/v1/sessions/{session_id}/choice",
+            json={"choice_text": choice},
+        )
+        if resp.status_code != 201:
+            return
+        scene = resp.json()
+
+    await message.bot.edit_message_reply_markup(
+        message.chat.id, last_scene_id, reply_markup=None
+    )
+    try:
+        if last_photo:
+            await message.bot.edit_message_caption(
+                message.chat.id,
+                last_scene_id,
+                caption=f"{last_text}\n\nВы выбрали: {choice}",
+            )
+        else:
+            await message.bot.edit_message_text(
+                f"{last_text}\n\nВы выбрали: {choice}",
+                message.chat.id,
+                last_scene_id,
+            )
+    except Exception:
+        pass
+
+    await _send_scene(
+        message.chat.id, message.bot, scene, session_id, state
+    )
+
+
+@router.message(Command("my_games"))
+async def my_games_cmd(message: Message):
+    games = active_sessions.get(message.from_user.id)
+    if not games:
+        await message.answer("Нет активных игр")
+        return
+    kb = games_keyboard(games)
+    await message.answer("Ваши игры:", reply_markup=kb)
+
+
+@router.callback_query(F.data.startswith("resume:"))
+async def resume_game(call: CallbackQuery, state: FSMContext):
+    session_id = call.data.split(":", 1)[1]
+    headers = _get_headers(call.from_user.id)
+    if not headers:
+        await call.answer("Сначала выполните /start", show_alert=True)
+        return
+    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+        resp = await client.get(
+            f"{settings.bots.app_url}/api/v1/sessions/{session_id}"
+        )
+        if resp.status_code != 200:
+            await call.answer("Ошибка", show_alert=True)
+            return
+        scene = resp.json()
+
+    await call.message.delete()
+    await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
+    await call.answer()
+
+
+@router.message(Command("end_game"))
+async def end_game_cmd(message: Message, state: FSMContext):
+    data = await state.get_data()
+    session_id = data.get("session_id")
+    if not session_id:
+        await message.answer("Нет активной игры")
+        return
+    headers = _get_headers(message.from_user.id)
+    if headers:
+        async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
+            await client.delete(
+                f"{settings.bots.app_url}/api/v1/sessions/{session_id}"
+            )
+    for g in active_sessions.get(message.from_user.id, []):
+        if g["id"] == session_id:
+            active_sessions[message.from_user.id].remove(g)
+            break
+    last_scene_id = data.get("last_scene_id")
+    if last_scene_id:
+        try:
+            await message.bot.edit_message_reply_markup(
+                message.chat.id, last_scene_id, reply_markup=None
+            )
+        except Exception:
+            pass
+    await state.clear()
+    await message.answer("Сессия завершена")
+
