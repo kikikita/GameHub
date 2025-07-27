@@ -23,7 +23,7 @@ async def generate_scene(id: str, payload: SceneCreate | None = None, user_data:
     user_id = await resolve_user_id(db, user_data)
     if res.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    scene = await create_and_store_scene(db, sid, payload.choice_text if payload else None)
+    scene = await create_and_store_scene(db, res, payload.choice_text if payload else None)
     return SceneOut(id=str(scene.id), description=scene.description, image_url=scene.image_path, choices_json=scene.generated_choices)
 
 
