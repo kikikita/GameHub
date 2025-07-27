@@ -14,4 +14,3 @@ class SceneOut(BaseModel):
 
     class Config:
         from_attributes = True
-

@@ -74,4 +74,3 @@ async def audio_stream(ws: WebSocket, session_id: str):
             await ws.send_bytes(chunk)
     finally:
         await ws.close()
-
