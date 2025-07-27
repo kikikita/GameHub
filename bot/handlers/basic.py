@@ -54,7 +54,12 @@ async def start_command(message: Message):
         "Authorization": f"tma {init_data}"
     }
 
-    welcome = f"👋 Hi, <b>{message.from_user.first_name}</b>!"
+    welcome = (
+        f"👋 Привет, <b>{message.from_user.first_name}</b>!\n"
+        "Добро пожаловать в <b>Immersia GameHub</b> — здесь вы можете \"
+        "создавать собственные интерактивные истории.\n"
+        "Отправьте <b>/new_game</b>, чтобы начать приключение."
+    )
     await message.answer(welcome, parse_mode=ParseMode.HTML)
 
 
@@ -62,7 +67,13 @@ async def start_command(message: Message):
 async def help_command(message: Message):
     """Show help message to the user."""
 
-    help_message = "ℹ️ <b>INFO</b>"
+    help_message = (
+        "ℹ️ <b>Помощь</b>\n\n"
+        "<b>/new_game</b> — создать новую игру\n"
+        "<b>/my_games</b> — список ваших активных игр\n"
+        "<b>/end_game</b> — завершить текущую сессию\n"
+        "<b>/help</b> — показать это сообщение"
+    )
     await message.answer(
         help_message,
         parse_mode=ParseMode.HTML,

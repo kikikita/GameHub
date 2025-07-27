@@ -101,7 +101,7 @@ def _get_headers(uid: int) -> dict | None:
     return user_headers.get(uid)
 
 
-@router.message(Command("play"))
+@router.message(Command(commands=["play", "new_game"]))
 async def play_cmd(message: Message, state: FSMContext):
     """Begin game setup by sending initial template."""
 
@@ -333,10 +333,14 @@ async def my_games_cmd(message: Message):
 
     games = active_sessions.get(message.from_user.id)
     if not games:
-        await message.answer("Нет активных игр")
+        await message.answer(
+            "У вас пока нет активных игр. Используйте /new_game, чтобы начать."
+        )
         return
     kb = games_keyboard(games)
-    await message.answer("Ваши игры:", reply_markup=kb)
+    await message.answer(
+        "Вы можете продолжить одну из текущих игр:", reply_markup=kb
+    )
 
 
 @router.callback_query(F.data.startswith("resume:"))
