@@ -1,15 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status, WebSocket
+import asyncio
+import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
 from src.models.game_session import GameSession
 from src.models.scene import Scene
+from src.models.game_template import GameTemplate
+from src.game.audio.audio_generator import start_music_generation, update_audio
+from src.config import settings
+from src.api.scenes.scene_service import create_and_store_scene
 from .schemas import SessionCreate, SessionOut
 from src.api.scenes.schemas import SceneOut
 from src.api.utils import resolve_user_id
-import uuid
-import os
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
 
@@ -22,7 +26,21 @@ async def create_session(payload: SessionCreate, user_data: dict = Depends(authe
     db.add(session_obj)
     await db.commit()
     await db.refresh(session_obj)
-    return SessionOut(id=str(session_obj.id), started_at=session_obj.started_at, share_code=str(session_obj.share_code))
+
+    if template_id:
+        tmpl = await db.get(GameTemplate, template_id)
+        if tmpl:
+            if settings.gemini_api_keys:
+                asyncio.create_task(
+                    start_music_generation(str(session_obj.id), "neutral")
+                )
+            await create_and_store_scene(db, session_obj, None)
+
+    return SessionOut(
+        id=str(session_obj.id),
+        started_at=session_obj.started_at,
+        share_code=str(session_obj.share_code),
+    )
 
 
 @router.get("/{id}", response_model=SceneOut | None)
@@ -51,16 +69,9 @@ async def delete_session(id: str, user_data: dict = Depends(authenticated_user),
 @router.websocket("/{session_id}/audio")
 async def audio_stream(ws: WebSocket, session_id: str):
     await ws.accept()
-    file_path = os.path.join("assets", f"{session_id}.wav")
     try:
-        with open(file_path, "rb") as f:
-            while True:
-                chunk = f.read(32 * 1024)
-                if not chunk:
-                    break
-                await ws.send_bytes(chunk)
-    except FileNotFoundError:
-        await ws.close(code=1000)
-        return
-    await ws.close()
+        async for chunk in update_audio(session_id):
+            await ws.send_bytes(chunk)
+    finally:
+        await ws.close()
 

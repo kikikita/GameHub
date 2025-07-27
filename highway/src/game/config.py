@@ -1,7 +1,9 @@
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 import logging
 from pydantic import SecretStr
 
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -11,21 +13,20 @@ logging.basicConfig(
 
 
 class BaseAppSettings(BaseSettings):
-    """Base settings class with common configuration."""
-
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "ignore"
 
 
-class AppSettings(BaseAppSettings):
-    tg_bot_token: SecretStr
-    debug_mode: bool = False
-    gradio_app_url: str
-    database_url: str
-    gemini_api_keys: SecretStr | None = None
+class GameSettings(BaseAppSettings):
+    gemini_api_keys: SecretStr
+    top_p: float = 0.95
+    temperature: float = 0.5
+    pregenerate_next_scene: bool = True
+    request_timeout: int = 20
     redis_url: str = "redis://localhost"
 
 
-settings = AppSettings()
+settings = GameSettings()
+
