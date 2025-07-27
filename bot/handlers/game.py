@@ -24,13 +24,35 @@ router = Router()
 # In-memory store for active sessions
 active_sessions: dict[int, list[dict]] = {}
 
+# Default game template values
+DEFAULT_TEMPLATE = {
+    "setting_desc": (
+        "A post-apocalyptic wasteland where survivors struggle to rebuild "
+        "civilization among the ruins of the old world"
+    ),
+    "char_name": "Marcus Steelborn",
+    "char_age": "32",
+    "char_background": (
+        "A former soldier turned cybernetic engineer in a dystopian future, "
+        "seeking to expose corporate corruption"
+    ),
+    "char_personality": (
+        "Brave, tech-savvy, has trust issues but deeply loyal to those who "
+        "earn his respect"
+    ),
+    "genre": "Adventure",
+}
+
 
 def _build_setup_text(data: dict) -> str:
+    """Build setup message with current template data."""
     return (
-        "Для начала новой игры, укажите сеттинг, персонажа и жанр.\n"
-        f"Сеттинг: {data.get('setting') or '-'}\n"
-        f"Персонаж: {data.get('character') or '-'}\n"
-        f"Жанр: {data.get('genre') or '-'}"
+        f"Setting Description: {data.get('setting_desc') or '-'}\n"
+        f"Character Name: {data.get('char_name') or '-'}\n"
+        f"Character Age: {data.get('char_age') or '-'}\n"
+        f"Character Background: {data.get('char_background') or '-'}\n"
+        f"Character Personality: {data.get('char_personality') or '-'}\n"
+        f"Genre: {data.get('genre') or '-'}"
     )
 
 
@@ -78,9 +100,9 @@ def _get_headers(uid: int) -> dict | None:
 
 @router.message(Command("play"))
 async def play_cmd(message: Message, state: FSMContext):
-    data = {"setting": None, "character": None, "genre": None}
+    data = DEFAULT_TEMPLATE.copy()
     txt = _build_setup_text(data)
-    kb = setup_keyboard(None, None, None)
+    kb = setup_keyboard()
     msg = await message.answer(txt, reply_markup=kb)
     await state.clear()
     await state.update_data(base_id=msg.message_id, template=data)
@@ -90,8 +112,11 @@ async def play_cmd(message: Message, state: FSMContext):
 async def edit_field(call: CallbackQuery, state: FSMContext):
     field = call.data.split(":", 1)[1]
     prompts = {
-        "setting": "Введите сеттинг",
-        "character": "Введите персонажа",
+        "setting_desc": "Введите описание сеттинга",
+        "char_name": "Введите имя персонажа",
+        "char_age": "Введите возраст персонажа",
+        "char_background": "Введите предысторию персонажа",
+        "char_personality": "Введите характер персонажа",
         "genre": "Введите жанр",
     }
     msg = await call.message.answer(prompts[field], reply_markup=cancel_keyboard())
@@ -123,11 +148,12 @@ async def receive_input(message: Message, state: FSMContext):
         except Exception:
             pass
     txt = _build_setup_text(template)
-    kb = setup_keyboard(
-        template.get("setting"), template.get("character"), template.get("genre")
-    )
+    kb = setup_keyboard()
     await message.bot.edit_message_text(
-        txt, message.chat.id, base_id, reply_markup=kb
+        text=txt,
+        chat_id=message.chat.id,
+        message_id=base_id,
+        reply_markup=kb,
     )
     await state.set_state(None)
 
@@ -135,10 +161,7 @@ async def receive_input(message: Message, state: FSMContext):
 @router.callback_query(F.data == "start_game")
 async def start_game(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    template = data.get("template")
-    if not template or not all(template.values()):
-        await call.answer("Заполните все поля", show_alert=True)
-        return
+    template = data.get("template") or DEFAULT_TEMPLATE.copy()
 
     headers = _get_headers(call.from_user.id)
     if not headers:
@@ -147,11 +170,15 @@ async def start_game(call: CallbackQuery, state: FSMContext):
 
     async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
         resp = await client.post(
-            f"{settings.bots.app_url}/api/v1/templates", json={
-                "setting_desc": template["setting"],
-                "char_name": template["character"],
-                "genre": template["genre"],
-            }
+            f"{settings.bots.app_url}/api/v1/templates",
+            json={
+                "setting_desc": template.get("setting_desc"),
+                "char_name": template.get("char_name"),
+                "char_age": template.get("char_age"),
+                "char_background": template.get("char_background"),
+                "char_personality": template.get("char_personality"),
+                "genre": template.get("genre"),
+            },
         )
         if resp.status_code != 201:
             await call.answer("Ошибка шаблона", show_alert=True)
@@ -207,20 +234,22 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
         scene = resp.json()
 
     await call.bot.edit_message_reply_markup(
-        call.message.chat.id, last_scene_id, reply_markup=None
+        chat_id=call.message.chat.id,
+        message_id=last_scene_id,
+        reply_markup=None,
     )
     try:
         if last_photo:
             await call.bot.edit_message_caption(
-                call.message.chat.id,
-                last_scene_id,
+                chat_id=call.message.chat.id,
+                message_id=last_scene_id,
                 caption=f"{last_text}\n\nВы выбрали: {choice}",
             )
         else:
             await call.bot.edit_message_text(
-                f"{last_text}\n\nВы выбрали: {choice}",
-                call.message.chat.id,
-                last_scene_id,
+                text=f"{last_text}\n\nВы выбрали: {choice}",
+                chat_id=call.message.chat.id,
+                message_id=last_scene_id,
             )
     except Exception:
         pass
@@ -253,20 +282,22 @@ async def choice_text(message: Message, state: FSMContext):
         scene = resp.json()
 
     await message.bot.edit_message_reply_markup(
-        message.chat.id, last_scene_id, reply_markup=None
+        chat_id=message.chat.id,
+        message_id=last_scene_id,
+        reply_markup=None,
     )
     try:
         if last_photo:
             await message.bot.edit_message_caption(
-                message.chat.id,
-                last_scene_id,
+                chat_id=message.chat.id,
+                message_id=last_scene_id,
                 caption=f"{last_text}\n\nВы выбрали: {choice}",
             )
         else:
             await message.bot.edit_message_text(
-                f"{last_text}\n\nВы выбрали: {choice}",
-                message.chat.id,
-                last_scene_id,
+                text=f"{last_text}\n\nВы выбрали: {choice}",
+                chat_id=message.chat.id,
+                message_id=last_scene_id,
             )
     except Exception:
         pass
@@ -328,7 +359,9 @@ async def end_game_cmd(message: Message, state: FSMContext):
     if last_scene_id:
         try:
             await message.bot.edit_message_reply_markup(
-                message.chat.id, last_scene_id, reply_markup=None
+                chat_id=message.chat.id,
+                message_id=last_scene_id,
+                reply_markup=None,
             )
         except Exception:
             pass

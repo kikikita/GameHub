@@ -12,15 +12,17 @@ def example_keyboard() -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-def setup_keyboard(setting: str | None, character: str | None,
-                    genre: str | None) -> InlineKeyboardMarkup:
+def setup_keyboard() -> InlineKeyboardMarkup:
     """Keyboard for the game setup step."""
     kb = InlineKeyboardBuilder()
-    kb.button(text="Сеттинг", callback_data="edit:setting")
-    kb.button(text="Персонаж", callback_data="edit:character")
-    kb.button(text="Жанр", callback_data="edit:genre")
+    kb.button(text="Setting", callback_data="edit:setting_desc")
+    kb.button(text="Char Name", callback_data="edit:char_name")
+    kb.button(text="Char Age", callback_data="edit:char_age")
+    kb.button(text="Char Background", callback_data="edit:char_background")
+    kb.button(text="Char Personality", callback_data="edit:char_personality")
+    kb.button(text="Genre", callback_data="edit:genre")
     kb.button(text="Начать игру", callback_data="start_game")
-    kb.adjust(2, 2)
+    kb.adjust(2, 2, 2, 1)
     return kb.as_markup()
 
 
