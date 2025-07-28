@@ -199,6 +199,12 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         headers=headers,
         timeout=10.0,
     )
+    if resp.status_code == 403:
+        await call.answer(
+            "Создание историй доступно только на тарифе Pro",
+            show_alert=True,
+        )
+        return
     if resp.status_code != 201:
         await call.answer("Ошибка шаблона", show_alert=True)
         return

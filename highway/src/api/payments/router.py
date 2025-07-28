@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/v1", tags=["payments"])
 
 
 @router.get("/plans")
-async def plans() -> list[dict[str, int]]:
+async def plans() -> list[dict[str, int | str]]:
     """List available subscription plans."""
 
     return [

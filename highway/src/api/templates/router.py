@@ -14,7 +14,7 @@ from .template_service import (
     list_templates,
     share_template,
 )
-from src.api.utils import resolve_user_id
+from src.api.utils import resolve_user_id, ensure_pro_plan
 
 router = APIRouter(
     prefix="/api/v1/templates",
@@ -35,6 +35,7 @@ async def create_my_template(
     """Create a template for the authenticated user."""
 
     user_id = await resolve_user_id(db, user_data)
+    await ensure_pro_plan(db, user_id)
     template = await create_template(db, user_id, payload.model_dump())
     return TemplateOut(
         id=str(template.id),
