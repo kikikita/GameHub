@@ -5,6 +5,23 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.user import User
+from src.models.subscription import Subscription
+
+
+async def ensure_pro_plan(db: AsyncSession, user_id: int) -> None:
+    """Raise 403 if the user doesn't have an active Pro subscription."""
+
+    res = await db.execute(
+        select(Subscription)
+        .where(Subscription.user_id == user_id)
+        .order_by(Subscription.started_at.desc())
+    )
+    sub = res.scalars().first()
+    if not sub or sub.plan != "pro" or sub.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Feature available only on the Pro plan",
+        )
 
 
 async def resolve_user_id(db: AsyncSession, user_data: dict) -> int:

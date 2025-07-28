@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 os.environ.setdefault("TG_BOT_TOKEN", "test")
 os.environ.setdefault("GRADIO_APP_URL", "http://test")
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
-os.environ.setdefault("GEMINI_API_KEYS", "dummy")
+os.environ.setdefault("GEMINI_API_KEYS", "")
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import JSON
@@ -20,6 +20,7 @@ postgresql.JSONB = JSON
 from src.main import app
 from src.core.database import get_session
 from src.models import Base
+from src.models.subscription import Subscription
 from src.auth.tg_auth import authenticated_user
 
 
@@ -42,19 +43,37 @@ async def client():
 
     transport = httpx.ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        ac._session_maker = async_session
         yield ac
 
     app.dependency_overrides.clear()
 
 
 @pytest.mark.asyncio
-async def test_full_flow(client: AsyncClient):
+async def test_full_flow(client: AsyncClient, monkeypatch):
     resp = await client.post("/api/v1/auth/register", json={"tg_id": 1, "username": "tester"})
     assert resp.status_code == 201
 
     resp = await client.get("/api/v1/users/me")
     assert resp.status_code == 200
     assert resp.json()["tg_id"] == 1
+
+    async with client._session_maker() as session:
+        session.add(Subscription(user_id=1, plan="pro", status="active"))
+        await session.commit()
+
+    async def dummy_process_step(*args, **kwargs):
+        return {
+            "scene": {
+                "description": "Test scene",
+                "choices": ["yes", "no"],
+                "image": None,
+            },
+            "game_over": False,
+        }
+
+    monkeypatch.setattr("src.game.agent.runner.process_step", dummy_process_step)
+    monkeypatch.setattr("src.api.scenes.scene_service.process_step", dummy_process_step)
 
     t_payload = {
         "setting_desc": "A dark cave",
