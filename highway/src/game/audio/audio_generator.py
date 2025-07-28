@@ -3,7 +3,7 @@ from google.genai import types
 import wave
 import logging
 import io
-from src.game.config import settings
+from src.config import settings
 from src.game.services.google import GoogleClientFactory
 
 logger = logging.getLogger(__name__)
