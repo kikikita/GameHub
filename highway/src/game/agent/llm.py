@@ -3,7 +3,7 @@ import logging
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from src.game.config import settings
+from src.config import settings
 from src.game.services.google import ApiKeyPool
 
 logger = logging.getLogger(__name__)
