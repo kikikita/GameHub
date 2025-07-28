@@ -49,14 +49,16 @@ def route_step(state: GraphState) -> str:
 
 async def node_init_game(state: GraphState) -> GraphState:
     logger.debug("[Graph] node_init_game state: %s", state)
-    await generate_story_frame.ainvoke(
-        {
-            "user_hash": state.user_hash,
-            "setting": state.setting,
-            "character": state.character,
-            "genre": state.genre,
-        }
-    )
+    user_state = await get_user_state(state.user_hash)
+    if not user_state.story_frame:
+        await generate_story_frame.ainvoke(
+            {
+                "user_hash": state.user_hash,
+                "setting": state.setting,
+                "character": state.character,
+                "genre": state.genre,
+            }
+        )
     first_scene = await generate_scene.ainvoke(
         {"user_hash": state.user_hash, "last_choice": "start"}
     )

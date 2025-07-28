@@ -9,17 +9,64 @@ from src.core.database import get_session
 from .schemas import TemplateCreate, TemplateOut, TemplateShareOut
 from .template_service import (
     create_template,
+    create_templates_bulk,
     get_shared_template,
     get_template,
     list_templates,
+    list_preset_templates,
     share_template,
 )
-from src.api.utils import resolve_user_id, ensure_pro_plan
+from src.api.utils import resolve_user_id, ensure_pro_plan, ensure_admin
+from fastapi import UploadFile
+import json
 
 router = APIRouter(
     prefix="/api/v1/templates",
     tags=["templates"],
 )
+
+
+@router.get("/preset", response_model=list[TemplateOut])
+async def list_presets(
+    db: AsyncSession = Depends(get_session),
+) -> list[TemplateOut]:
+    """Return templates marked as presets."""
+
+    templates = await list_preset_templates(db)
+    return [
+        TemplateOut(
+            id=str(t.id),
+            title=t.title,
+            setting_desc=t.setting_desc,
+            char_name=t.char_name,
+            char_age=t.char_age,
+            char_background=t.char_background,
+            char_personality=t.char_personality,
+            genre=t.genre,
+            story_frame=t.story_frame,
+            is_free=t.is_free,
+            is_preset=t.is_preset,
+            is_public=t.is_public,
+            created_at=t.created_at,
+        )
+        for t in templates
+    ]
+
+
+@router.post("/upload", status_code=status.HTTP_201_CREATED)
+async def upload_presets(
+    file: UploadFile,
+    user_data: dict = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
+) -> None:
+    """Upload preset templates in bulk."""
+
+    ensure_admin(user_data)
+    content = await file.read()
+    data = json.loads(content.decode())
+    if not isinstance(data, list):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    await create_templates_bulk(db, data)
 
 
 @router.post(
@@ -39,12 +86,16 @@ async def create_my_template(
     template = await create_template(db, user_id, payload.model_dump())
     return TemplateOut(
         id=str(template.id),
+        title=template.title,
         setting_desc=template.setting_desc,
         char_name=template.char_name,
         char_age=template.char_age,
         char_background=template.char_background,
         char_personality=template.char_personality,
         genre=template.genre,
+        story_frame=template.story_frame,
+        is_free=template.is_free,
+        is_preset=template.is_preset,
         is_public=template.is_public,
         created_at=template.created_at,
     )
@@ -62,12 +113,16 @@ async def list_my_templates(
     return [
         TemplateOut(
             id=str(t.id),
+            title=t.title,
             setting_desc=t.setting_desc,
             char_name=t.char_name,
             char_age=t.char_age,
             char_background=t.char_background,
             char_personality=t.char_personality,
             genre=t.genre,
+            story_frame=t.story_frame,
+            is_free=t.is_free,
+            is_preset=t.is_preset,
             is_public=t.is_public,
             created_at=t.created_at,
         )
@@ -89,12 +144,16 @@ async def read_template(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return TemplateOut(
         id=str(template.id),
+        title=template.title,
         setting_desc=template.setting_desc,
         char_name=template.char_name,
         char_age=template.char_age,
         char_background=template.char_background,
         char_personality=template.char_personality,
         genre=template.genre,
+        story_frame=template.story_frame,
+        is_free=template.is_free,
+        is_preset=template.is_preset,
         is_public=template.is_public,
         created_at=template.created_at,
     )
@@ -127,12 +186,16 @@ async def get_shared(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return TemplateOut(
         id=str(template.id),
+        title=template.title,
         setting_desc=template.setting_desc,
         char_name=template.char_name,
         char_age=template.char_age,
         char_background=template.char_background,
         char_personality=template.char_personality,
         genre=template.genre,
+        story_frame=template.story_frame,
+        is_free=template.is_free,
+        is_preset=template.is_preset,
         is_public=template.is_public,
         created_at=template.created_at,
     )
