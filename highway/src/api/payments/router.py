@@ -1,6 +1,6 @@
 """Endpoints for subscription management and plans."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -59,3 +59,25 @@ async def subscription_status(
     if not sub:
         return {"status": "canceled"}
     return {"status": sub.status}
+
+
+@router.post("/subscription/change-plan")
+async def change_plan(
+    plan: str,
+    user_data: dict = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
+) -> dict:
+    """Force change of the user's subscription plan."""
+
+    if plan not in {"pro", "free"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid plan",
+        )
+
+    user_id = await resolve_user_id(db, user_data)
+    sub = Subscription(user_id=user_id, plan=plan, status="active")
+    db.add(sub)
+    await db.commit()
+    await db.refresh(sub)
+    return {"id": str(sub.id), "plan": sub.plan, "status": sub.status}

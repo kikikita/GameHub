@@ -37,6 +37,8 @@ async def admin_cmd(msg: Message):
         "/plans - Тарифы\n"
         "/subscribe - Оформить подписку\n"
         "/status - Статус подписки\n"
+        "/change_plan_pro - Включить Pro\n"
+        "/change_plan_free - Включить Free\n"
     )
     await msg.answer(txt)
 
@@ -182,4 +184,19 @@ async def status_cmd(message: Message):
     url = f"{settings.bots.app_url}/api/v1/subscription/status"
     async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.get(url)
+    await message.answer(str(resp.json()))
+
+
+@router.message(AdminFilter(), Command(commands=["change_plan_pro", "change_plan_free"]))
+async def change_plan_cmd(message: Message):
+    """Change the current user's subscription plan."""
+
+    plan = message.text.split("_")[-1]
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
+    url = f"{settings.bots.app_url}/api/v1/subscription/change-plan"
+    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
+        resp = await client.post(url, json={"plan": plan})
     await message.answer(str(resp.json()))
