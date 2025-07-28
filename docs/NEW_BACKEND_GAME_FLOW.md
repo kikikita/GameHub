@@ -8,7 +8,7 @@ implementation was integrated into the FastAPI backend located in
 
 The legacy modules responsible for story generation, image and music
 creation were moved under `src/game`. They keep the original logic but
-now use settings from `src.game.config` and Redis configured via
+now use settings from `src.config` and Redis configured via
 `settings.redis_url`.
 
 Game sessions and scenes are stored in PostgreSQL while the dynamic

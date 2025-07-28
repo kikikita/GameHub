@@ -5,7 +5,7 @@ from io import BytesIO
 from datetime import datetime
 import logging
 import asyncio
-from src.game.config import settings
+from src.config import settings
 from src.game.services.google import GoogleClientFactory
 from src.game.agent.utils import with_retries
 

@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from google import genai
 import threading
 
-from src.game.config import settings
+from src.config import settings
 
 logger = logging.getLogger(__name__)
 

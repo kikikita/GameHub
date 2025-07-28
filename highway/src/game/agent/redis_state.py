@@ -9,7 +9,7 @@ import msgpack
 import redis.asyncio as redis
 
 from src.game.agent.models import UserState
-from src.game.config import settings
+from src.config import settings
 
 logger = logging.getLogger(__name__)
 

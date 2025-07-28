@@ -25,6 +25,10 @@ class AppSettings(BaseAppSettings):
     database_url: str
     gemini_api_keys: SecretStr | None = None
     redis_url: str = "redis://localhost"
+    top_p: float = 0.95
+    temperature: float = 0.5
+    pregenerate_next_scene: bool = True
+    request_timeout: int = 20
 
 
 settings = AppSettings()
