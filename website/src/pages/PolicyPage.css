@@ -23,4 +23,22 @@
 
 .policy-container p {
   line-height: 1.6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .policy-container {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+  .policy-container h1,
+  .policy-container h2 {
+    color: #ffffff;
+  }
+  .policy-container p {
+    color: #cccccc;
+  }
+  .policy-container h1 {
+    border-bottom: 1px solid #333;
+  }
 } 

@@ -56,4 +56,16 @@
   .header-right {
     order: 3;
   }
+}
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    background-color: #121212;
+    border-bottom: 1px solid #333;
+  }
+  .header-left a,
+  .header-right a,
+  .header-center span {
+    color: #ffffff;
+  }
 } 

@@ -49,4 +49,29 @@
 
 .roadmap-item p {
   color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+  .roadmap {
+    background-color: transparent;
+  }
+  .roadmap h2 {
+    color: #ffffff;
+  }
+  .roadmap-description {
+    color: #cccccc;
+  }
+  .roadmap-item {
+    background-color: #1e1e1e;
+  }
+  .roadmap-number {
+    border: 1px solid #333;
+    color: #aaaaaa;
+  }
+  .roadmap-item h3 {
+    color: #ffffff;
+  }
+  .roadmap-item p {
+    color: #cccccc;
+  }
 } 

@@ -24,7 +24,7 @@ class AppSettings(BaseAppSettings):
     debug_mode: bool = False
     database_url: str
     gemini_api_keys: SecretStr | None = None
-    redis_url: str = "redis://localhost"
+    redis_url: str = "redis://redis"
     top_p: float = 0.95
     temperature: float = 0.5
     pregenerate_next_scene: bool = True

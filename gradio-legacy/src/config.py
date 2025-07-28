@@ -24,10 +24,11 @@ class BaseAppSettings(BaseSettings):
 
 class AppSettings(BaseAppSettings):
     gemini_api_keys: SecretStr
-    # assistant_api_key: SecretStr
     top_p: float = 0.95
     temperature: float = 0.5
     pregenerate_next_scene: bool = True
     request_timeout: int = 20
+    # Highway API configuration for ephemeral tokens
+    highway_api_url: str | None = None
 
 settings = AppSettings()

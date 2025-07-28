@@ -33,4 +33,16 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+@media (prefers-color-scheme: dark) {
+  .gallery {
+    background-color: transparent;
+  }
+  .gallery h2 {
+    color: #ffffff;
+  }
+  .gallery-description {
+    color: #cccccc;
+  }
 } 

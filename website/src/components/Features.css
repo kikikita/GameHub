@@ -50,4 +50,28 @@
 
 .feature-item p {
   color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+  .features {
+    background-color: transparent;
+  }
+  .features h2 {
+    color: #ffffff;
+  }
+  .features-description {
+    color: #cccccc;
+  }
+  .feature-item h3 {
+    color: #ffffff;
+  }
+  .feature-item p {
+    color: #cccccc;
+  }
+  .feature-icon {
+    background-color: #444444;
+  }
+  .feature-icon img {
+    filter: invert(1);
+  }
 } 

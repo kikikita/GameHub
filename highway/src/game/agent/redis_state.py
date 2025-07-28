@@ -61,4 +61,3 @@ async def set_user_state(user_hash: str, state: UserState) -> None:
 async def reset_user_state(user_hash: str) -> None:
     logger.debug("reset_user_state for %s", user_hash)
     await _repo.reset(user_hash)
-

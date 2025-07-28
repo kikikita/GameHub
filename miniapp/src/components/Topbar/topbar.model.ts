@@ -1,0 +1,1 @@
+export type CurrentScreen = "realms" | "story" | "settings" | "store" | "plan";

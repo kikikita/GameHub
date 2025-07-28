@@ -45,7 +45,7 @@ function Subscribe() {
         Be among the first to experience AI-driven storytelling. Enter your email to recieve updates and exclusive
         content.
       </p>
-      <form className={`subscribe-form ${isSubscribed ? 'subscribed' : ''}`} onSubmit={handleSubmit}>
+      <form id="subscribe-form" className={`subscribe-form ${isSubscribed ? 'subscribed' : ''}`} onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Your Email"

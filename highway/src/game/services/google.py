@@ -62,4 +62,3 @@ class GoogleClientFactory:
             yield client.aio
         finally:
             pass
-

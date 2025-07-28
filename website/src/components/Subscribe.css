@@ -62,4 +62,24 @@
 .privacy-policy {
   font-size: 12px;
   color: #999;
+}
+
+@media (prefers-color-scheme: dark) {
+  .subscribe {
+    background-color: transparent;
+  }
+  .subscribe h2 {
+    color: #ffffff;
+  }
+  .subscribe-description {
+    color: #cccccc;
+  }
+  .privacy-policy {
+    color: #aaaaaa;
+  }
+  .subscribe-form input {
+    background-color: #333333;
+    border: 1px solid #555555;
+    color: #eeeeee;
+  }
 } 

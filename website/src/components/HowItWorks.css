@@ -59,4 +59,26 @@
 .timeline-content p {
   color: #666;
   margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .how-it-works {
+    background-color: transparent;
+  }
+  .how-it-works h2 {
+    color: #ffffff;
+  }
+  .how-it-works-description {
+    color: #cccccc;
+  }
+  .timeline-number {
+    background-color: #1e1e1e;
+    color: #c7d2fe;
+  }
+  .timeline-content h3 {
+    color: #ffffff;
+  }
+  .timeline-content p {
+    color: #cccccc;
+  }
 } 

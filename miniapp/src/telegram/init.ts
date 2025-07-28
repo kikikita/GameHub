@@ -9,9 +9,11 @@ export async function initTg() {
             viewport.expand();
         }
 
-        if (viewport.requestFullscreen.isAvailable()) {
-            await viewport.requestFullscreen();
-        }
+        // Request fullscreen only if on a mobile device
+        // const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        // if (isMobile && viewport.requestFullscreen.isAvailable()) {
+        //     await viewport.requestFullscreen();
+        // }
     }
 }
 

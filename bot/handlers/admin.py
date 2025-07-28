@@ -198,5 +198,5 @@ async def change_plan_cmd(message: Message):
         return
     url = f"{settings.bots.app_url}/api/v1/subscription/change-plan"
     async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-        resp = await client.post(url, json={"plan": plan})
+        resp = await client.post(url, params={"plan": plan})
     await message.answer(str(resp.json()))

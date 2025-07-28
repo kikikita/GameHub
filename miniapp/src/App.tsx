@@ -1,37 +1,36 @@
-import { useEffect, useState } from 'react';
-import './App.css';
-import { createSession } from './api/auth';
+import { observer } from "mobx-react-lite";
+import { Topbar } from "@/components/Topbar/Topbar";
+import { RealmsPage } from "@/pages/realms/RealmsPage";
+import { StoryPage } from "@/pages/story/StoryPage";
+import { BottomBar } from "@/components/BottomBar/BottomBar";
+import { SettingsPage } from "@/pages/settings/SettingsPage";
+import { PlanUpgradePage } from "@/pages/plan/PlanUpgradePage";
+import { StorePage } from "@/pages/store/StorePage";
+import { navigationStore } from "@/stores/NavigationStore";
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const screens = {
+  realms: RealmsPage,
+  story: StoryPage,
+  settings: SettingsPage,
+  plan: PlanUpgradePage,
+  store: StorePage,
+}
 
-  useEffect(() => {
-    const authenticate = async () => {
-      try {
-        await createSession();
-        setIsAuthenticated(true);
-      } catch (err) {
-        console.error('Authentication failed:', err);
-        setError('Could not connect to the service. Please try again later.');
-      }
-    };
 
-    authenticate();
-  }, []);
+function AppBase() {
+  const screen = navigationStore.currentScreen;
+
+  const Screen = screens[screen];
 
   return (
     <>
-      <h1>Immersia</h1>
-      {error && <div className="error">{error}</div>}
-      {isAuthenticated ? (
-        // @ts-expect-error gradio-app is not typed
-        <gradio-app src={`${import.meta.env.VITE_API_URL}/gradio`}></gradio-app>
-      ) : (
-        !error && <div>Loading...</div>
-      )}
+      <Topbar selectedScreen={screen} />
+      <Screen />
+      {screen !== "story" && <BottomBar />}
     </>
   );
 }
+
+const App = observer(AppBase);
 
 export default App;
