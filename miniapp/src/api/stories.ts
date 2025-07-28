@@ -9,25 +9,20 @@ export interface StoryResponse {
   stories: StoryDTO[];
 }
 
-// Temporary mock implementation until backend is ready
-export async function getStories(_realmId: string): Promise<StoryResponse> {
-  // For demo, ignoring realmId and returning generic content
+import { API_URL } from "./common";
+
+export async function getStories(): Promise<StoryResponse> {
+  const resp = await fetch(`${API_URL}/templates/preset`);
+  if (!resp.ok) {
+    throw new Error("Failed to fetch stories");
+  }
+  const data = await resp.json();
   return {
-    stories: [
-      {
-        id: "hot-neighbor",
-        title: "Hot Neighbor",
-        description: "Your floor's hot neighbor has nowhere to sleep!",
-        imageUrl:
-          "https://www.abilitybathedevon.co.uk/wp-content/uploads/2023/11/image-1-1.png",
-      },
-      {
-        id: "stepmom-shower",
-        title: "Stepmom Shower",
-        description: "Your stepmom forgot to lock the bathroom door...",
-        imageUrl:
-          "https://www.abilitybathedevon.co.uk/wp-content/uploads/2023/11/image-1-1.png",
-      },
-    ],
+    stories: data.map((t: any) => ({
+      id: t.id,
+      title: t.title,
+      description: t.setting_desc,
+      imageUrl: "",
+    })),
   };
-} 
+}

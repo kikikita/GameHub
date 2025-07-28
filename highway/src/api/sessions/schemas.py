@@ -10,6 +10,7 @@ class SessionOut(BaseModel):
     id: str
     started_at: datetime
     share_code: str
+    story_frame: dict | None = None
 
     class Config:
         from_attributes = True

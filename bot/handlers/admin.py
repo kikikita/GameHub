@@ -39,6 +39,7 @@ async def admin_cmd(msg: Message):
         "/status - Статус подписки\n"
         "/change_plan_pro - Включить Pro\n"
         "/change_plan_free - Включить Free\n"
+        "/upload_presets - Загрузить пресеты из JSON"
     )
     await msg.answer(txt)
 
@@ -90,6 +91,27 @@ async def list_templates_cmd(message: Message):
     async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
         resp = await client.get(url)
     await message.answer(str(resp.json()))
+
+
+@router.message(AdminFilter(), Command("upload_presets"))
+async def upload_presets_cmd(message: Message):
+    """Upload a JSON file with preset templates."""
+
+    if not message.document:
+        await message.answer("Пришлите JSON файл")
+        return
+    headers = _get_headers(message.from_user.id)
+    if not headers:
+        await message.answer("Сначала выполните /start для авторизации")
+        return
+    file_id = message.document.file_id
+    file_info = await message.bot.get_file(file_id)
+    file = await message.bot.download_file(file_info.file_path)
+    url = f"{settings.bots.app_url}/api/v1/templates/upload"
+    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+        files = {"file": (message.document.file_name, file.read())}
+        resp = await client.post(url, files=files)
+    await message.answer(str(resp.status_code))
 
 
 @router.message(AdminFilter(), Command("start_session"))

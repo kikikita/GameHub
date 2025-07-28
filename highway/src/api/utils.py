@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.user import User
 from src.models.subscription import Subscription
+from src.config import settings
 
 
 async def ensure_pro_plan(db: AsyncSession, user_id: int) -> None:
@@ -51,3 +52,21 @@ async def resolve_user_id(db: AsyncSession, user_data: dict) -> int:
             detail="User not found",
         )
     return user.id
+
+
+def ensure_admin(user_data: dict) -> None:
+    """Raise 403 if the requester is not an admin."""
+    tg_id = None
+    if user_data.get("user_id") is not None:
+        tg_id = int(user_data["user_id"])
+    elif user_data.get("id") is not None:
+        tg_id = int(user_data["id"])
+    else:
+        raw = user_data.get("user")
+        if isinstance(raw, str):
+            try:
+                tg_id = int(json.loads(raw).get("id"))
+            except Exception:
+                tg_id = None
+    if tg_id is None or tg_id not in settings.admin_ids:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")

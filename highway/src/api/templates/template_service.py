@@ -9,7 +9,7 @@ from src.models.game_template import GameTemplate
 
 async def create_template(
     db: AsyncSession,
-    user_id: uuid.UUID,
+    user_id: int | None,
     data: dict,
 ) -> GameTemplate:
     """Create and store a new template."""
@@ -28,6 +28,15 @@ async def list_templates(
 
     res = await db.execute(
         select(GameTemplate).where(GameTemplate.user_id == user_id)
+    )
+    return list(res.scalars())
+
+
+async def list_preset_templates(db: AsyncSession) -> list[GameTemplate]:
+    """Return templates marked as preset."""
+
+    res = await db.execute(
+        select(GameTemplate).where(GameTemplate.is_preset.is_(True))
     )
     return list(res.scalars())
 
@@ -62,6 +71,20 @@ async def share_template(
     await db.commit()
     await db.refresh(template)
     return template
+
+
+async def create_templates_bulk(
+    db: AsyncSession,
+    templates: list[dict],
+) -> list[GameTemplate]:
+    """Create multiple templates in one transaction."""
+
+    objs = [GameTemplate(**data) for data in templates]
+    db.add_all(objs)
+    await db.commit()
+    for obj in objs:
+        await db.refresh(obj)
+    return objs
 
 
 async def get_shared_template(

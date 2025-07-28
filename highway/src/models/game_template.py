@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, TIMESTAMP, Text, ForeignKey, Integer
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
@@ -20,7 +20,13 @@ class GameTemplate(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    user_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    title: Mapped[str | None] = mapped_column(Text, nullable=True)
+    story_frame: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    is_free: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_preset: Mapped[bool] = mapped_column(Boolean, default=False)
     setting_desc: Mapped[str | None] = mapped_column(Text, nullable=True)
     char_name: Mapped[str | None] = mapped_column(Text, nullable=True)
     char_age: Mapped[str | None] = mapped_column(Text, nullable=True)

@@ -45,6 +45,7 @@ async def create_session(
         id=str(session_obj.id),
         started_at=session_obj.started_at,
         share_code=str(session_obj.share_code),
+        story_frame=session_obj.story_frame,
     )
 
 

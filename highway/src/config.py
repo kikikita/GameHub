@@ -29,6 +29,7 @@ class AppSettings(BaseAppSettings):
     temperature: float = 0.5
     pregenerate_next_scene: bool = True
     request_timeout: int = 20
+    admin_ids: list[int] = []
 
 
 settings = AppSettings()

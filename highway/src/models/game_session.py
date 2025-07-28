@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import TIMESTAMP, ForeignKey, Integer
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
@@ -34,6 +34,7 @@ class GameSession(Base):
         UUID(as_uuid=True),
         default=uuid.uuid4,
     )
+    story_frame: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="sessions")
     template: Mapped["GameTemplate | None"] = relationship(
