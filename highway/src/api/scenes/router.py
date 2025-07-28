@@ -134,4 +134,3 @@ async def update_scene(
         image_url=scene.image_path,
         choices_json=scene.generated_choices,
     )
-

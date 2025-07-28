@@ -17,13 +17,20 @@ async def start_bot(bot: Bot):
     """Notify admin that the bot has started."""
 
     await set_commands(bot)
-    await bot.send_message(settings.bots.admin_id, text="Bot started!")
+    for admin_id in settings.bots.admin_id:
+        try:
+            await bot.send_message(admin_id, text="Bot started!")
+        except Exception as e:
+            logger.error(f"Failed to notify admin {admin_id}: {e}")
 
 
 async def stop_bot(bot: Bot):
     """Notify admin that the bot has stopped."""
-
-    await bot.send_message(settings.bots.admin_id, text="Bot stopped!")
+    for admin_id in settings.bots.admin_id:
+        try:
+            await bot.send_message(admin_id, text="Bot is stopping...")
+        except Exception as e:
+            logger.error(f"Failed to notify admin {admin_id} about shutdown: {e}")
 
 
 async def start():

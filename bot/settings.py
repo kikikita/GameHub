@@ -2,6 +2,7 @@
 
 import logging
 from dataclasses import dataclass
+from typing import List
 
 from environs import Env
 
@@ -19,7 +20,7 @@ class Bots:
     """Telegram bot settings."""
 
     bot_token: str
-    admin_id: int
+    admin_id: List[int]
     app_url: str
     debug: bool
 
@@ -40,7 +41,7 @@ def get_settings(path: str) -> Settings:
     return Settings(
         bots=Bots(
             bot_token=env.str("TG_BOT_TOKEN"),
-            admin_id=env.int("ADMIN_ID"),
+            admin_id=[int(x) for x in env.list("ADMIN_ID")],
             app_url=env.str("APP_URL", "http://highway:8000"),
             debug=env.bool("DEBUG", False)
         ),

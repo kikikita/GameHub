@@ -27,4 +27,4 @@ class AdminFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         """Check if message is from configured admin."""
 
-        return message.from_user.id == settings.bots.admin_id
+        return message.from_user.id in settings.bots.admin_id
