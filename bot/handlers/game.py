@@ -18,7 +18,10 @@ from keyboards.inline import (
 )
 from utils.states import GameSetup, GamePlay
 
-http_client = httpx.AsyncClient(base_url=settings.bots.app_url)
+http_client = httpx.AsyncClient(
+    base_url=settings.bots.app_url,
+    timeout=httpx.Timeout(30.0),
+)
 
 
 router = Router()
@@ -197,7 +200,6 @@ async def start_game(call: CallbackQuery, state: FSMContext):
             "genre": template.get("genre"),
         },
         headers=headers,
-        timeout=10.0,
     )
     if resp.status_code == 403:
         await call.answer(
@@ -213,7 +215,6 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         "/api/v1/sessions",
         json={"template_id": tmpl_id},
         headers=headers,
-        timeout=10.0,
     )
     if resp.status_code != 201:
         await call.answer("Ошибка сессии", show_alert=True)
@@ -222,7 +223,6 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     resp = await http_client.get(
         f"/api/v1/sessions/{session_id}",
         headers=headers,
-        timeout=10.0,
     )
     if resp.status_code != 200:
         await call.answer("Ошибка сцены", show_alert=True)
@@ -258,7 +258,6 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
         f"/api/v1/sessions/{session_id}/choice",
         json={"choice_text": choice},
         headers=headers,
-        timeout=10.0,
     )
     if resp.status_code != 201:
         await call.answer("Ошибка", show_alert=True)
@@ -310,7 +309,6 @@ async def choice_text(message: Message, state: FSMContext):
         f"/api/v1/sessions/{session_id}/choice",
         json={"choice_text": choice},
         headers=headers,
-        timeout=10.0,
     )
     if resp.status_code != 201:
         return
@@ -370,7 +368,6 @@ async def resume_game(call: CallbackQuery, state: FSMContext):
     resp = await http_client.get(
         f"/api/v1/sessions/{session_id}",
         headers=headers,
-        timeout=10.0,
     )
     if resp.status_code != 200:
         await call.answer("Ошибка", show_alert=True)

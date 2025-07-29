@@ -1,6 +1,7 @@
 """Utility helpers for API handlers."""
 
 import json
+import os
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -68,5 +69,14 @@ def ensure_admin(user_data: dict) -> None:
                 tg_id = int(json.loads(raw).get("id"))
             except Exception:
                 tg_id = None
-    if tg_id is None or tg_id not in settings.admin_ids:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
+    admins = settings.admin_ids
+    if not admins:
+        raw = os.getenv("ADMIN_ID")
+        if raw:
+            admins = [int(x) for x in raw.split(",") if x]
+
+    if tg_id is None or tg_id not in admins:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin only",
+        )

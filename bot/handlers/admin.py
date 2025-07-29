@@ -108,7 +108,7 @@ async def upload_presets_cmd(message: Message):
     file_info = await message.bot.get_file(file_id)
     file = await message.bot.download_file(file_info.file_path)
     url = f"{settings.bots.app_url}/api/v1/templates/upload"
-    async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+    async with httpx.AsyncClient(timeout=30.0, headers=headers) as client:
         files = {"file": (message.document.file_name, file.read())}
         resp = await client.post(url, files=files)
     await message.answer(str(resp.status_code))
