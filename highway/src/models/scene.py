@@ -1,14 +1,12 @@
 """Database model representing a scene within a session."""
 
 import uuid
-from datetime import datetime
 
-from sqlalchemy import TIMESTAMP, Text, ForeignKey, Integer
+from sqlalchemy import Text, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
-
 
 class Scene(Base):
     """A single scene in the interactive story."""

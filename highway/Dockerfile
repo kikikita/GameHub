@@ -16,6 +16,7 @@ RUN poetry install --no-root
 COPY highway/alembic ./alembic
 COPY highway/alembic.ini .
 COPY highway/src ./src
+COPY highway/gcloud-key.json ./gcloud-key.json
 
 # Copy .env file from the root
 COPY .env .env

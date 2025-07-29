@@ -21,7 +21,7 @@ class BaseAppSettings(BaseSettings):
 
 class AppSettings(BaseAppSettings):
     tg_bot_token: SecretStr
-    debug_mode: bool = False
+    debug: bool = False
     database_url: str
     gemini_api_keys: SecretStr | None = None
     redis_url: str = "redis://redis"

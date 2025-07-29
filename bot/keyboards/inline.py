@@ -44,7 +44,7 @@ def choices_keyboard(choices: Iterable[str]) -> InlineKeyboardMarkup:
 
     kb = InlineKeyboardBuilder()
     for choice in choices:
-        kb.button(text=choice, callback_data=f"choice:{choice}")
+        kb.button(text=choice['text'], callback_data=f"choice:{choice['text']}")
     kb.adjust(1)
     return kb.as_markup()
 

@@ -21,7 +21,7 @@ class ApiKeyPool:
     def _load_keys(self) -> None:
         keys_raw = settings.gemini_api_keys
         keys_str = keys_raw.get_secret_value()
-        keys = [k.strip() for k in keys_str.split(',') if k.strip()] if keys_str else []
+        keys = [k.strip() for k in keys_str.split(",") if k.strip()] if keys_str else []
         if not keys:
             msg = "Google API keys are not configured or invalid"
             logger.error(msg)
@@ -57,7 +57,9 @@ class GoogleClientFactory:
     @asynccontextmanager
     async def image(cls):
         key = await cls._pool.get_key()
-        client = genai.Client(api_key=key)
+        client = genai.Client(
+            vertexai=True, project="gen-lang-client-0342725631", location="us-central1"
+        )
         try:
             yield client.aio
         finally:

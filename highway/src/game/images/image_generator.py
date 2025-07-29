@@ -5,7 +5,6 @@ from io import BytesIO
 from datetime import datetime
 import logging
 import asyncio
-from src.config import settings
 from src.game.services.google import GoogleClientFactory
 from src.game.agent.utils import with_retries
 
@@ -50,27 +49,27 @@ async def generate_image(prompt: str) -> tuple[str, str] | None:
     try:
         async with GoogleClientFactory.image() as client:
             response = await with_retries(
-                lambda: client.models.generate_content(
-                    model="gemini-2.0-flash-preview-image-generation",
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_modalities=["TEXT", "IMAGE"],
-                        safety_settings=safety_settings,
+                lambda: client.models.generate_images(
+                    model="imagen-4.0-fast-generate-preview-06-06",
+                    prompt=prompt,
+                    config=types.GenerateImagesConfig(
+                        number_of_images=1,
+                        aspect_ratio="9:16",
                     ),
                 )
             )
 
         # Process the response parts
         image_saved = False
-        for part in response.candidates[0].content.parts:
-            if part.inline_data is not None:
+        for generated_image in response.generated_images:
+            if generated_image.image is not None:
                 # Create a filename with timestamp
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 filename = f"gemini_{timestamp}.png"
                 filepath = os.path.join(output_dir, filename)
 
                 # Save the image
-                image = Image.open(BytesIO(part.inline_data.data))
+                image = Image.open(BytesIO(generated_image.image.image_bytes))
                 await asyncio.to_thread(image.save, filepath, "PNG")
                 logger.info(f"Image saved to: {filepath}")
                 image_saved = True
@@ -151,16 +150,3 @@ async def modify_image(image_path: str, modification_prompt: str) -> str | None:
     except Exception as e:
         logger.error(f"Error modifying image: {e}")
         return None, None
-
-
-if __name__ == "__main__":
-    # Example usage
-    sample_prompt = "A Luke Skywalker half height sprite with white background for visual novel game"
-    generated_image_path = generate_image(sample_prompt)
-
-    # if generated_image_path:
-    #     # Example modification
-    #     modification_prompt = "Now the house is destroyed, and the jawas are running away"
-    #     modified_image_path = modify_image(generated_image_path, modification_prompt)
-    #     if modified_image_path:
-    #         print(f"Successfully modified image: {modified_image_path}")

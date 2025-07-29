@@ -9,7 +9,7 @@ from src.game.services.google import ApiKeyPool
 logger = logging.getLogger(__name__)
 
 _pool = ApiKeyPool()
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-2.5-flash-lite"
 
 
 def _get_api_key() -> str:

@@ -105,7 +105,7 @@ async def node_player_step(state: GraphState) -> GraphState:
         if scene_id and scene_id in user_state.scenes:
             current_image = user_state.scenes[scene_id].image
 
-        image_task = generate_scene_image.ainvoke(
+        await generate_scene_image.ainvoke(
             {
                 "user_hash": state.user_hash,
                 "scene_id": next_scene["scene_id"],
@@ -113,9 +113,6 @@ async def node_player_step(state: GraphState) -> GraphState:
                 "change_scene": change_scene,
             }
         )
-        music_task = generate_music_prompt(state.user_hash, next_scene["description"], state.choice_text)
-        _, music_prompt = await asyncio.gather(image_task, music_task)
-        asyncio.create_task(change_music_tone(state.user_hash, music_prompt))
         state.scene = next_scene
     return state
 

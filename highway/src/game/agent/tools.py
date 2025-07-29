@@ -114,12 +114,7 @@ async def generate_scene_image(
     try:
         image_path = current_image
         if change_scene.change_scene == "change_completely" or change_scene.change_scene == "modify":
-            image_path, _ = await (
-                generate_image(change_scene.scene_description)
-                if current_image is None
-                # for now always modify the image to avoid the generating an update in a completely wrong style
-                else modify_image(current_image, change_scene.scene_description)
-            )
+            image_path, _ = await generate_image(change_scene.scene_description)
         state = await get_user_state(user_hash)
         if scene_id in state.scenes:
             state.scenes[scene_id].image = image_path

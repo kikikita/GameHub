@@ -8,6 +8,7 @@ from src.game.services.google import GoogleClientFactory
 
 logger = logging.getLogger(__name__)
 
+
 async def generate_music(user_hash: str, music_tone: str, receive_audio):
     if user_hash in sessions:
         logger.info(

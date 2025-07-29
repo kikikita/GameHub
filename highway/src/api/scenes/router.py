@@ -9,7 +9,7 @@ from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
 from src.models.scene import Scene
 from src.models.game_session import GameSession
-from .schemas import SceneCreate, SceneOut
+from .schemas import SceneCreate, SceneOut, scene_to_out
 from .scene_service import create_and_store_scene
 from src.api.utils import resolve_user_id
 
@@ -41,12 +41,7 @@ async def generate_scene(
         res,
         payload.choice_text if payload else None,
     )
-    return SceneOut(
-        id=str(scene.id),
-        description=scene.description,
-        image_url=scene.image_path,
-        choices_json=scene.generated_choices,
-    )
+    return scene_to_out(scene)
 
 
 @router.post(
@@ -77,12 +72,7 @@ async def get_scene(
     scene = await db.get(Scene, uuid.UUID(scene_id))
     if not scene or str(scene.session_id) != id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return SceneOut(
-        id=str(scene.id),
-        description=scene.description,
-        image_url=scene.image_path,
-        choices_json=scene.generated_choices,
-    )
+    return scene_to_out(scene)
 
 
 @router.get("/{id}/history", response_model=list[SceneOut])
@@ -99,15 +89,7 @@ async def history(
         .order_by(Scene.order_num)
     )
     scenes = list(res.scalars())
-    return [
-        SceneOut(
-            id=str(s.id),
-            description=s.description,
-            image_url=s.image_path,
-            choices_json=s.generated_choices,
-        )
-        for s in scenes
-    ]
+    return [scene_to_out(s) for s in scenes]
 
 
 @router.put("/{id}/scenes/{scene_id}", response_model=SceneOut)
@@ -124,13 +106,11 @@ async def update_scene(
     if not scene or str(scene.session_id) != id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     scene.description = payload.description
-    scene.image_path = payload.image_url
+    # Update only if provided (legacy clients may still send image_url)
+    if payload.image_url:
+        scene.image_path = payload.image_url
     scene.generated_choices = payload.choices_json
     await db.commit()
     await db.refresh(scene)
-    return SceneOut(
-        id=str(scene.id),
-        description=scene.description,
-        image_url=scene.image_path,
-        choices_json=scene.generated_choices,
-    )
+    return scene_to_out(scene)
+

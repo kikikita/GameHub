@@ -10,10 +10,9 @@ from src.core.database import get_session
 from src.models.game_session import GameSession
 from src.models.scene import Scene
 from src.models.game_template import GameTemplate
-from src.config import settings
 from src.api.scenes.scene_service import create_and_store_scene
 from .schemas import SessionCreate, SessionOut
-from src.api.scenes.schemas import SceneOut
+from src.api.scenes.schemas import SceneOut, scene_to_out
 from src.api.utils import resolve_user_id
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
@@ -69,12 +68,7 @@ async def get_current(
     scene = res.scalars().first()
     if not scene:
         return None
-    return SceneOut(
-        id=str(scene.id),
-        description=scene.description,
-        image_url=scene.image_path,
-        choices_json=scene.generated_choices,
-    )
+    return scene_to_out(scene)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -27,7 +27,7 @@ services:
       - APP_URL=http://highway:8000
       - API_KEY=SECRET_TOKEN
     ports:
-      - "35678:5678"
+      - "25678:5678"
     networks:
       - app-network
     env_file:
@@ -46,6 +46,8 @@ services:
       - .env
     networks:
       - app-network
+    ports:
+      - "5432:5432"
     restart: unless-stopped
 
   redis:
@@ -53,6 +55,8 @@ services:
     container_name: redis_imm
     networks:
       - app-network
+    ports:
+      - "6379:6379"
     restart: unless-stopped
 
 networks:

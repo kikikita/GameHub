@@ -57,7 +57,7 @@ async def process_step(
         ending_desc = ending_info.get("description") or ending_info.get(
             "condition", ""
         )
-        change_scene = await generate_image_prompt(user_hash, ending_desc)
+        change_scene = await generate_image_prompt(user_hash, f"The user reached the ending. You MUST generate a new image description for the ending. The description of the ending is: {ending_desc}")
         if change_scene.change_scene == "no_change":
             change_scene.change_scene = "change_completely"
             if not change_scene.scene_description:
@@ -81,7 +81,7 @@ async def process_step(
         ):
             current_scene = user_state.scenes[
                 user_state.current_scene_id
-            ].dict()
+            ].model_dump()
         else:
             current_scene = final_state.get("scene")
         response["scene"] = current_scene

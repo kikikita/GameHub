@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import httpx
+import base64
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
 from settings import settings
@@ -20,7 +21,7 @@ from utils.states import GameSetup, GamePlay
 
 http_client = httpx.AsyncClient(
     base_url=settings.bots.app_url,
-    timeout=httpx.Timeout(30.0),
+    timeout=httpx.Timeout(60.0),
 )
 
 
@@ -76,9 +77,15 @@ async def _send_scene(
     reply_kb = choices_keyboard(choices) if choices else None
 
     is_photo = False
-    if scene.get("image_url"):
+    if scene.get("image_data"):
+        # Convert base64 PNG data returned by backend into aiogram-readable file
+        image_bytes = base64.b64decode(scene["image_data"])
+        photo = BufferedInputFile(image_bytes, filename="scene.png")
         msg = await bot.send_photo(
-            chat_id, scene["image_url"], caption=text, reply_markup=reply_kb
+            chat_id,
+            photo,
+            caption=text,
+            reply_markup=reply_kb,
         )
         is_photo = True
     else:

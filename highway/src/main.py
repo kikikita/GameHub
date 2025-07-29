@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)    
 
 
-if settings.debug_mode:
+if settings.debug:
     import debugpy
 
     debugpy.listen(("0.0.0.0", 5678))
