@@ -19,7 +19,6 @@ class Base(DeclarativeBase):
 from .user import User  # noqa: F401
 from .world import World  # noqa: F401
 from .story import Story  # noqa: F401
-from .game_template import GameTemplate  # noqa: F401
 from .game_session import GameSession  # noqa: F401
 from .scene import Scene  # noqa: F401
 from .choice import Choice  # noqa: F401

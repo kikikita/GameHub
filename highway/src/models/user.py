@@ -28,9 +28,6 @@ class User(Base):
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    templates: Mapped[list["GameTemplate"]] = relationship(
-        back_populates="user",
-    )
     worlds: Mapped[list["World"]] = relationship(
         back_populates="user",
     )

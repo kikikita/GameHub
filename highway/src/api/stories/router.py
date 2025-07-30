@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.tg_auth import authenticated_user
-from src.api.utils import ensure_admin
+from src.api.utils import ensure_admin, resolve_user_id, ensure_pro_plan
 from src.core.database import get_session
 from src.models.story import Story
 from src.models.world import World
@@ -31,6 +31,14 @@ class StoryOut(BaseModel):
         from_attributes = True
 
 
+class StoryCreate(BaseModel):
+    title: str | None = None
+    character: dict | None = None
+    story_frame: dict | None = None
+    is_public: bool | None = None
+    is_free: bool | None = None
+
+
 @router.get("/worlds/{world_id}/stories", response_model=list[StoryOut])
 async def list_stories(world_id: str, db: AsyncSession = Depends(get_session)) -> list[StoryOut]:
     res = await db.execute(
@@ -46,6 +54,25 @@ async def get_story(story_id: str, db: AsyncSession = Depends(get_session)) -> S
     if not obj:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return StoryOut.from_orm(obj)
+
+
+@router.post("/worlds/{world_id}/stories", response_model=StoryOut, status_code=status.HTTP_201_CREATED)
+async def create_story(
+    world_id: str,
+    payload: StoryCreate,
+    user_data: dict = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
+) -> StoryOut:
+    user_id = await resolve_user_id(db, user_data)
+    await ensure_pro_plan(db, user_id)
+    world = await db.get(World, uuid.UUID(world_id))
+    if not world:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    story = Story(world_id=world.id, user_id=user_id, **payload.model_dump())
+    db.add(story)
+    await db.commit()
+    await db.refresh(story)
+    return StoryOut.from_orm(story)
 
 
 async def _import_presets(db: AsyncSession, data: dict) -> None:
@@ -88,3 +115,4 @@ async def upload_presets(
     content = await file.read()
     data = json.loads(content.decode())
     await _import_presets(db, data)
+
