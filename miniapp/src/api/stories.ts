@@ -11,8 +11,8 @@ export interface StoryResponse {
 
 import { API_URL } from "./common";
 
-export async function getStories(): Promise<StoryResponse> {
-  const resp = await fetch(`${API_URL}/templates/preset`);
+export async function getStories(worldId: string): Promise<StoryResponse> {
+  const resp = await fetch(`${API_URL}/worlds/${worldId}/stories`);
   if (!resp.ok) {
     throw new Error("Failed to fetch stories");
   }
@@ -21,7 +21,7 @@ export async function getStories(): Promise<StoryResponse> {
     stories: data.map((t: any) => ({
       id: t.id,
       title: t.title,
-      description: t.setting_desc,
+      description: t.character?.name || "",
       imageUrl: "",
     })),
   };

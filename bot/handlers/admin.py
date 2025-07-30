@@ -15,7 +15,7 @@ def _get_headers(uid: int) -> dict | None:
     return user_headers.get(uid)
 
 
-templates_store: dict[int, str] = {}
+stories_store: dict[int, str] = {}
 sessions_store: dict[int, str] = {}
 
 router = Router()
@@ -29,8 +29,6 @@ async def admin_cmd(msg: Message):
     txt = (
         "Доступные команды:\n"
         "/health - Проверить состояние API\n"
-        "/create_template - Создать шаблон игры\n"
-        "/list_templates - Список шаблонов\n"
         "/start_session - Начать сессию\n"
         "/make_choice - Отправить выбор\n"
         "/history - История сцен\n"
@@ -55,42 +53,6 @@ async def health_command(message: Message):
     await message.answer(status)
 
 
-@router.message(AdminFilter(), Command("create_template"))
-async def create_template_cmd(message: Message):
-    """Create a game template using test data."""
-
-    headers = _get_headers(message.from_user.id)
-    if not headers:
-        await message.answer("Сначала выполните /start для авторизации")
-        return
-    url = f"{settings.bots.app_url}/api/v1/templates"
-    payload = {
-        "setting_desc": "Test world",
-        "char_name": "Tester",
-        "char_age": "30",
-        "char_background": "Background",
-        "char_personality": "Personality",
-        "genre": "Adventure",
-    }
-    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-        resp = await client.post(url, json=payload)
-    if resp.status_code == 201:
-        templates_store[message.from_user.id] = resp.json()["id"]
-    await message.answer(str(resp.json()))
-
-
-@router.message(AdminFilter(), Command("list_templates"))
-async def list_templates_cmd(message: Message):
-    """List available templates for the user."""
-
-    headers = _get_headers(message.from_user.id)
-    if not headers:
-        await message.answer("Сначала выполните /start для авторизации")
-        return
-    url = f"{settings.bots.app_url}/api/v1/templates"
-    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-        resp = await client.get(url)
-    await message.answer(str(resp.json()))
 
 
 @router.message(AdminFilter(), Command("upload_presets"))
@@ -107,7 +69,7 @@ async def upload_presets_cmd(message: Message):
     file_id = message.document.file_id
     file_info = await message.bot.get_file(file_id)
     file = await message.bot.download_file(file_info.file_path)
-    url = f"{settings.bots.app_url}/api/v1/templates/upload"
+    url = f"{settings.bots.app_url}/api/v1/presets/upload"
     async with httpx.AsyncClient(timeout=30.0, headers=headers) as client:
         files = {"file": (message.document.file_name, file.read())}
         resp = await client.post(url, files=files)
@@ -122,10 +84,25 @@ async def start_session_cmd(message: Message):
     if not headers:
         await message.answer("Сначала выполните /start для авторизации")
         return
-    template_id = templates_store.get(message.from_user.id)
+    story_id = stories_store.get(message.from_user.id)
+    if not story_id:
+        async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
+            worlds = await client.get(f"{settings.bots.app_url}/api/v1/worlds")
+            if worlds.status_code != 200:
+                await message.answer("Ошибка миров")
+                return
+            world_id = worlds.json()[0]["id"]
+            stories = await client.get(
+                f"{settings.bots.app_url}/api/v1/worlds/{world_id}/stories"
+            )
+            if stories.status_code != 200 or not stories.json():
+                await message.answer("Нет историй")
+                return
+            story_id = stories.json()[0]["id"]
+            stories_store[message.from_user.id] = story_id
     url = f"{settings.bots.app_url}/api/v1/sessions"
     async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-        resp = await client.post(url, json={"template_id": template_id})
+        resp = await client.post(url, json={"story_id": story_id})
     if resp.status_code == 201:
         sessions_store[message.from_user.id] = resp.json()["id"]
     await message.answer(str(resp.json()))

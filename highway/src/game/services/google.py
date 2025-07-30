@@ -1,7 +1,10 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from google import genai
+try:
+    from google import genai
+except Exception:  # pragma: no cover - optional dependency
+    genai = None
 import threading
 
 from src.config import settings

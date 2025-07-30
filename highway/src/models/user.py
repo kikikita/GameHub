@@ -31,6 +31,12 @@ class User(Base):
     templates: Mapped[list["GameTemplate"]] = relationship(
         back_populates="user",
     )
+    worlds: Mapped[list["World"]] = relationship(
+        back_populates="user",
+    )
+    stories: Mapped[list["Story"]] = relationship(
+        back_populates="user",
+    )
     sessions: Mapped[list["GameSession"]] = relationship(
         back_populates="user",
     )
