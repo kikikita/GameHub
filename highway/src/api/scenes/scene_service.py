@@ -5,11 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.scene import Scene
 from src.models.choice import Choice
 from src.models.game_session import GameSession
-from src.game.agent.runner import process_step
+from src.game.agent.runner import process_step, SceneResponse
 from src.game.agent.redis_state import get_user_state, set_user_state
 from src.game.agent.models import StoryFrame, UserChoice, UserState
+from src.game.agent.tools import generate_story_frame, generate_initial_scene
+import logging
 
-
+logger = logging.getLogger(__name__)
 async def _next_order(db: AsyncSession, session_id: uuid.UUID) -> int:
     res = await db.execute(
         select(func.max(Scene.order_num)).where(Scene.session_id == session_id)
@@ -30,8 +32,6 @@ async def create_and_store_scene(
             state.story_frame = StoryFrame(**session.story_frame)
         elif session.template and session.template.story_frame:
             state.story_frame = StoryFrame(**session.template.story_frame)
-        if state.story_frame:
-            await set_user_state(user_hash, state)
 
     if not state.user_choices:
         res = await db.execute(
@@ -48,50 +48,47 @@ async def create_and_store_scene(
                 )
         if rows:
             state.current_scene_id = str(rows[-1][0].id)
-        await set_user_state(user_hash, state)
 
     order_num = await _next_order(db, session.id)
     if order_num == 1:
         template = session.template
         if not template:
             raise ValueError("Template not found for session")
-        result = await process_step(
-            user_hash=user_hash,
-            step="start",
-            setting=template.setting_desc or "",
+        story_frame = await generate_story_frame(
+            setting=template.setting_desc,
             character={
-                "name": template.char_name or "",
-                "age": template.char_age or "",
-                "background": template.char_background or "",
-                "personality": template.char_personality or "",
+                "name": template.char_name,
+                "age": template.char_age,
+                "background": template.char_background,
+                "personality": template.char_personality,
             },
-            genre=template.genre or "",
+            genre=template.genre,
         )
+        logger.info(f"Possible endings: {story_frame.endings}")
+        state.story_frame = story_frame
+        initial_scene = await generate_initial_scene(state)
+        result = SceneResponse(scene=initial_scene, game_over=False)
     else:
-        result = await process_step(
-            user_hash=user_hash,
-            step="choose",
-            choice_text=choice_text or "",
-        )
+        logger.info("[Runner] Step %s for user %s", state.current_scene_id, user_hash)
+        result = await process_step(state, choice_text)
 
     if order_num == 1 and not session.story_frame:
-        state = await get_user_state(user_hash)
         if state.story_frame:
             session.story_frame = state.story_frame.model_dump()
             db.add(session)
             await db.commit()
             await db.refresh(session)
 
-    if result.get("game_over"):
-        ending = result["ending"]
-        description = (ending.get("description") or ending.get("condition", ""))
-        image_path = result.get("image")
+    if result.game_over:
+        ending = result.ending
+        description = ending.description
+        image_path = result.scene.image
         choices_json = None
     else:
-        scene_data = result["scene"]
-        description = scene_data.get("description")
-        image_path = scene_data.get("image")
-        choices_json = {"choices": scene_data.get("choices", [])}
+        scene_data = result.scene
+        description = scene_data.description
+        image_path = scene_data.image
+        choices_json = {"choices": [c.model_dump() for c in scene_data.choices]}
 
     scene = Scene(
         session_id=session.id,
@@ -100,6 +97,7 @@ async def create_and_store_scene(
         generated_choices=choices_json,
         image_path=image_path,
     )
+    await set_user_state(user_hash, state)
     db.add(scene)
     await db.flush()
 

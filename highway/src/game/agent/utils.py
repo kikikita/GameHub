@@ -13,7 +13,7 @@ T = TypeVar("T")
 
 async def with_retries(
     awaitable_factory: Callable[[], Awaitable[T]],
-    retries: int = 3,
+    retries: int = 2,
     timeout: int = settings.request_timeout,
 ) -> T:
     """Execute an awaitable with retries and timeout."""

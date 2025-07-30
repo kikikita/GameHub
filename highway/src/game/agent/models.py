@@ -74,7 +74,7 @@ class SceneLLM(BaseModel):
     """Structure expected from the LLM when generating a scene."""
 
     description: str
-    choices: List[SceneChoice]
+    choices: List[SceneChoice] = Field(min_items=2, max_items=2)
 
 
 class EndingCheckResult(BaseModel):
@@ -94,7 +94,6 @@ class UserChoice(BaseModel):
 
 class UserState(BaseModel):
     """State stored for each user."""
-
     story_frame: Optional[StoryFrame] = None
     current_scene_id: Optional[str] = None
     scenes: Dict[str, Scene] = Field(default_factory=dict)

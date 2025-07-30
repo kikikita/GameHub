@@ -1,37 +1,29 @@
 from pydantic import BaseModel, Field
-from typing import Literal, Optional
+from typing import Optional
 from src.game.agent.llm import create_light_llm
 from langchain_core.messages import SystemMessage, HumanMessage
-from src.game.agent.redis_state import get_user_state
 from src.game.agent.prompts import GAME_STATE_PROMPT
 import logging
 from src.game.agent.utils import with_retries
+from src.game.agent.models import UserState
 
 logger = logging.getLogger(__name__)
 
 
-IMAGE_GENERATION_SYSTEM_PROMPT = """You are an AI agent for a visual novel game. Your role is to process an incoming scene description and determine if the visual scene needs to change. If it does, you will generate a new `scene_description`. This `scene_description` MUST BE a highly detailed image prompt, specifically engineered for an AI image generation model, and it MUST adhere to the strict first-person perspective detailed below.
+IMAGE_GENERATION_SYSTEM_PROMPT = """You are an AI agent for a visual novel game.
+Your role is to process an incoming scene description and determine if the visual scene needs to change.
+If it does, you will generate a new `scene_description`. This `scene_description` MUST BE a highly detailed image prompt, specifically engineered for an AI image generation model.
 
-**Your Core Tasks & Output Structure:**
-Your output MUST be a `ChangeScene` object. You need to:
-1.  **Determine Change Type:** Decide if the scene requires a "change_completely", "modify", or "no_change" and set this in the `change_scene` field of the output object.
-2.  **Generate FPS Image Prompt:** If your decision is "change_completely" or "modify", you MUST then generate the image prompt and place it in the `scene_description` field of the output object. If "no_change", this field can be null or empty.
+**Guidelines for Crafting the Image Prompt (for `scene_description` field):**
+When generating the image prompt, ensure it's detailed and considers the following aspects:
 
-**Mandatory: First-Person Perspective (FPS) for Image Prompts**
-The image prompt you generate for the `scene_description` field MUST strictly describe the scene from a first-person perspective (FPS), as if the player is looking directly through the character's eyes.
-    *   **Viewpoint:** All descriptions must be from the character's eye level, looking forward or as indicated by the scene.
-    *   **Character Visibility:** The scene must be depicted strictly as if looking through the character's eyes. NO part of the character's own body (e.g., hands, arms, feet, clothing on them) should be visible or described in the prompt. The view is purely what is external to the character.
-    *   **Immersion:** Focus on what the character directly sees and perceives in their immediate environment. Use phrasing that reflects this, for example: "I see...", "Before me lies...", "Looking through the grimy window...", "The corridor stretches out in front of me."
-
-**Guidelines for Crafting the FPS Image Prompt (for `scene_description` field):**
-When generating the image prompt, ensure it's detailed and considers the following aspects, all from the character's first-person viewpoint:
-
-1.  **Subject & Focus (as seen by the character):**
+1.  **Subject & Focus:**
     *   What is the primary subject or point of interest directly in the character's view?
     *   Describe any other characters visible to the POV character: their appearance (from the character's perspective), clothing, expressions, posture, and actions.
+    *   NEVER describe the protagonist/player character in the image prompt.
     *   Detail key objects, items, or environmental elements the character is interacting with or observing.
 
-2.  **Setting & Environment (from the character's perspective):**
+2.  **Setting & Environment:**
     *   Describe the immediate surroundings as the character would see them.
     *   Time of day and weather conditions as perceived by the character.
     *   Specific architectural or natural features visible in the character's field of view.
@@ -40,40 +32,41 @@ When generating the image prompt, ensure it's detailed and considers the followi
     *   Specify the desired visual style (e.g., photorealistic, anime, manga, watercolor, oil painting, pixel art, 3D render, concept art, comic book).
     *   Mention any specific artist influences if relevant (e.g., "in the style of Studio Ghibli").
 
-4.  **Composition & Framing (from the character's viewpoint):**
+4.  **Composition & Framing:**
     *   How is the scene framed from the character's eyes? (e.g., "looking straight ahead at a door," "view through a sniper scope," "gazing up at a tall tower").
-    *   Describe the arrangement of elements as perceived by the character. Avoid terms like "medium shot" or "wide shot" unless they can be rephrased from an FPS view (e.g., "a wide vista opens up before me").
+    *   Describe the arrangement of elements as perceived by the character. Avoid terms like "medium shot" or "wide shot" unless they can be rephrased (e.g., "a wide vista opens up before the viewer").
 
-5.  **Lighting & Atmosphere (as perceived by the character):**
+5.  **Lighting & Atmosphere:**
     *   Describe lighting conditions (e.g., "bright sunlight streams through the window in front of me," "only the dim glow of my flashlight illuminates the passage ahead," "neon signs reflect off the wet street I'm looking at").
     *   What is the overall mood or atmosphere from the character's perspective? (e.g., "a tense silence hangs in the air as I look down the dark hallway," "a sense of peace as I gaze at the sunset over the mountains").
 
 6.  **Color Palette:**
     *   Specify dominant colors or a color scheme relevant to what the character sees.
 
-7.  **Details & Keywords:**
-    *   Include crucial details from the input scene description that the character would notice.
-    *   Use descriptive adjectives and strong keywords.
+7.  **Camera & Lens Details (optional but recommended):**
+    *   To influence the field of view and photographic feel, you may specify a lens type and focal length—e.g., "macro 60 mm" for detailed close-ups, "telephoto zoom 250 mm" for distant action, or "wide-angle 14 mm" for sweeping vistas. These values follow the guidance in Google’s Gemini image-generation documentation [link](https://ai.google.dev/gemini-api/docs/image-generation).
+    *   Mention camera style or sensor type if it helps (e.g., "35 mm film, Portra 400" or "full-frame DSLR").
 
-**Example for the `scene_description` field (the FPS image prompt):**
-"FPS view. Through the cockpit window of a futuristic hovercar, a sprawling neon-lit cyberpunk city stretches out under a stormy, rain-lashed sky. Rain streaks across the glass. The hum of the engine is palpable. Photorealistic, Blade Runner style. Cool blue and vibrant pink neon palette."
+8.  **Details & Keywords:**
+    *   Include crucial details from the input scene description that the character would notice.
+    *   Use evocative adjectives and strong, domain-specific keywords.
+
+**Example for the `scene_description` field (the image prompt):**
+"Through the cockpit window of a futuristic hovercar, a sprawling neon-lit cyberpunk city stretches out under a stormy, rain-lashed sky. Rain streaks across the glass. The hum of the engine is palpable. Photorealistic, Blade Runner style. Cool blue and vibrant pink neon palette."
 """
 
 
 class ChangeScene(BaseModel):
-    change_scene: Literal["change_completely", "modify", "no_change"] = Field(
-        description="Whether the scene should be completely changed, just modified or not changed at all"
+    change_scene: bool = Field(
+        description="Whether the scene should be changed"
     )
     scene_description: Optional[str] = None
 
-async def generate_image_prompt(user_hash: str, scene_description: str, last_choice = "No choice yet") -> ChangeScene:
+async def generate_image_prompt(state: UserState, scene_description: str, last_choice = "No choice yet") -> ChangeScene:
     """
     Generates a detailed image prompt string based on a scene description.
     This prompt is intended for use with an AI image generation model.
     """
-    logger.info(f"Generating image prompt for the current scene: {scene_description}")
-
-    state = await get_user_state(user_hash)
     scene = GAME_STATE_PROMPT.format(
         lore=state.story_frame.lore,
         goal=state.story_frame.goal,
@@ -92,5 +85,5 @@ async def generate_image_prompt(user_hash: str, scene_description: str, last_cho
             HumanMessage(content=scene),
         ]
     ))
-    logger.info(f"Image prompt generated")
+    logger.debug("Image prompt generated")
     return response

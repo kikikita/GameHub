@@ -29,6 +29,8 @@ safety_settings = [
     ),
 ]
 
+image_negative_prompt = """"""
+
 
 async def generate_image(prompt: str) -> tuple[str, str] | None:
     """
@@ -54,6 +56,7 @@ async def generate_image(prompt: str) -> tuple[str, str] | None:
                     prompt=prompt,
                     config=types.GenerateImagesConfig(
                         number_of_images=1,
+                        negative_prompt=image_negative_prompt,
                         aspect_ratio="9:16",
                     ),
                 )
