@@ -107,4 +107,3 @@ def downgrade() -> None:
 
     op.drop_table('stories')
     op.drop_table('worlds')
-*** End Patch
