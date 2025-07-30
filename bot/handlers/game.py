@@ -197,13 +197,10 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         return
 
     resp = await http_client.post(
-        "/api/v1/templates",
+        "/api/v1/worlds",
         json={
+            "title": template.get("genre"),
             "setting_desc": template.get("setting_desc"),
-            "char_name": template.get("char_name"),
-            "char_age": template.get("char_age"),
-            "char_background": template.get("char_background"),
-            "char_personality": template.get("char_personality"),
             "genre": template.get("genre"),
         },
         headers=headers,
@@ -215,12 +212,30 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         )
         return
     if resp.status_code != 201:
-        await call.answer("Ошибка шаблона", show_alert=True)
+        await call.answer("Ошибка мира", show_alert=True)
         return
-    tmpl_id = resp.json()["id"]
+    world_id = resp.json()["id"]
+    resp = await http_client.post(
+        f"/api/v1/worlds/{world_id}/stories",
+        json={
+            "title": template.get("genre"),
+            "character": {
+                "char_name": template.get("char_name"),
+                "char_age": template.get("char_age"),
+                "char_background": template.get("char_background"),
+                "char_personality": template.get("char_personality"),
+            },
+            "is_free": False,
+        },
+        headers=headers,
+    )
+    if resp.status_code != 201:
+        await call.answer("Ошибка истории", show_alert=True)
+        return
+    story_id = resp.json()["id"]
     resp = await http_client.post(
         "/api/v1/sessions",
-        json={"template_id": tmpl_id},
+        json={"story_id": story_id},
         headers=headers,
     )
     if resp.status_code != 201:

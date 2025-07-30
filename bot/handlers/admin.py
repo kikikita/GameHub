@@ -57,7 +57,7 @@ async def health_command(message: Message):
 
 @router.message(AdminFilter(), Command("upload_presets"))
 async def upload_presets_cmd(message: Message):
-    """Upload a JSON file with preset templates."""
+    """Upload a JSON file with preset worlds and stories."""
 
     if not message.document:
         await message.answer("Пришлите JSON файл")
