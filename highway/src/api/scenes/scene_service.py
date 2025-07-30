@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,8 +31,8 @@ async def create_and_store_scene(
     if not state.story_frame:
         if session.story_frame:
             state.story_frame = StoryFrame(**session.story_frame)
-        elif session.template and session.template.story_frame:
-            state.story_frame = StoryFrame(**session.template.story_frame)
+        elif session.story and session.story.story_frame:
+            state.story_frame = StoryFrame(**session.story.story_frame)
 
     if not state.user_choices:
         res = await db.execute(
@@ -51,18 +52,14 @@ async def create_and_store_scene(
 
     order_num = await _next_order(db, session.id)
     if order_num == 1:
-        template = session.template
-        if not template:
-            raise ValueError("Template not found for session")
+        story = session.story
+        if not story:
+            raise ValueError("Story not found for session")
+        world = story.world
         story_frame = await generate_story_frame(
-            setting=template.setting_desc,
-            character={
-                "name": template.char_name,
-                "age": template.char_age,
-                "background": template.char_background,
-                "personality": template.char_personality,
-            },
-            genre=template.genre,
+            setting=world.setting_desc,
+            character=story.character or {},
+            genre=world.genre,
         )
         logger.info(f"Possible endings: {story_frame.endings}")
         state.story_frame = story_frame
@@ -84,6 +81,9 @@ async def create_and_store_scene(
         description = ending.description
         image_path = result.scene.image
         choices_json = None
+        session.is_finished = True
+        session.ended_at = datetime.utcnow()
+        db.add(session)
     else:
         scene_data = result.scene
         description = scene_data.description

@@ -10,7 +10,8 @@ This document provides an overview of the backend implemented in
   debugging via `debugpy` is supported when `debug_mode` is on.
 - **highway/src/api/** – REST API divided into logical modules:
   - `auth` – registration and profile endpoints.
-  - `templates` – CRUD for game templates.
+  - `worlds` – public and user-created settings.
+  - `stories` – individual stories belonging to worlds.
   - `sessions` – management of game sessions and scene generation.
   - `scenes` – operations with individual scenes.
   - `payments` – simple subscription endpoints.
@@ -18,7 +19,7 @@ This document provides an overview of the backend implemented in
   authentication data.
 - **highway/src/core/** – database initialization and session provider.
 - **highway/src/models/** – SQLAlchemy models describing persistent
-  entities such as `User`, `GameTemplate`, and `GameSession`.
+  entities such as `User`, `World`, `Story`, and `GameSession`.
 - **bot/** – aiogram based Telegram bot. Polls messages and delegates
   commands to handlers.
 
@@ -39,11 +40,11 @@ Below is a brief summary of the public endpoints provided by FastAPI.
 | POST  | `/auth/session`                        | Validate WebApp init data and set a cookie. |
 | POST  | `/api/v1/auth/register`                | Register a Telegram user.            |
 | GET   | `/api/v1/users/me`                     | Current user info.                   |
-| POST  | `/api/v1/templates`                    | Create a game template.              |
-| GET   | `/api/v1/templates`                    | List user templates.                 |
-| GET   | `/api/v1/templates/{id}`               | Fetch a template.                    |
-| POST  | `/api/v1/templates/{id}/share`         | Make a template public.              |
-| GET   | `/api/v1/templates/shared/{code}`      | Retrieve shared template.            |
+| GET   | `/api/v1/worlds`                       | List available worlds. |
+| GET   | `/api/v1/worlds/{id}`                  | Fetch a world. |
+| GET   | `/api/v1/worlds/{id}/stories`          | Stories for a world. |
+| GET   | `/api/v1/stories/{id}`                 | Fetch a story. |
+| POST  | `/api/v1/presets/upload`               | Bulk upload preset worlds. |
 | POST  | `/api/v1/sessions`                     | Start a game session.                |
 | GET   | `/api/v1/sessions/{id}`                | Get current scene.                   |
 | POST  | `/api/v1/sessions/{id}/choice`         | Submit choice and generate next scene. |

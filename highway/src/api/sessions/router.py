@@ -9,7 +9,7 @@ from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
 from src.models.game_session import GameSession
 from src.models.scene import Scene
-from src.models.game_template import GameTemplate
+from src.models.story import Story
 from src.api.scenes.scene_service import create_and_store_scene
 from .schemas import SessionCreate, SessionOut
 from src.api.scenes.schemas import SceneOut, scene_to_out
@@ -27,17 +27,17 @@ async def create_session(
     """Create a new gameplay session."""
 
     user_id = await resolve_user_id(db, user_data)
-    template_id = (
-        uuid.UUID(payload.template_id) if payload.template_id else None
+    story_id = (
+        uuid.UUID(payload.story_id) if payload.story_id else None
     )
-    session_obj = GameSession(user_id=user_id, template_id=template_id)
+    session_obj = GameSession(user_id=user_id, story_id=story_id)
     db.add(session_obj)
     await db.commit()
     await db.refresh(session_obj)
 
-    if template_id:
-        tmpl = await db.get(GameTemplate, template_id)
-        if tmpl:
+    if story_id:
+        story = await db.get(Story, story_id)
+        if story:
             await create_and_store_scene(db, session_obj, None)
 
     return SessionOut(
@@ -45,6 +45,7 @@ async def create_session(
         started_at=session_obj.started_at,
         share_code=str(session_obj.share_code),
         story_frame=session_obj.story_frame,
+        is_finished=session_obj.is_finished,
     )
 
 

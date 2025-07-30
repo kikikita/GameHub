@@ -2,8 +2,9 @@ import { getStories } from "@/api/stories";
 import { StoryCard } from "@/components/StoryCard/StoryCard";
 import { use } from "react";
 import { exitMiniApp } from "@/telegram/exit";
+import { navigationStore } from "@/stores/NavigationStore";
 
-const storiesPromise = getStories('')
+const storiesPromise = getStories(navigationStore.selectedRealmId || '')
 
 export function StoryPage() {
   const stories = use(storiesPromise);
