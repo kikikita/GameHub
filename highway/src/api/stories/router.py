@@ -21,6 +21,8 @@ class StoryOut(BaseModel):
     id: str
     world_id: str
     title: str | None = None
+    story_desc: str | None = None
+    genre: str | None = None
     character: dict | None = None
     story_frame: dict | None = None
     is_public: bool | None = None
@@ -33,6 +35,8 @@ class StoryOut(BaseModel):
 
 class StoryCreate(BaseModel):
     title: str | None = None
+    story_desc: str | None = None
+    genre: str | None = None
     character: dict | None = None
     story_frame: dict | None = None
     is_public: bool | None = None
@@ -56,18 +60,24 @@ async def get_story(story_id: str, db: AsyncSession = Depends(get_session)) -> S
     return StoryOut.from_orm(obj)
 
 
-@router.post("/worlds/{world_id}/stories", response_model=StoryOut, status_code=status.HTTP_201_CREATED)
+@router.post("/stories", response_model=StoryOut, status_code=status.HTTP_201_CREATED)
 async def create_story(
-    world_id: str,
     payload: StoryCreate,
     user_data: dict = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> StoryOut:
     user_id = await resolve_user_id(db, user_data)
     await ensure_pro_plan(db, user_id)
-    world = await db.get(World, uuid.UUID(world_id))
+    res = await db.execute(select(World).where(World.user_id == user_id))
+    world = res.scalars().first()
     if not world:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        world = World(
+            user_id=user_id,
+            title=payload.title,
+            world_desc=payload.story_desc,
+        )
+        db.add(world)
+        await db.flush()
     story = Story(world_id=world.id, user_id=user_id, **payload.model_dump())
     db.add(story)
     await db.commit()
@@ -81,8 +91,7 @@ async def _import_presets(db: AsyncSession, data: dict) -> None:
     for w in data["worlds"]:
         world = World(
             title=w.get("title"),
-            setting_desc=w.get("setting_desc"),
-            genre=w.get("genre"),
+            world_desc=w.get("world_desc"),
             image_url=w.get("image_url"),
             is_free=w.get("is_free", False),
             is_preset=True,
@@ -94,6 +103,8 @@ async def _import_presets(db: AsyncSession, data: dict) -> None:
             story = Story(
                 world_id=world.id,
                 title=s.get("title"),
+                story_desc=s.get("story_desc"),
+                genre=s.get("genre"),
                 character=s.get("character"),
                 story_frame=s.get("story_frame"),
                 is_public=s.get("is_public", False),

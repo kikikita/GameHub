@@ -19,7 +19,7 @@ def example_keyboard() -> InlineKeyboardMarkup:
 def setup_keyboard() -> InlineKeyboardMarkup:
     """Keyboard for the game setup step."""
     kb = InlineKeyboardBuilder()
-    kb.button(text="Setting", callback_data="edit:setting_desc")
+    kb.button(text="Setting", callback_data="edit:world_desc")
     kb.button(text="Char Name", callback_data="edit:char_name")
     kb.button(text="Char Age", callback_data="edit:char_age")
     kb.button(text="Char Background", callback_data="edit:char_background")

@@ -32,7 +32,7 @@ active_sessions: dict[int, list[dict]] = {}
 
 # Default game template values
 DEFAULT_TEMPLATE = {
-    "setting_desc": (
+    "world_desc": (
         "A post-apocalyptic wasteland where survivors struggle to rebuild "
         "civilization among the ruins of the old world"
     ),
@@ -53,7 +53,7 @@ DEFAULT_TEMPLATE = {
 def _build_setup_text(data: dict) -> str:
     """Build setup message with current template data."""
     return (
-        f"Setting Description: {data.get('setting_desc') or '-'}\n"
+        f"Setting Description: {data.get('world_desc') or '-'}\n"
         f"Character Name: {data.get('char_name') or '-'}\n"
         f"Character Age: {data.get('char_age') or '-'}\n"
         f"Character Background: {data.get('char_background') or '-'}\n"
@@ -131,7 +131,7 @@ async def edit_field(call: CallbackQuery, state: FSMContext):
 
     field = call.data.split(":", 1)[1]
     prompts = {
-        "setting_desc": "Введите описание сеттинга",
+        "world_desc": "Введите описание сеттинга",
         "char_name": "Введите имя персонажа",
         "char_age": "Введите возраст персонажа",
         "char_background": "Введите предысторию персонажа",
@@ -197,28 +197,11 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         return
 
     resp = await http_client.post(
-        "/api/v1/worlds",
+        "/api/v1/stories",
         json={
             "title": template.get("genre"),
-            "setting_desc": template.get("setting_desc"),
+            "story_desc": template.get("world_desc"),
             "genre": template.get("genre"),
-        },
-        headers=headers,
-    )
-    if resp.status_code == 403:
-        await call.answer(
-            "Создание историй доступно только на тарифе Pro",
-            show_alert=True,
-        )
-        return
-    if resp.status_code != 201:
-        await call.answer("Ошибка мира", show_alert=True)
-        return
-    world_id = resp.json()["id"]
-    resp = await http_client.post(
-        f"/api/v1/worlds/{world_id}/stories",
-        json={
-            "title": template.get("genre"),
             "character": {
                 "char_name": template.get("char_name"),
                 "char_age": template.get("char_age"),

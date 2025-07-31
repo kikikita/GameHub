@@ -22,7 +22,7 @@ export async function getRealms(): Promise<RealmResponse> {
         realms: data.map((w: any) => ({
             id: w.id,
             title: w.title,
-            description: w.setting_desc,
+            description: w.world_desc,
             imageUrl: w.image_url || "",
         })),
     };

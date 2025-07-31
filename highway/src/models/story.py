@@ -23,6 +23,8 @@ class Story(Base):
     )
     user_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
     title: Mapped[str | None] = mapped_column(Text, nullable=True)
+    story_desc: Mapped[str | None] = mapped_column(Text, nullable=True)
+    genre: Mapped[str | None] = mapped_column(Text, nullable=True)
     character: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     story_frame: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     is_public: Mapped[bool] = mapped_column(Boolean, default=False)

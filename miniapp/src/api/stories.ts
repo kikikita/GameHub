@@ -21,7 +21,7 @@ export async function getStories(worldId: string): Promise<StoryResponse> {
     stories: data.map((t: any) => ({
       id: t.id,
       title: t.title,
-      description: t.character?.name || "",
+      description: t.story_desc || "",
       imageUrl: "",
     })),
   };

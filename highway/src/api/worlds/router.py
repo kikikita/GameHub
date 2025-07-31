@@ -18,8 +18,7 @@ router = APIRouter(prefix="/api/v1/worlds", tags=["worlds"])
 class WorldOut(BaseModel):
     id: str
     title: str | None = None
-    setting_desc: str | None = None
-    genre: str | None = None
+    world_desc: str | None = None
     image_url: str | None = None
     is_free: bool | None = None
     is_preset: bool | None = None
@@ -30,8 +29,7 @@ class WorldOut(BaseModel):
 
 class WorldCreate(BaseModel):
     title: str | None = None
-    setting_desc: str | None = None
-    genre: str | None = None
+    world_desc: str | None = None
     image_url: str | None = None
     is_free: bool | None = None
 

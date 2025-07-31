@@ -57,9 +57,9 @@ async def create_and_store_scene(
             raise ValueError("Story not found for session")
         world = story.world
         story_frame = await generate_story_frame(
-            setting=world.setting_desc,
+            setting=world.world_desc,
             character=story.character or {},
-            genre=world.genre,
+            genre=story.genre,
         )
         logger.info(f"Possible endings: {story_frame.endings}")
         state.story_frame = story_frame
