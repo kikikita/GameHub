@@ -18,6 +18,7 @@ class RegisterIn(BaseModel):
 
     tg_id: int
     username: str | None = None
+    language: str | None = None
 
 
 class UserOut(BaseModel):
@@ -26,6 +27,7 @@ class UserOut(BaseModel):
     id: int
     tg_id: int
     username: str | None = None
+    language: str | None = None
 
     class Config:
         from_attributes = True
@@ -47,7 +49,11 @@ async def register_user(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already exists",
         )
-    user = User(tg_id=payload.tg_id, username=payload.username)
+    user = User(
+        tg_id=payload.tg_id,
+        username=payload.username,
+        language=payload.language,
+    )
     session.add(user)
     await session.commit()
     await session.refresh(user)
@@ -85,4 +91,39 @@ async def get_me(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+    return user
+
+
+class UserUpdate(BaseModel):
+    language: str | None = None
+
+
+@router.patch("/users/me", response_model=UserOut)
+async def update_me(
+    payload: UserUpdate,
+    user_data: dict = Depends(authenticated_user),
+    session: AsyncSession = Depends(get_session),
+) -> User:
+    tg_id = None
+    if "user_id" in user_data:
+        tg_id = str(user_data["user_id"])
+    else:
+        if isinstance(user_data.get("user"), str):
+            try:
+                tg_id = str(json.loads(user_data["user"]).get("id"))
+            except Exception:
+                tg_id = None
+        if tg_id is None:
+            raw_id = user_data.get("id")
+            tg_id = str(raw_id) if raw_id is not None else None
+    if not tg_id:
+        raise HTTPException(status_code=404, detail="User not found")
+    res = await session.execute(select(User).where(User.tg_id == tg_id))
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if payload.language is not None:
+        user.language = payload.language
+    await session.commit()
+    await session.refresh(user)
     return user
