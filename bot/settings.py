@@ -22,6 +22,7 @@ class Bots:
     bot_token: str
     admin_id: List[int]
     app_url: str
+    web_url: str
     debug: bool
 
 
@@ -43,6 +44,7 @@ def get_settings(path: str) -> Settings:
             bot_token=env.str("TG_BOT_TOKEN"),
             admin_id=[int(x) for x in env.list("ADMIN_ID")],
             app_url=env.str("APP_URL", "http://highway:8000"),
+            web_url=env.str("WEB_URL", "https://www.immersia.fun/"),
             debug=env.bool("DEBUG", False)
         ),
     )

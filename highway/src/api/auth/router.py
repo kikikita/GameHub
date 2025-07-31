@@ -69,22 +69,22 @@ async def get_me(
 
     tg_id = None
     if "user_id" in user_data:
-        tg_id = str(user_data["user_id"])
+        tg_id = user_data["user_id"]
     else:
         if isinstance(user_data.get("user"), str):
             try:
-                tg_id = str(json.loads(user_data["user"]).get("id"))
+                tg_id = json.loads(user_data["user"]).get("id")
             except Exception:
                 tg_id = None
         if tg_id is None:
             raw_id = user_data.get("id")
-            tg_id = str(raw_id) if raw_id is not None else None
-    if not tg_id:
+            tg_id = raw_id if raw_id is not None else None
+    if tg_id is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    res = await session.execute(select(User).where(User.tg_id == tg_id))
+    res = await session.execute(select(User).where(User.tg_id == int(tg_id)))
     user = res.scalar_one_or_none()
     if not user:
         raise HTTPException(
@@ -106,19 +106,19 @@ async def update_me(
 ) -> User:
     tg_id = None
     if "user_id" in user_data:
-        tg_id = str(user_data["user_id"])
+        tg_id = user_data["user_id"]
     else:
         if isinstance(user_data.get("user"), str):
             try:
-                tg_id = str(json.loads(user_data["user"]).get("id"))
+                tg_id = json.loads(user_data["user"]).get("id")
             except Exception:
                 tg_id = None
         if tg_id is None:
             raw_id = user_data.get("id")
-            tg_id = str(raw_id) if raw_id is not None else None
-    if not tg_id:
+            tg_id = raw_id if raw_id is not None else None
+    if tg_id is None:
         raise HTTPException(status_code=404, detail="User not found")
-    res = await session.execute(select(User).where(User.tg_id == tg_id))
+    res = await session.execute(select(User).where(User.tg_id == int(tg_id)))
     user = res.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

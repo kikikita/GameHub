@@ -136,7 +136,7 @@ async def play_cmd(message: Message, state: FSMContext):
     if not await _has_pro(message.from_user.id):
         await message.answer(
             "Создай собственную историю в веб-приложении",
-            reply_markup=open_app_keyboard(settings.bots.app_url),
+            reply_markup=open_app_keyboard(settings.bots.web_url),
         )
         return
 

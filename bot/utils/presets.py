@@ -23,6 +23,6 @@ async def show_presets(chat_id: int, bot, headers: dict) -> None:
         emoji = emojis.get(s.get("genre"), "🎲")
         lines.append(f"{emoji} [{s.get('genre')}] {s.get('title')}")
     text = "\n".join(lines)
-    kb = stories_keyboard(stories, settings.bots.app_url)
+    kb = stories_keyboard(stories, settings.bots.web_url)
     await bot.send_message(chat_id, text, reply_markup=kb)
 

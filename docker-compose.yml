@@ -25,6 +25,7 @@ services:
       - TG_BOT_TOKEN=${TG_BOT_TOKEN}
       - ADMIN_ID=${ADMIN_ID}
       - APP_URL=http://highway:8000
+      - WEB_URL=${WEB_URL}
       - API_KEY=SECRET_TOKEN
     ports:
       - "25678:5678"
