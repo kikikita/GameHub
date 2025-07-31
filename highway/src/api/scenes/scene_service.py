@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.scene import Scene
 from src.models.choice import Choice
 from src.models.game_session import GameSession
+from src.models.story import Story
 from src.game.agent.runner import process_step, SceneResponse
 from src.game.agent.redis_state import get_user_state, set_user_state
 from src.game.agent.models import StoryFrame, UserChoice, UserState
@@ -25,6 +26,7 @@ async def create_and_store_scene(
     db: AsyncSession,
     session: GameSession,
     choice_text: str | None,
+    story: Story | None = None,
 ) -> Scene:
     user_hash = str(session.id)
     state = await get_user_state(user_hash)
@@ -52,7 +54,10 @@ async def create_and_store_scene(
 
     order_num = await _next_order(db, session.id)
     if order_num == 1:
-        story = session.story
+        if story is None:
+            story = session.story
+            if story is not None:
+                await db.refresh(story, ["world"])
         if not story:
             raise ValueError("Story not found for session")
         world = story.world

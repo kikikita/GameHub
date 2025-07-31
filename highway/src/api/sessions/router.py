@@ -38,7 +38,8 @@ async def create_session(
     if story_id:
         story = await db.get(Story, story_id)
         if story:
-            await create_and_store_scene(db, session_obj, None)
+            await db.refresh(story, ["world"])
+            await create_and_store_scene(db, session_obj, None, story)
 
     return SessionOut(
         id=str(session_obj.id),
