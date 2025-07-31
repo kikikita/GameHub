@@ -77,9 +77,7 @@ async def start_command(message: Message):
 
     welcome = (
         f"👋 Привет, <b>{message.from_user.first_name}</b>!\n"
-        "Добро пожаловать в <b>Immersia</b> — здесь вы можете "
-        "создавать собственные интерактивные истории.\n"
-        "Отправьте <b>/my_game</b>, чтобы начать приключение."
+        "Добро пожаловать в <b>Immersia</b>"
     )
     await message.answer(welcome, parse_mode=ParseMode.HTML)
     await show_presets(message.chat.id, message.bot, headers)
@@ -91,7 +89,7 @@ async def help_command(message: Message):
 
     help_message = (
         "ℹ️ <b>Помощь</b>\n\n"
-        "<b>/my_game</b> — создать новую игру\n"
+        "<b>/new_game</b> — создать новую игру\n"
         "<b>/my_games</b> — список ваших активных игр\n"
         "<b>/end_game</b> — завершить текущую сессию\n"
         "<b>/help</b> — показать это сообщение"

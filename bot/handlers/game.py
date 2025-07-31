@@ -286,7 +286,10 @@ async def select_preset(call: CallbackQuery, state: FSMContext):
     if world_resp.status_code == 200:
         image_url = world_resp.json().get("image_url")
     if image_url:
-        await call.message.answer_photo(image_url, caption=story.get("story_desc", ""))
+        try:
+            await call.message.answer_photo(image_url, caption=story.get("story_desc", ""))
+        except Exception:
+            await call.message.answer(text=story.get("story_desc", ""))
     else:
         await call.message.answer(story.get("story_desc", ""))
     resp = await http_client.post(
