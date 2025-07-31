@@ -16,6 +16,9 @@ from keyboards.inline import (
     cancel_keyboard,
     choices_keyboard,
     games_keyboard,
+    language_keyboard,
+    stories_keyboard,
+    open_app_keyboard,
 )
 from utils.states import GameSetup, GamePlay
 
@@ -113,9 +116,29 @@ def _get_headers(uid: int) -> dict | None:
     return user_headers.get(uid)
 
 
-@router.message(Command(commands=["play", "new_game"]))
+async def _has_pro(uid: int) -> bool:
+    headers = _get_headers(uid)
+    if not headers:
+        return False
+    resp = await http_client.get("/api/v1/subscription/status", headers=headers)
+    if resp.status_code != 200:
+        return False
+    data = resp.json()
+    return data.get("status") == "active"
+
+
+
+
+@router.message(Command(commands=["my_game"]))
 async def play_cmd(message: Message, state: FSMContext):
     """Begin game setup by sending initial template."""
+
+    if not await _has_pro(message.from_user.id):
+        await message.answer(
+            "Создай собственную историю в веб-приложении",
+            reply_markup=open_app_keyboard(settings.bots.app_url),
+        )
+        return
 
     data = DEFAULT_TEMPLATE.copy()
     txt = _build_setup_text(data)
@@ -242,6 +265,52 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     await _send_scene(
         call.message.chat.id, call.bot, scene, session_id, state
     )
+
+
+@router.callback_query(F.data.startswith("preset:"))
+async def select_preset(call: CallbackQuery, state: FSMContext):
+    story_id = call.data.split(":", 1)[1]
+    headers = _get_headers(call.from_user.id)
+    if not headers:
+        await call.answer("Сначала выполните /start", show_alert=True)
+        return
+    resp = await http_client.get(f"/api/v1/stories/{story_id}", headers=headers)
+    if resp.status_code != 200:
+        await call.answer("Ошибка", show_alert=True)
+        return
+    story = resp.json()
+    world_resp = await http_client.get(
+        f"/api/v1/worlds/{story['world_id']}", headers=headers
+    )
+    image_url = None
+    if world_resp.status_code == 200:
+        image_url = world_resp.json().get("image_url")
+    if image_url:
+        await call.message.answer_photo(image_url, caption=story.get("story_desc", ""))
+    else:
+        await call.message.answer(story.get("story_desc", ""))
+    resp = await http_client.post(
+        "/api/v1/sessions",
+        json={"story_id": story_id},
+        headers=headers,
+    )
+    if resp.status_code != 201:
+        await call.answer("Ошибка", show_alert=True)
+        return
+    session_id = resp.json()["id"]
+    resp = await http_client.get(
+        f"/api/v1/sessions/{session_id}",
+        headers=headers,
+    )
+    if resp.status_code != 200:
+        await call.answer("Ошибка", show_alert=True)
+        return
+    scene = resp.json()
+    active_sessions.setdefault(call.from_user.id, []).append(
+        {"id": session_id, "title": story.get("title")}
+    )
+    await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
+    await call.answer()
 
 
 @router.callback_query(F.data.startswith("choice:"))

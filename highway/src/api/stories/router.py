@@ -52,6 +52,15 @@ async def list_stories(world_id: str, db: AsyncSession = Depends(get_session)) -
     return [StoryOut.from_orm(s) for s in stories]
 
 
+@router.get("/stories/preset", response_model=list[StoryOut])
+async def list_preset_stories(db: AsyncSession = Depends(get_session)) -> list[StoryOut]:
+    res = await db.execute(
+        select(Story).where(Story.is_preset.is_(True), Story.is_free.is_(True))
+    )
+    stories = list(res.scalars())
+    return [StoryOut.from_orm(s) for s in stories]
+
+
 @router.get("/stories/{story_id}", response_model=StoryOut)
 async def get_story(story_id: str, db: AsyncSession = Depends(get_session)) -> StoryOut:
     obj = await db.get(Story, uuid.UUID(story_id))

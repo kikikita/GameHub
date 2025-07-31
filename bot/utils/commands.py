@@ -9,7 +9,7 @@ async def set_commands(bot: Bot) -> None:
 
     commands = [
         BotCommand(command="start", description="Регистрация"),
-        BotCommand(command="new_game", description="Создать игру"),
+        BotCommand(command="my_game", description="Создать игру"),
         BotCommand(command="my_games", description="Мои игры"),
         BotCommand(command="end_game", description="Завершить игру"),
         BotCommand(command="help", description="Помощь"),
