@@ -9,6 +9,7 @@ from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
 from src.models.scene import Scene
 from src.models.game_session import GameSession
+from src.models.story import Story
 from .schemas import SceneCreate, SceneOut, scene_to_out
 from .scene_service import create_and_store_scene
 from src.api.utils import resolve_user_id
@@ -36,10 +37,16 @@ async def generate_scene(
     user_id = await resolve_user_id(db, user_data)
     if res.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    story = None
+    if res.story_id:
+        story = await db.get(Story, res.story_id)
+        if story:
+            await db.refresh(story, ["world"])
     scene = await create_and_store_scene(
         db,
         res,
         payload.choice_text if payload else None,
+        story,
     )
     return scene_to_out(scene)
 
