@@ -18,8 +18,8 @@ router = APIRouter(prefix="/api/v1", tags=["stories"])
 
 
 class StoryOut(BaseModel):
-    id: str
-    world_id: str
+    id: uuid.UUID
+    world_id: uuid.UUID
     title: str | None = None
     story_desc: str | None = None
     genre: str | None = None

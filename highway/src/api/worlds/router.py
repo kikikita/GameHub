@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/worlds", tags=["worlds"])
 
 
 class WorldOut(BaseModel):
-    id: str
+    id: uuid.UUID
     title: str | None = None
     world_desc: str | None = None
     image_url: str | None = None
