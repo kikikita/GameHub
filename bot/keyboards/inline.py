@@ -39,12 +39,12 @@ def cancel_keyboard() -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-def choices_keyboard(choices: Iterable[str]) -> InlineKeyboardMarkup:
-    """Keyboard with a list of choices."""
+def choices_keyboard(choices: Iterable[dict]) -> InlineKeyboardMarkup:
+    """Keyboard with a list of choices using short callback data."""
 
     kb = InlineKeyboardBuilder()
-    for choice in choices:
-        kb.button(text=choice['text'], callback_data=f"choice:{choice['text']}")
+    for idx, choice in enumerate(choices):
+        kb.button(text=choice["text"], callback_data=f"choice:{idx}")
     kb.adjust(1)
     return kb.as_markup()
 

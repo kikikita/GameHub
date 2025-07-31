@@ -14,12 +14,12 @@ from .basic import user_headers
 from keyboards.inline import (
     setup_keyboard,
     cancel_keyboard,
-    choices_keyboard,
     games_keyboard,
     language_keyboard,
     stories_keyboard,
     open_app_keyboard,
 )
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from utils.states import GameSetup, GamePlay
 
 http_client = httpx.AsyncClient(
@@ -77,7 +77,16 @@ async def _send_scene(
     choices = []
     if scene.get("choices_json"):
         choices = scene["choices_json"].get("choices", [])
-    reply_kb = choices_keyboard(choices) if choices else None
+
+    reply_kb = None
+    choice_map = {}
+    if choices:
+        kb = InlineKeyboardBuilder()
+        for idx, choice in enumerate(choices):
+            kb.button(text=choice["text"], callback_data=f"choice:{idx}")
+            choice_map[str(idx)] = choice["text"]
+        kb.adjust(1)
+        reply_kb = kb.as_markup()
 
     is_photo = False
     if scene.get("image_data"):
@@ -101,6 +110,7 @@ async def _send_scene(
             last_scene_id=msg.message_id,
             last_scene_text=text,
             last_scene_photo=is_photo,
+            choices_map=choice_map,
         )
     else:
         await state.clear()
@@ -272,6 +282,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     await _send_scene(
         call.message.chat.id, call.bot, scene, session_id, state
     )
+    await call.answer()
 
 
 @router.callback_query(F.data.startswith("preset:"))
@@ -281,6 +292,10 @@ async def select_preset(call: CallbackQuery, state: FSMContext):
     if not headers:
         await call.answer("Сначала выполните /start", show_alert=True)
         return
+    try:
+        await call.message.delete()
+    except Exception:
+        pass
     resp = await http_client.get(f"/api/v1/stories/{story_id}", headers=headers)
     if resp.status_code != 200:
         await call.answer("Ошибка", show_alert=True)
@@ -327,14 +342,16 @@ async def select_preset(call: CallbackQuery, state: FSMContext):
 async def make_choice(call: CallbackQuery, state: FSMContext):
     """Handle choice selection via inline button."""
 
-    choice = call.data.split(":", 1)[1]
+    choice_idx = call.data.split(":", 1)[1]
     data = await state.get_data()
     session_id = data.get("session_id")
     last_scene_id = data.get("last_scene_id")
     last_text = data.get("last_scene_text", "")
     last_photo = data.get("last_scene_photo", False)
+    choices_map = data.get("choices_map", {})
+    choice = choices_map.get(choice_idx)
     headers = _get_headers(call.from_user.id)
-    if not session_id or not headers:
+    if not session_id or not headers or not choice:
         await call.answer()
         return
 
