@@ -57,8 +57,8 @@ async def subscription_status(
     )
     sub = res.scalars().first()
     if not sub:
-        return {"status": "canceled"}
-    return {"status": sub.status}
+        return {"status": "canceled", "plan": "free"}
+    return {"status": sub.status, "plan": sub.plan}
 
 
 @router.post("/subscription/change-plan")
