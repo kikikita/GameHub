@@ -32,7 +32,7 @@ active_sessions: dict[int, list[dict]] = {}
 
 # Default game template values
 DEFAULT_TEMPLATE = {
-    "world_desc": (
+    "story_desc": (
         "A post-apocalyptic wasteland where survivors struggle to rebuild "
         "civilization among the ruins of the old world"
     ),
@@ -53,7 +53,7 @@ DEFAULT_TEMPLATE = {
 def _build_setup_text(data: dict) -> str:
     """Build setup message with current template data."""
     return (
-        f"Setting Description: {data.get('world_desc') or '-'}\n"
+        f"Setting Description: {data.get('story_desc') or '-'}\n"
         f"Character Name: {data.get('char_name') or '-'}\n"
         f"Character Age: {data.get('char_age') or '-'}\n"
         f"Character Background: {data.get('char_background') or '-'}\n"
@@ -131,7 +131,7 @@ async def edit_field(call: CallbackQuery, state: FSMContext):
 
     field = call.data.split(":", 1)[1]
     prompts = {
-        "world_desc": "Введите описание сеттинга",
+        "story_desc": "Введите описание сеттинга",
         "char_name": "Введите имя персонажа",
         "char_age": "Введите возраст персонажа",
         "char_background": "Введите предысторию персонажа",
@@ -200,7 +200,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         "/api/v1/stories",
         json={
             "title": template.get("genre"),
-            "story_desc": template.get("world_desc"),
+            "story_desc": template.get("story_desc"),
             "genre": template.get("genre"),
             "character": {
                 "char_name": template.get("char_name"),
