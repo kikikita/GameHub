@@ -32,9 +32,23 @@ async def create_and_store_scene(
     state = await get_user_state(user_hash)
     if not state.story_frame:
         if session.story_frame:
-            state.story_frame = StoryFrame(**session.story_frame)
+            sf_data = dict(session.story_frame)
+            if (
+                ("setting" not in sf_data or "character" not in sf_data or "genre" not in sf_data)
+                and session.story
+            ):
+                await db.refresh(session.story, ["world"])
+                sf_data.setdefault("setting", session.story.world.world_desc)
+                sf_data.setdefault("character", session.story.character or {})
+                sf_data.setdefault("genre", session.story.genre)
+            state.story_frame = StoryFrame(**sf_data)
         elif session.story and session.story.story_frame:
-            state.story_frame = StoryFrame(**session.story.story_frame)
+            await db.refresh(session.story, ["world"])
+            sf_data = dict(session.story.story_frame)
+            sf_data.setdefault("setting", session.story.world.world_desc)
+            sf_data.setdefault("character", session.story.character or {})
+            sf_data.setdefault("genre", session.story.genre)
+            state.story_frame = StoryFrame(**sf_data)
 
     if not state.user_choices:
         res = await db.execute(
@@ -61,13 +75,16 @@ async def create_and_store_scene(
         if not story:
             raise ValueError("Story not found for session")
         world = story.world
-        story_frame = await generate_story_frame(
-            setting=world.world_desc,
-            character=story.character or {},
-            genre=story.genre,
-        )
+        if not state.story_frame:
+            story_frame = await generate_story_frame(
+                setting=world.world_desc,
+                character=story.character or {},
+                genre=story.genre,
+            )
+            state.story_frame = story_frame
+        else:
+            story_frame = state.story_frame
         logger.info(f"Possible endings: {story_frame.endings}")
-        state.story_frame = story_frame
         initial_scene = await generate_initial_scene(state)
         result = SceneResponse(scene=initial_scene, game_over=False)
     else:

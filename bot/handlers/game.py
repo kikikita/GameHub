@@ -124,7 +124,7 @@ async def _has_pro(uid: int) -> bool:
     if resp.status_code != 200:
         return False
     data = resp.json()
-    return data.get("status") == "active"
+    return data.get("status") == "active" and data.get("plan") == "pro"
 
 
 
@@ -236,7 +236,14 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         headers=headers,
     )
     if resp.status_code != 201:
-        await call.answer("Ошибка истории", show_alert=True)
+        if resp.status_code == 403:
+            await call.message.answer(
+                "Создай собственную историю в веб-приложении",
+                reply_markup=open_app_keyboard(settings.bots.web_url),
+            )
+            await state.clear()
+        else:
+            await call.answer("Ошибка истории", show_alert=True)
         return
     story_id = resp.json()["id"]
     resp = await http_client.post(
