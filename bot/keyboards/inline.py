@@ -5,6 +5,8 @@ from typing import Iterable
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from utils.i18n import t
+
 
 def example_keyboard() -> InlineKeyboardMarkup:
     """Return a demo inline keyboard used for tests."""
@@ -16,25 +18,29 @@ def example_keyboard() -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-def setup_keyboard() -> InlineKeyboardMarkup:
+def setup_keyboard(lang: str) -> InlineKeyboardMarkup:
     """Keyboard for the game setup step."""
     kb = InlineKeyboardBuilder()
-    kb.button(text="Setting", callback_data="edit:world_desc")
-    kb.button(text="Char Name", callback_data="edit:char_name")
-    kb.button(text="Char Age", callback_data="edit:char_age")
-    kb.button(text="Char Background", callback_data="edit:char_background")
-    kb.button(text="Char Personality", callback_data="edit:char_personality")
-    kb.button(text="Genre", callback_data="edit:genre")
-    kb.button(text="Начать игру", callback_data="start_game")
+    kb.button(text=t(lang, "setup_setting"), callback_data="edit:world_desc")
+    kb.button(text=t(lang, "setup_char_name"), callback_data="edit:char_name")
+    kb.button(text=t(lang, "setup_char_age"), callback_data="edit:char_age")
+    kb.button(
+        text=t(lang, "setup_char_background"), callback_data="edit:char_background"
+    )
+    kb.button(
+        text=t(lang, "setup_char_personality"), callback_data="edit:char_personality"
+    )
+    kb.button(text=t(lang, "setup_genre"), callback_data="edit:genre")
+    kb.button(text=t(lang, "start_game"), callback_data="start_game")
     kb.adjust(2, 2, 2, 1)
     return kb.as_markup()
 
 
-def cancel_keyboard() -> InlineKeyboardMarkup:
+def cancel_keyboard(lang: str) -> InlineKeyboardMarkup:
     """Keyboard with a single cancel button."""
 
     kb = InlineKeyboardBuilder()
-    kb.button(text="Отмена", callback_data="cancel")
+    kb.button(text=t(lang, "cancel"), callback_data="cancel")
     kb.adjust(1)
     return kb.as_markup()
 
@@ -68,16 +74,25 @@ def language_keyboard() -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-def stories_keyboard(stories: Iterable[dict], web_url: str) -> InlineKeyboardMarkup:
+def stories_keyboard(stories: Iterable[dict], web_url: str, lang: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for story in stories:
         kb.button(text=story.get("title"), callback_data=f"preset:{story['id']}")
     kb.adjust(2)
-    kb.row(InlineKeyboardButton(text="✨ Откройте все истории", web_app=WebAppInfo(url=web_url)))
+    kb.row(
+        InlineKeyboardButton(
+            text=t(lang, "open_all_stories"),
+            web_app=WebAppInfo(url=web_url),
+        )
+    )
     return kb.as_markup()
 
 
-def open_app_keyboard(web_url: str) -> InlineKeyboardMarkup:
+def open_app_keyboard(web_url: str, lang: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.row(InlineKeyboardButton(text="✨ Откройте веб-приложение", web_app=WebAppInfo(url=web_url)))
+    kb.row(
+        InlineKeyboardButton(
+            text=t(lang, "open_web_app"), web_app=WebAppInfo(url=web_url)
+        )
+    )
     return kb.as_markup()

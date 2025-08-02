@@ -1,14 +1,15 @@
 from keyboards.inline import stories_keyboard
 from settings import settings
+from utils.i18n import t
 import httpx
 
 http_client = httpx.AsyncClient(base_url=settings.bots.app_url, timeout=10.0)
 
 
-async def show_presets(chat_id: int, bot) -> None:
+async def show_presets(chat_id: int, bot, lang: str) -> None:
     resp = await http_client.get("/api/v1/stories/preset/")
     if resp.status_code != 200:
-        await bot.send_message(chat_id, "Нет доступных историй")
+        await bot.send_message(chat_id, t(lang, "no_stories"))
         return
     stories = resp.json()
     emojis = {
@@ -18,11 +19,12 @@ async def show_presets(chat_id: int, bot) -> None:
         "Fantasy": "🧙",
         "Sci-Fi": "🤖",
     }
-    lines = ["Выберите вашу историю:"]
+    lines = [t(lang, "choose_story")]
     for s in stories:
         emoji = emojis.get(s.get("genre"), "🎲")
-        lines.append(f"{emoji} [{s.get('genre')}] {s.get('title')}")
+        genre = t(lang, f"genre_{s.get('genre')}") or s.get("genre")
+        lines.append(f"{emoji} [{genre}] {s.get('title')}")
     text = "\n".join(lines)
-    kb = stories_keyboard(stories, settings.bots.web_url)
+    kb = stories_keyboard(stories, settings.bots.web_url, lang)
     await bot.send_message(chat_id, text, reply_markup=kb)
 

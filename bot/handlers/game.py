@@ -19,6 +19,7 @@ from keyboards.inline import (
 )
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from utils.states import GameSetup, GamePlay
+from utils.i18n import t, get_user_language
 
 http_client = httpx.AsyncClient(
     base_url=settings.bots.app_url,
@@ -32,35 +33,58 @@ router = Router()
 # In-memory store for active sessions
 active_sessions: dict[int, list[dict]] = {}
 
-# Default game template values
-DEFAULT_TEMPLATE = {
-    "story_desc": (
-        "A post-apocalyptic wasteland where survivors struggle to rebuild "
-        "civilization among the ruins of the old world"
-    ),
-    "char_name": "Marcus Steelborn",
-    "char_age": "32",
-    "char_background": (
-        "A former soldier turned cybernetic engineer in a dystopian future, "
-        "seeking to expose corporate corruption"
-    ),
-    "char_personality": (
-        "Brave, tech-savvy, has trust issues but deeply loyal to those who "
-        "earn his respect"
-    ),
-    "genre": "Adventure",
+# Default game template values per language
+DEFAULT_TEMPLATES = {
+    "en": {
+        "story_desc": (
+            "A post-apocalyptic wasteland where survivors struggle to rebuild "
+            "civilization among the ruins of the old world"
+        ),
+        "char_name": "Marcus Steelborn",
+        "char_age": "32",
+        "char_background": (
+            "A former soldier turned cybernetic engineer in a dystopian future, "
+            "seeking to expose corporate corruption"
+        ),
+        "char_personality": (
+            "Brave, tech-savvy, has trust issues but deeply loyal to those who "
+            "earn his respect"
+        ),
+        "genre": "Adventure",
+    },
+    "ru": {
+        "story_desc": (
+            "Постапокалиптическая пустошь, где выжившие пытаются восстановить "
+            "цивилизацию среди руин старого мира"
+        ),
+        "char_name": "Маркус Стилборн",
+        "char_age": "32",
+        "char_background": (
+            "Бывший солдат, ставший кибернетическим инженером в антиутопичном "
+            "будущем, стремится раскрыть корпоративную коррупцию"
+        ),
+        "char_personality": (
+            "Храбрый, технически подкованный, не доверяет никому, но предан тем, "
+            "кто заслуживает его уважения"
+        ),
+        "genre": "Приключение",
+    },
 }
 
 
-def _build_setup_text(data: dict) -> str:
+def _get_default_template(lang: str) -> dict:
+    return DEFAULT_TEMPLATES.get(lang, DEFAULT_TEMPLATES["en"]).copy()
+
+
+def _build_setup_text(data: dict, lang: str) -> str:
     """Build setup message with current template data."""
     return (
-        f"Setting Description: {data.get('story_desc') or '-'}\n"
-        f"Character Name: {data.get('char_name') or '-'}\n"
-        f"Character Age: {data.get('char_age') or '-'}\n"
-        f"Character Background: {data.get('char_background') or '-'}\n"
-        f"Character Personality: {data.get('char_personality') or '-'}\n"
-        f"Genre: {data.get('genre') or '-'}"
+        f"{t(lang, 'label_setting_desc')}: {data.get('story_desc') or '-'}\n"
+        f"{t(lang, 'label_char_name')}: {data.get('char_name') or '-'}\n"
+        f"{t(lang, 'label_char_age')}: {data.get('char_age') or '-'}\n"
+        f"{t(lang, 'label_char_background')}: {data.get('char_background') or '-'}\n"
+        f"{t(lang, 'label_char_personality')}: {data.get('char_personality') or '-'}\n"
+        f"{t(lang, 'label_genre')}: {data.get('genre') or '-'}"
     )
 
 
@@ -132,17 +156,18 @@ async def _has_pro(uid: int) -> bool:
 @router.message(Command(commands=["my_game"]))
 async def play_cmd(message: Message, state: FSMContext):
     """Begin game setup by sending initial template."""
+    lang = await get_user_language(message.from_user.id)
 
     if not await _has_pro(message.from_user.id):
         await message.answer(
-            "Создай собственную историю в веб-приложении",
-            reply_markup=open_app_keyboard(settings.bots.web_url),
+            t(lang, "create_story_webapp"),
+            reply_markup=open_app_keyboard(settings.bots.web_url, lang),
         )
         return
 
-    data = DEFAULT_TEMPLATE.copy()
-    txt = _build_setup_text(data)
-    kb = setup_keyboard()
+    data = _get_default_template(lang)
+    txt = _build_setup_text(data, lang)
+    kb = setup_keyboard(lang)
     msg = await message.answer(txt, reply_markup=kb)
     await state.clear()
     await state.update_data(base_id=msg.message_id, template=data)
@@ -151,19 +176,19 @@ async def play_cmd(message: Message, state: FSMContext):
 @router.callback_query(F.data.startswith("edit:"))
 async def edit_field(call: CallbackQuery, state: FSMContext):
     """Prompt the user to edit a template field."""
-
+    lang = await get_user_language(call.from_user.id)
     field = call.data.split(":", 1)[1]
     prompts = {
-        "story_desc": "Введите описание сеттинга",
-        "char_name": "Введите имя персонажа",
-        "char_age": "Введите возраст персонажа",
-        "char_background": "Введите предысторию персонажа",
-        "char_personality": "Введите характер персонажа",
-        "genre": "Введите жанр",
+        "story_desc": t(lang, "enter_setting_desc"),
+        "char_name": t(lang, "enter_char_name"),
+        "char_age": t(lang, "enter_char_age"),
+        "char_background": t(lang, "enter_char_background"),
+        "char_personality": t(lang, "enter_char_personality"),
+        "genre": t(lang, "enter_genre"),
     }
     msg = await call.message.answer(
         prompts[field],
-        reply_markup=cancel_keyboard(),
+        reply_markup=cancel_keyboard(lang),
     )
     await state.update_data(edit_field=field, prompt_id=msg.message_id)
     await state.set_state(GameSetup.waiting_input)
@@ -182,7 +207,7 @@ async def cancel_input(call: CallbackQuery, state: FSMContext):
 @router.message(GameSetup.waiting_input)
 async def receive_input(message: Message, state: FSMContext):
     """Process user input and update the template."""
-
+    lang = await get_user_language(message.from_user.id)
     data = await state.get_data()
     field = data.get("edit_field")
     template = data.get("template", {})
@@ -196,8 +221,8 @@ async def receive_input(message: Message, state: FSMContext):
             await message.bot.delete_message(message.chat.id, prompt_id)
         except Exception:
             pass
-    txt = _build_setup_text(template)
-    kb = setup_keyboard()
+    txt = _build_setup_text(template, lang)
+    kb = setup_keyboard(lang)
     await message.bot.edit_message_text(
         text=txt,
         chat_id=message.chat.id,
@@ -210,9 +235,9 @@ async def receive_input(message: Message, state: FSMContext):
 @router.callback_query(F.data == "start_game")
 async def start_game(call: CallbackQuery, state: FSMContext):
     """Create template and start a new game session."""
-
+    lang = await get_user_language(call.from_user.id)
     data = await state.get_data()
-    template = data.get("template") or DEFAULT_TEMPLATE.copy()
+    template = data.get("template") or _get_default_template(lang)
 
     resp = await http_client.post(
         "/api/v1/stories/",
@@ -233,12 +258,12 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     if resp.status_code != 201:
         if resp.status_code == 403:
             await call.message.answer(
-                "Создай собственную историю в веб-приложении",
-                reply_markup=open_app_keyboard(settings.bots.web_url),
+                t(lang, "create_story_webapp"),
+                reply_markup=open_app_keyboard(settings.bots.web_url, lang),
             )
             await state.clear()
         else:
-            await call.answer("Ошибка истории", show_alert=True)
+            await call.answer(t(lang, "error_story"), show_alert=True)
         return
     story_id = resp.json()["id"]
     resp = await http_client.post(
@@ -247,7 +272,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 201:
-        await call.answer("Ошибка сессии", show_alert=True)
+        await call.answer(t(lang, "error_session"), show_alert=True)
         return
     session_id = resp.json()["id"]
     resp = await http_client.get(
@@ -255,7 +280,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 200:
-        await call.answer("Ошибка сцены", show_alert=True)
+        await call.answer(t(lang, "error_scene"), show_alert=True)
         return
     scene = resp.json()
 
@@ -271,10 +296,11 @@ async def start_game(call: CallbackQuery, state: FSMContext):
 
 
 async def handle_external_game_start(story_id: str, user_id: int):
+    lang = await get_user_language(user_id)
     state = dp_instance.fsm.resolve_context(bot=bot_instance, chat_id=user_id, user_id=user_id)
     resp = await http_client.get(f"/api/v1/stories/{story_id}/", headers={"X-User-Id": str(user_id)})
     if resp.status_code != 200:
-        await bot_instance.send_message(user_id, "Ошибка")
+        await bot_instance.send_message(user_id, t(lang, "error_generic"))
         return
     story = resp.json()
     world_resp = await http_client.get(
@@ -297,7 +323,7 @@ async def handle_external_game_start(story_id: str, user_id: int):
         headers={"X-User-Id": str(user_id)},
     )
     if resp.status_code != 201:
-        await bot_instance.send_message(user_id, "Ошибка")
+        await bot_instance.send_message(user_id, t(lang, "error_generic"))
         return
     session_id = resp.json()["id"]
     resp = await http_client.get(
@@ -305,7 +331,7 @@ async def handle_external_game_start(story_id: str, user_id: int):
         headers={"X-User-Id": str(user_id)},
     )
     if resp.status_code != 200:
-        await bot_instance.send_message(user_id, "Ошибка")
+        await bot_instance.send_message(user_id, t(lang, "error_generic"))
         return
     scene = resp.json()
     active_sessions.setdefault(user_id, []).append(
@@ -318,13 +344,14 @@ async def handle_external_game_start(story_id: str, user_id: int):
 async def select_preset(call: CallbackQuery | Message, state: FSMContext):
     story_id = call.data.split(":", 1)[1]
     uid = call.from_user.id
+    lang = await get_user_language(uid)
     try:
         await call.message.delete()
     except Exception:
         pass
     resp = await http_client.get(f"/api/v1/stories/{story_id}/", headers={"X-User-Id": str(uid)})
     if resp.status_code != 200:
-        await call.answer("Ошибка", show_alert=True)
+        await call.answer(t(lang, "error_generic"), show_alert=True)
         return
     story = resp.json()
     world_resp = await http_client.get(
@@ -346,7 +373,7 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
         headers={"X-User-Id": str(uid)},
     )
     if resp.status_code != 201:
-        await call.answer("Ошибка", show_alert=True)
+        await call.answer(t(lang, "error_generic"), show_alert=True)
         return
     session_id = resp.json()["id"]
     resp = await http_client.get(
@@ -354,7 +381,7 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
         headers={"X-User-Id": str(uid)},
     )
     if resp.status_code != 200:
-        await call.answer("Ошибка", show_alert=True)
+        await call.answer(t(lang, "error_generic"), show_alert=True)
         return
     scene = resp.json()
     active_sessions.setdefault(uid, []).append(
@@ -367,7 +394,7 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
 @router.callback_query(F.data.startswith("choice:"))
 async def make_choice(call: CallbackQuery, state: FSMContext):
     """Handle choice selection via inline button."""
-
+    lang = await get_user_language(call.from_user.id)
     choice_idx = call.data.split(":", 1)[1]
     data = await state.get_data()
     session_id = data.get("session_id")
@@ -386,7 +413,7 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
         headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 201:
-        await call.answer("Ошибка", show_alert=True)
+        await call.answer(t(lang, "error_generic"), show_alert=True)
         return
     scene = resp.json()
 
@@ -400,11 +427,11 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
             await call.bot.edit_message_caption(
                 chat_id=call.message.chat.id,
                 message_id=last_scene_id,
-                caption=f"{last_text}\n\nВы выбрали: {choice}",
+                caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
             )
         else:
             await call.bot.edit_message_text(
-                text=f"{last_text}\n\nВы выбрали: {choice}",
+                text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
                 chat_id=call.message.chat.id,
                 message_id=last_scene_id,
             )
@@ -420,7 +447,7 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
 @router.message(GamePlay.waiting_choice)
 async def choice_text(message: Message, state: FSMContext):
     """Handle text choice input during gameplay."""
-
+    lang = await get_user_language(message.from_user.id)
     choice = message.text
     data = await state.get_data()
     session_id = data.get("session_id")
@@ -449,11 +476,11 @@ async def choice_text(message: Message, state: FSMContext):
             await message.bot.edit_message_caption(
                 chat_id=message.chat.id,
                 message_id=last_scene_id,
-                caption=f"{last_text}\n\nВы выбрали: {choice}",
+                caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
             )
         else:
             await message.bot.edit_message_text(
-                text=f"{last_text}\n\nВы выбрали: {choice}",
+                text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
                 chat_id=message.chat.id,
                 message_id=last_scene_id,
             )
@@ -468,30 +495,28 @@ async def choice_text(message: Message, state: FSMContext):
 @router.message(Command("my_games"))
 async def my_games_cmd(message: Message):
     """Show list of active games."""
-
+    lang = await get_user_language(message.from_user.id)
     games = active_sessions.get(message.from_user.id)
     if not games:
-        await message.answer(
-            "У вас пока нет активных игр. Используйте /new_game, чтобы начать."
-        )
+        await message.answer(t(lang, "no_active_games"))
         return
     kb = games_keyboard(games)
     await message.answer(
-        "Вы можете продолжить одну из текущих игр:", reply_markup=kb
+        t(lang, "resume_game_prompt"), reply_markup=kb
     )
 
 
 @router.callback_query(F.data.startswith("resume:"))
 async def resume_game(call: CallbackQuery, state: FSMContext):
     """Resume a selected game session."""
-
+    lang = await get_user_language(call.from_user.id)
     session_id = call.data.split(":", 1)[1]
     resp = await http_client.get(
         f"/api/v1/sessions/{session_id}/",
         headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 200:
-        await call.answer("Ошибка", show_alert=True)
+        await call.answer(t(lang, "error_generic"), show_alert=True)
         return
     scene = resp.json()
 
@@ -503,11 +528,11 @@ async def resume_game(call: CallbackQuery, state: FSMContext):
 @router.message(Command("end_game"))
 async def end_game_cmd(message: Message, state: FSMContext):
     """Finish current game session and clean up state."""
-
+    lang = await get_user_language(message.from_user.id)
     data = await state.get_data()
     session_id = data.get("session_id")
     if not session_id:
-        await message.answer("Нет активной игры")
+        await message.answer(t(lang, "no_active_game"))
         return
     await http_client.delete(
         f"/api/v1/sessions/{session_id}/",
@@ -528,4 +553,4 @@ async def end_game_cmd(message: Message, state: FSMContext):
         except Exception:
             pass
     await state.clear()
-    await message.answer("Сессия завершена")
+    await message.answer(t(lang, "session_finished"))

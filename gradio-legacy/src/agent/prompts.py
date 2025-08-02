@@ -10,7 +10,7 @@ Return ONLY a JSON object with:
 - milestones: 2-4 key events (id, description)
 - endings: good/bad endings (id, type, condition, description)
 
-Translate the lore, goal, milestones and endings to the language which is used in the game and setting description.
+Translate the lore, goal, milestones and endings into {language}.
 """
 
 GAME_STATE_PROMPT = """
@@ -31,7 +31,7 @@ Game response to user's action: {scene_description}
 
 SCENE_PROMPT = """You are an AI agent for a visual novel game. 
 Your role is to process incoming data and generate the next scene description and choices.
-Translate the scene description and choices into a language which is used in the Game Settings.
+Translate the scene description and choices into {language}.
 
 ---Game Settings START---
 Lore: {lore}

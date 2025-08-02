@@ -36,6 +36,7 @@ async def generate_story_frame(
     setting: Annotated[str, "Game world setting"],
     character: Annotated[Dict[str, str], "Character info"],
     genre: Annotated[str, "Genre"],
+    language: Annotated[str, "Output language"],
 ) -> Annotated[Dict, "Generated story frame"]:
     """Create the initial story frame and store it in user state."""
     llm = create_llm().with_structured_output(StoryFrameLLM)
@@ -43,6 +44,7 @@ async def generate_story_frame(
         setting=setting,
         character=character,
         genre=genre,
+        language=language,
     )
     resp: StoryFrameLLM = await with_retries(lambda: llm.ainvoke(prompt))
     story_frame = StoryFrame(
@@ -53,9 +55,11 @@ async def generate_story_frame(
         setting=setting,
         character=character,
         genre=genre,
+        language=language,
     )
     state = await get_user_state(user_hash)
     state.story_frame = story_frame
+    state.language = language
     await set_user_state(user_hash, state)
     return story_frame.dict()
 
@@ -77,6 +81,7 @@ async def generate_scene(
         endings=",".join(e.id for e in state.story_frame.endings),
         history="; ".join(f"{c.scene_id}:{c.choice_text}" for c in state.user_choices),
         last_choice=last_choice,
+        language=state.language,
     )
     resp: SceneLLM = await with_retries(lambda: llm.ainvoke(prompt))
     if len(resp.choices) < 2:
