@@ -18,7 +18,7 @@ def example_keyboard() -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-def setup_keyboard(lang: str) -> InlineKeyboardMarkup:
+def setup_keyboard(lang: str, wishes_cost: int = 5) -> InlineKeyboardMarkup:
     """Keyboard for the game setup step."""
     kb = InlineKeyboardBuilder()
     kb.button(text=t(lang, "setup_setting"), callback_data="edit:world_desc")
@@ -31,7 +31,10 @@ def setup_keyboard(lang: str) -> InlineKeyboardMarkup:
         text=t(lang, "setup_char_personality"), callback_data="edit:char_personality"
     )
     kb.button(text=t(lang, "setup_genre"), callback_data="edit:genre")
-    kb.button(text=t(lang, "start_game"), callback_data="start_game")
+    kb.button(
+        text=t(lang, "create_story_btn", cost=wishes_cost),
+        callback_data="start_game",
+    )
     kb.adjust(2, 2, 2, 1)
     return kb.as_markup()
 
