@@ -10,6 +10,7 @@ from aiogram.types import Message, CallbackQuery
 from keyboards.reply import remove_kb
 from keyboards.inline import language_keyboard
 from utils.presets import show_presets
+from utils.i18n import t, set_user_language, get_user_language
 from settings import settings
 import logging
 
@@ -34,10 +35,11 @@ async def start_command(message: Message):
 
     resp = await client.post(url, json=payload, headers={"X-User-Id": str(uid)})
     if resp.status_code == 409:
-        await show_presets(message.chat.id, message.bot)
+        lang = await get_user_language(uid)
+        await show_presets(message.chat.id, message.bot, lang)
         return
     if resp.status_code != 201:
-        await message.answer("Не удалось зарегистрироваться")
+        await message.answer(t("en", "registration_failed") + " / " + t("ru", "registration_failed"))
         logger.error(f"Failed to register user {uid}: {resp}")
         return
 
@@ -55,30 +57,25 @@ async def start_command(message: Message):
                 json={"language": language},
             )
         else:
-            await message.answer("Choose your language", reply_markup=language_keyboard())
+            await message.answer(
+                f"{t('en', 'choose_language')} / {t('ru', 'choose_language')}",
+                reply_markup=language_keyboard(),
+            )
             return
 
-    welcome = (
-        f"👋 Привет, <b>{message.from_user.first_name}</b>!\n"
-        "Добро пожаловать в <b>Immersia</b>"
-    )
+    set_user_language(uid, language)
+    welcome = t(language, "start_welcome", name=message.from_user.first_name)
     await message.answer(welcome, parse_mode=ParseMode.HTML)
-    await show_presets(message.chat.id, message.bot)
+    await show_presets(message.chat.id, message.bot, language)
 
 
 @router.message(Command(commands=["help"]))
 async def help_command(message: Message):
     """Show help message to the user."""
 
-    help_message = (
-        "ℹ️ <b>Помощь</b>\n\n"
-        "<b>/new_game</b> — создать новую игру\n"
-        "<b>/my_games</b> — список ваших активных игр\n"
-        "<b>/end_game</b> — завершить текущую сессию\n"
-        "<b>/help</b> — показать это сообщение"
-    )
+    lang = await get_user_language(message.from_user.id)
     await message.answer(
-        help_message,
+        t(lang, "help_message"),
         parse_mode=ParseMode.HTML,
         reply_markup=remove_kb,
     )
@@ -92,6 +89,7 @@ async def set_language(call: CallbackQuery):
             headers={"X-User-Id": str(call.from_user.id)},
             json={"language": lang},
         )
+    set_user_language(call.from_user.id, lang)
     await call.message.delete()
-    await show_presets(call.message.chat.id, call.message.bot)
+    await show_presets(call.message.chat.id, call.message.bot, lang)
     await call.answer()

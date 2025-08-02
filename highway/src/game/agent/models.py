@@ -31,6 +31,7 @@ class StoryFrame(BaseModel):
     setting: str
     character: Dict[str, str]
     genre: str
+    language: str = "en"
 
 
 class StoryFrameLLM(BaseModel):
@@ -107,3 +108,4 @@ class UserState(BaseModel):
     ending: Optional[Ending] = None
     last_image_prompt: Optional[str] = None
     assets: Dict[str, str] = Field(default_factory=dict)
+    language: str = "en"

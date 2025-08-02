@@ -31,6 +31,7 @@ class GraphState:
     choice_text: Optional[str] = None
     scene: Optional[Dict[str, Any]] = None
     ending: Optional[Dict[str, Any]] = None
+    language: Optional[str] = None
 
 
 async def node_entry(state: GraphState) -> GraphState:
@@ -55,6 +56,7 @@ async def node_init_game(state: GraphState) -> GraphState:
             "setting": state.setting,
             "character": state.character,
             "genre": state.genre,
+            "language": state.language,
         }
     )
     first_scene = await generate_scene.ainvoke(

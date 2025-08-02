@@ -30,6 +30,9 @@ async def create_and_store_scene(
 ) -> Scene:
     user_hash = str(session.id)
     state = await get_user_state(user_hash)
+    if not state.language:
+        await db.refresh(session, ["user"])
+        state.language = session.user.language or "en"
     if not state.story_frame:
         if session.story_frame:
             sf_data = dict(session.story_frame)
@@ -41,6 +44,7 @@ async def create_and_store_scene(
                 sf_data.setdefault("setting", session.story.world.world_desc)
                 sf_data.setdefault("character", session.story.character or {})
                 sf_data.setdefault("genre", session.story.genre)
+            sf_data.setdefault("language", state.language)
             state.story_frame = StoryFrame(**sf_data)
         elif session.story and session.story.story_frame:
             await db.refresh(session.story, ["world"])
@@ -48,6 +52,7 @@ async def create_and_store_scene(
             sf_data.setdefault("setting", session.story.world.world_desc)
             sf_data.setdefault("character", session.story.character or {})
             sf_data.setdefault("genre", session.story.genre)
+            sf_data.setdefault("language", state.language)
             state.story_frame = StoryFrame(**sf_data)
 
     if not state.user_choices:
@@ -80,6 +85,7 @@ async def create_and_store_scene(
                 setting=world.world_desc,
                 character=story.character or {},
                 genre=story.genre,
+                language=state.language,
             )
             state.story_frame = story_frame
         else:
