@@ -31,9 +31,8 @@ async def create_and_store_scene(
 ) -> Scene:
     user_hash = str(session.id)
     state = await get_user_state(user_hash)
-    if not state.language:
-        await db.refresh(session, ["user"])
-        state.language = session.user.language or "en"
+    await db.refresh(session, ["user"])
+    state.language = session.user.language or state.language or "en"
     if not state.story_frame:
         if session.story_frame:
             sf_data = dict(session.story_frame)
