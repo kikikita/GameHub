@@ -9,6 +9,7 @@ from src.utils.tg_invoice import export_tg_invoice
 from src.api.utils import resolve_user_id
 from src.auth.tg_auth import authenticated_user
 from src.models.bundle_purchase import BundlePurchase
+from src.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +137,11 @@ async def confirm_bundle(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid payload",
         )
+    bundles_list = await bundles()
+    bundle_data = next((b for b in bundles_list if b.id == sub.bundle), None)
+    user = await db.get(User, sub.user_id)
+    if user and bundle_data:
+        user.wishes += bundle_data.wishes
     sub.status = "active"
     await db.commit()
     await db.refresh(sub)

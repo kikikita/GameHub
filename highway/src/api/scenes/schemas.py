@@ -7,6 +7,7 @@ from src.models.scene import Scene
 
 class SceneCreate(BaseModel):
     choice_text: str | None = None
+    energy_cost: int = 1
 
 
 class SceneOut(BaseModel):

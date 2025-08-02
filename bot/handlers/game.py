@@ -17,7 +17,6 @@ from bot.bot import bot_instance, dp_instance
 from keyboards.inline import (
     cancel_keyboard,
     games_keyboard,
-    open_app_keyboard,
     setup_keyboard,
 )
 from settings import settings
@@ -156,27 +155,10 @@ async def _send_scene(
                 break
 
 
-async def _has_pro(uid: int) -> bool:
-    resp = await http_client.get("/api/v1/subscription/status/", headers={"X-User-Id": str(uid)})
-    if resp.status_code != 200:
-        return False
-    data = resp.json()
-    return data.get("status") == "active" and data.get("plan") == "pro"
-
-
-
-
 @router.message(Command(commands=["my_game"]))
 async def play_cmd(message: Message, state: FSMContext):
     """Begin game setup by sending initial template."""
     lang = await get_user_language(message.from_user.id)
-
-    if not await _has_pro(message.from_user.id):
-        await message.answer(
-            t(lang, "create_story_webapp"),
-            reply_markup=open_app_keyboard(settings.bots.web_url, lang),
-        )
-        return
 
     data = _get_default_template(lang)
     txt = _build_setup_text(data, lang)
@@ -277,8 +259,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         if resp.status_code != 201:
             if resp.status_code == 403:
                 await call.message.answer(
-                    t(lang, "create_story_webapp"),
-                    reply_markup=open_app_keyboard(settings.bots.web_url, lang),
+                    t(lang, "not_enough_wishes", link=f"{settings.bots.web_url}store"),
                 )
                 await state.clear()
             else:
@@ -475,12 +456,15 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
     try:
         resp = await http_client.post(
             f"/api/v1/sessions/{session_id}/choice/",
-            json={"choice_text": choice},
+            json={"choice_text": choice, "energy_cost": 1},
             headers={"X-User-Id": str(call.from_user.id)},
         )
     finally:
         stop.set()
         await typing_task
+    if resp.status_code == 403:
+        await call.message.answer(t(lang, "not_enough_energy"))
+        return
     if resp.status_code != 201:
         await call.message.answer(t(lang, "error_generic"))
         return
@@ -527,12 +511,15 @@ async def choice_text(message: Message, state: FSMContext):
     try:
         resp = await http_client.post(
             f"/api/v1/sessions/{session_id}/choice/",
-            json={"choice_text": choice},
+            json={"choice_text": choice, "energy_cost": 2},
             headers={"X-User-Id": str(message.from_user.id)},
         )
     finally:
         stop.set()
         await typing_task
+    if resp.status_code == 403:
+        await message.bot.send_message(message.chat.id, t(lang, "not_enough_energy"))
+        return
     if resp.status_code != 201:
         return
     scene = resp.json()

@@ -27,6 +27,8 @@ class UserOut(BaseModel):
     tg_id: int
     username: str | None = None
     language: str | None = None
+    energy: int
+    wishes: int
 
     class Config:
         from_attributes = True

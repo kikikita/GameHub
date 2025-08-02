@@ -8,10 +8,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.tg_auth import authenticated_user
-from src.api.utils import ensure_admin, ensure_pro_plan, resolve_user_id, get_localized
+from src.api.utils import ensure_admin, resolve_user_id, get_localized
 from src.core.database import get_session
 from src.models.story import Story
 from src.models.world import World
+from src.models.user import User
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/v1", tags=["stories"])
@@ -95,7 +96,11 @@ async def create_story(
     lang: str = "ru",
 ) -> StoryOut:
     user_id = await resolve_user_id(tg_id, db)
-    await ensure_pro_plan(db, user_id)
+    user = await db.get(User, user_id)
+    cost = 5
+    if not user or user.wishes < cost:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="not_enough_wishes")
+    user.wishes -= cost
     res = await db.execute(select(World).where(World.user_id == user_id))
     world = res.scalars().first()
     if not world:

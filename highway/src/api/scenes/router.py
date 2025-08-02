@@ -10,6 +10,7 @@ from src.core.database import get_session
 from src.models.scene import Scene
 from src.models.game_session import GameSession
 from src.models.story import Story
+from src.models.user import User
 from .schemas import SceneCreate, SceneOut, scene_to_out
 from .scene_service import create_and_store_scene
 from src.api.utils import resolve_user_id
@@ -62,7 +63,17 @@ async def choose_and_generate(
     db: AsyncSession = Depends(get_session),
 ) -> SceneOut:
     """Generate the next scene using the chosen option."""
-    return await generate_scene(id, payload, tg_id, db)
+    user_id = await resolve_user_id(tg_id, db)
+    user = await db.get(User, user_id)
+    cost = payload.energy_cost or 1
+    if not user or user.energy < cost:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="not_enough_energy")
+    user.energy -= cost
+    await db.commit()
+    await db.refresh(user)
+    payload_dict = payload.model_dump()
+    payload_dict.pop("energy_cost", None)
+    return await generate_scene(id, SceneCreate(**payload_dict), tg_id, db)
 
 
 @router.get("/{id}/scenes/{scene_id}/", response_model=SceneOut)
