@@ -123,8 +123,15 @@ async def get_user_language(uid: int) -> str:
     import httpx
     from settings import settings
 
-    client = httpx.AsyncClient(base_url=settings.bots.app_url, timeout=10.0)
-    resp = await client.get("/api/v1/users/me/", headers={"X-User-Id": str(uid)})
+    client = httpx.AsyncClient(
+        base_url=settings.bots.app_url,
+        timeout=10.0,
+        headers={"X-Server-Auth": settings.bots.server_auth_token.get_secret_value()},
+    )
+    resp = await client.get(
+        "/api/v1/users/me/",
+        headers={"X-User-Id": str(uid)},
+    )
     if resp.status_code == 200:
         lang = resp.json().get("language") or DEFAULT_LANG
     else:
