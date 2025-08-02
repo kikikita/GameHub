@@ -7,7 +7,7 @@ http_client = httpx.AsyncClient(base_url=settings.bots.app_url, timeout=10.0)
 
 
 async def show_presets(chat_id: int, bot, lang: str) -> None:
-    resp = await http_client.get("/api/v1/stories/preset/")
+    resp = await http_client.get("/api/v1/stories/preset/", params={"lang": lang})
     if resp.status_code != 200:
         await bot.send_message(chat_id, t(lang, "no_stories"))
         return

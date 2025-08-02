@@ -242,14 +242,14 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     resp = await http_client.post(
         "/api/v1/stories/",
         json={
-            "title": template.get("genre"),
-            "story_desc": template.get("story_desc"),
+            "title": {lang: template.get("genre")},
+            "story_desc": {lang: template.get("story_desc")},
             "genre": template.get("genre"),
             "character": {
-                "char_name": template.get("char_name"),
+                "char_name": {lang: template.get("char_name")},
                 "char_age": template.get("char_age"),
-                "char_background": template.get("char_background"),
-                "char_personality": template.get("char_personality"),
+                "char_background": {lang: template.get("char_background")},
+                "char_personality": {lang: template.get("char_personality")},
             },
             "is_free": False,
         },
@@ -298,13 +298,19 @@ async def start_game(call: CallbackQuery, state: FSMContext):
 async def handle_external_game_start(story_id: str, user_id: int):
     lang = await get_user_language(user_id)
     state = dp_instance.fsm.resolve_context(bot=bot_instance, chat_id=user_id, user_id=user_id)
-    resp = await http_client.get(f"/api/v1/stories/{story_id}/", headers={"X-User-Id": str(user_id)})
+    resp = await http_client.get(
+        f"/api/v1/stories/{story_id}/",
+        params={"lang": lang},
+        headers={"X-User-Id": str(user_id)},
+    )
     if resp.status_code != 200:
         await bot_instance.send_message(user_id, t(lang, "error_generic"))
         return
     story = resp.json()
     world_resp = await http_client.get(
-        f"/api/v1/worlds/{story['world_id']}/", headers={"X-User-Id": str(user_id)}
+        f"/api/v1/worlds/{story['world_id']}/",
+        params={"lang": lang},
+        headers={"X-User-Id": str(user_id)},
     )
     image_url = None
     if world_resp.status_code == 200:
@@ -349,13 +355,19 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
         await call.message.delete()
     except Exception:
         pass
-    resp = await http_client.get(f"/api/v1/stories/{story_id}/", headers={"X-User-Id": str(uid)})
+    resp = await http_client.get(
+        f"/api/v1/stories/{story_id}/",
+        params={"lang": lang},
+        headers={"X-User-Id": str(uid)},
+    )
     if resp.status_code != 200:
         await call.answer(t(lang, "error_generic"), show_alert=True)
         return
     story = resp.json()
     world_resp = await http_client.get(
-        f"/api/v1/worlds/{story['world_id']}/", headers={"X-User-Id": str(uid)}
+        f"/api/v1/worlds/{story['world_id']}/",
+        params={"lang": lang},
+        headers={"X-User-Id": str(uid)},
     )
     image_url = None
     if world_resp.status_code == 200:

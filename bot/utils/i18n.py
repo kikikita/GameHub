@@ -114,12 +114,7 @@ def t(lang: str, key: str, **kwargs) -> str:
     return text.format(**kwargs)
 
 
-USER_LANG: dict[int, str] = {}
-
-
 async def get_user_language(uid: int) -> str:
-    if uid in USER_LANG:
-        return USER_LANG[uid]
     import httpx
     from settings import settings
 
@@ -136,10 +131,7 @@ async def get_user_language(uid: int) -> str:
         lang = resp.json().get("language") or DEFAULT_LANG
     else:
         lang = DEFAULT_LANG
-    USER_LANG[uid] = lang
     await client.aclose()
     return lang
 
 
-def set_user_language(uid: int, lang: str) -> None:
-    USER_LANG[uid] = lang
