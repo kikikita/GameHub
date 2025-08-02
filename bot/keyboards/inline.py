@@ -80,7 +80,10 @@ def language_keyboard() -> InlineKeyboardMarkup:
 def stories_keyboard(stories: Iterable[dict], web_url: str, lang: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for story in stories:
-        kb.button(text=story.get("title"), callback_data=f"preset:{story['id']}")
+        title = story.get("title")
+        if isinstance(title, dict):
+            title = title.get(lang) or title.get("en") or next(iter(title.values()), "")
+        kb.button(text=title, callback_data=f"preset:{story['id']}")
     kb.adjust(2)
     kb.row(
         InlineKeyboardButton(
