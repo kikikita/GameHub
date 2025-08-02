@@ -17,3 +17,4 @@ from .game_session import GameSession
 from .scene import Scene
 from .choice import Choice
 from .subscription import Subscription
+from .bundle_purchase import BundlePurchase

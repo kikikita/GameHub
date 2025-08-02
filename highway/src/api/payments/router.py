@@ -3,18 +3,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-import uuid
-import requests
 import logging
 from pydantic import BaseModel
 
 from src.auth.tg_auth import authenticated_user
 from src.core.database import get_session
 from src.models.subscription import Subscription
-from src.config import settings
 from src.api.utils import resolve_user_id, ensure_admin
-
-logger = logging.getLogger(__name__)
+from src.utils.tg_invoice import export_tg_invoice
 
 logger = logging.getLogger(__name__)
 
@@ -95,10 +91,11 @@ async def subscribe(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid plan",
         )
-    link, payload = export_subscription_invoice(
-        plan_title=f"PRO plan ({plan_data.title})",
-        plan_id=plan,
+    link, payload = export_tg_invoice(
+        item_title=f"PRO plan ({plan_data.title})",
+        item_id=plan,
         amount_stars=plan_data.stars,
+        item_description=f"PRO plan ({plan_data.title})",
     )
 
     sub = Subscription(
@@ -205,29 +202,3 @@ async def change_plan(
     await db.commit()
     await db.refresh(sub)
     return {"id": str(sub.id), "plan": sub.plan, "status": sub.status}
-
-
-BOT_API = f"https://api.telegram.org/bot{settings.tg_bot_token.get_secret_value()}"
-
-
-def export_subscription_invoice(
-    plan_title: str, plan_id: str, amount_stars: int
-) -> str:
-    payload = f"{plan_id}:{uuid.uuid4()}"
-    resp = requests.post(
-        f"{BOT_API}/createInvoiceLink",
-        json={
-            "title": plan_title,
-            "description": "Immersia subscription",
-            "payload": payload,
-            "recurring": True,
-            "provider_token": "",  # empty for telegram stars
-            "currency": settings.tg_payment_currency,
-            "prices": [{"label": plan_id, "amount": amount_stars}],
-            "is_test": True,  # settings.debug,
-        },
-    ).json()
-    if not resp["ok"]:
-        logging.error(resp)
-        raise RuntimeError("Telegram exportInvoice failed")
-    return resp["result"], payload

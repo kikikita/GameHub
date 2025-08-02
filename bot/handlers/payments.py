@@ -16,6 +16,12 @@ http_client = httpx.AsyncClient(
 
 @router.pre_checkout_query()
 async def pre_checkout(pcq: types.PreCheckoutQuery):
+    if pcq.invoice_payload.startswith("wishes"):
+        await wishes_pre_checkout(pcq)
+    else:
+        await subscription_pre_checkout(pcq)
+    
+async def subscription_pre_checkout(pcq: types.PreCheckoutQuery):
     resp = await http_client.post("/api/v1/subscription/verify/", json={"invoice_payload": pcq.invoice_payload})
 
     is_ok = resp.json().get("status") == "success"
@@ -29,11 +35,53 @@ async def pre_checkout(pcq: types.PreCheckoutQuery):
             " try to pay again in a few minutes, we need a small rest."
         ),
     )
+    
+async def wishes_pre_checkout(pcq: types.PreCheckoutQuery):
+    resp = await http_client.post("/api/v1/wishes/verify/", json={"invoice_payload": pcq.invoice_payload})
 
+    is_ok = resp.json().get("status") == "success"
+    logger.info(f"Pre-checkout query {pcq.id} verified, is_ok: {is_ok}")
+    
+    await pcq.answer(
+        ok=is_ok,
+        error_message=(
+            "Aliens tried to steal your card's CVV,"
+            " but we successfully protected your credentials,"
+            " try to pay again in a few minutes, we need a small rest."
+        ),
+    )
+    
 
 @router.message(F.successful_payment)
 async def paid(msg: types.Message):
     logger.info(f"Incoming confirmation for payment for user {msg.from_user.id}")
+
+    if msg.successful_payment.invoice_payload.startswith("wishes"):
+        await wishes_paid(msg)
+    else:
+        await subscription_paid(msg)
+        
+async def wishes_paid(msg: types.Message):
+    logger.info(f"Incoming confirmation for payment for user {msg.from_user.id}")
+    resp = await http_client.post("/api/v1/wishes/confirm/", json={"invoice_payload": msg.successful_payment.invoice_payload})
+    if resp.json().get("status") != "success":
+        logger.error(f"Failed to confirm payment for {msg.from_user.id}! {resp}")
+        await msg.answer(
+            "Something went wrong with your payment. Please contact our support 🙏",
+            parse_mode="Markdown",
+        )
+    else:
+        logger.info(f"Payment confirmed for {msg.from_user.id}!")
+        await msg.answer(
+            "Hoooooray! Thanks for payment! We will proceed your order for `{} {}`"
+            " as fast as possible! Stay in touch.".format(
+                msg.successful_payment.total_amount,
+                msg.successful_payment.currency,
+            ),
+            parse_mode="Markdown",
+        )
+        
+async def subscription_paid(msg: types.Message):
     resp = await http_client.post("/api/v1/subscription/confirm/", json={"invoice_payload": msg.successful_payment.invoice_payload})
     if resp.json().get("status") != "success":
         logger.error(f"Failed to confirm payment for {msg.from_user.id}! {resp}")

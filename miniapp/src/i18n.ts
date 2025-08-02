@@ -30,6 +30,7 @@ const resources = {
       unlimitedEnergyDescription: 'Remove the barriers. Gain endless energy!',
       recharge: 'Recharge',
       wishes: 'Wishes',
+      purchaseSuccess: 'Purchase successful!',
     },
   },
   ru: {
@@ -60,6 +61,7 @@ const resources = {
       unlimitedEnergyDescription: 'Снимите ограничения. Получите бесконечную энергию!',
       recharge: 'Пополнить',
       wishes: 'Желаний',
+      purchaseSuccess: 'Желания успешно куплены!',
     },
   },
 } as const;

@@ -41,6 +41,9 @@ class User(Base):
     subscriptions: Mapped[list["Subscription"]] = relationship(
         back_populates="user",
     )
+    bundle_purchases: Mapped[list["BundlePurchase"]] = relationship(
+        back_populates="user",
+    )
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, tg_id={self.tg_id})"
