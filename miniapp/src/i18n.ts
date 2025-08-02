@@ -14,7 +14,7 @@ const resources = {
       yourPlan: 'Your plan',
       language: 'Language',
       free: 'Free',
-      pro: 'Pro',
+      pro: 'PRO⚡',
       upgrade: 'Upgrade',
     },
     planUpgrade: {
@@ -26,8 +26,6 @@ const resources = {
       upgrade: 'Upgrade',
     },
     store: {
-      comingSoon: 'Coming soon',
-      placeholder: 'This section is under construction',
       unlimitedEnergy: 'Unlimited Energy',
       unlimitedEnergyDescription: 'Remove the barriers. Gain endless energy!',
       recharge: 'Recharge',
@@ -46,7 +44,7 @@ const resources = {
       yourPlan: 'Ваш план',
       language: 'Язык',
       free: 'Бесплатный',
-      pro: 'Про',
+      pro: 'PRO⚡',
       upgrade: 'Улучшить',
     },
     planUpgrade: {
@@ -58,8 +56,6 @@ const resources = {
       upgrade: 'Улучшить',
     },
     store: {
-      comingSoon: 'Скоро',
-      placeholder: 'Этот раздел находится в разработке',
       unlimitedEnergy: 'Бесконечная энергия',
       unlimitedEnergyDescription: 'Снимите ограничения. Получите бесконечную энергию!',
       recharge: 'Пополнить',

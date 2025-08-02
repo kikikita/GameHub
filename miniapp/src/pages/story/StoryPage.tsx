@@ -1,23 +1,25 @@
-import { getStories } from "@/api/stories";
+import { startStory, useStories } from "@/api/stories";
 import { StoryCard } from "@/components/StoryCard/StoryCard";
-import { use } from "react";
 import { exitMiniApp } from "@/telegram/exit";
 import { navigationStore } from "@/stores/NavigationStore";
+import { observer } from "mobx-react-lite";
+import { useCallback } from "react";
 
-const storiesPromise = getStories(navigationStore.selectedRealmId || '')
+function StoryPageComponent() {
+  const { data: stories } = useStories(navigationStore.selectedRealmId ?? '');
 
-export function StoryPage() {
-  const stories = use(storiesPromise);
-
-  const handleExit = () => {
+  const handleSelectStory = useCallback(async (storyId: string) => {
+    await startStory(storyId);
     exitMiniApp();
-  }
+  }, []);
 
   return (
     <div className="p-2 space-y-4">
-      {stories.stories.map((story) => (
-        <StoryCard key={story.id} {...story} className="aspect-video" onClick={handleExit} />
+      {stories.map((story) => (
+        <StoryCard key={story.id} {...story} className="aspect-video" onClick={handleSelectStory} />
       ))}
     </div>
   );
 } 
+
+export const StoryPage = observer(StoryPageComponent);

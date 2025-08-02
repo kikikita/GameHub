@@ -1,10 +1,5 @@
 """Basic user commands handlers."""
 
-import hmac
-import hashlib
-import time
-from urllib.parse import urlencode
-
 import httpx
 from aiogram import Router
 from aiogram.enums import ParseMode
@@ -16,61 +11,49 @@ from keyboards.reply import remove_kb
 from keyboards.inline import language_keyboard
 from utils.presets import show_presets
 from settings import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 
-user_headers = {}
+client = httpx.AsyncClient(timeout=60.0, headers={
+    "X-Server-Auth": settings.bots.server_auth_token.get_secret_value()
+})
 
 
 @router.message(Command("start"))
 async def start_command(message: Message):
     """Register and authenticate the user on the backend."""
-    url = f"{settings.bots.app_url}/api/v1/auth/register"
+    url = f"{settings.bots.app_url}/api/v1/auth/register/"
+    uid = message.from_user.id
     payload = {
-        "tg_id": message.from_user.id,
+        "tg_id": uid,
         "username": message.from_user.username,
     }
 
-    async with httpx.AsyncClient(timeout=5.0) as client:
-        await client.post(url, json=payload)
+    resp = await client.post(url, json=payload, headers={"X-User-Id": str(uid)})
+    if resp.status_code == 409:
+        await show_presets(message.chat.id, message.bot)
+        return
+    if resp.status_code != 201:
+        await message.answer("Не удалось зарегистрироваться")
+        logger.error(f"Failed to register user {uid}: {resp}")
+        return
 
-    # Build initData to authenticate further API requests
-    data = {
-        "user": f"{{\"id\":{message.from_user.id}}}",
-        "auth_date": int(time.time()),
-    }
-    data_check_string = "\n".join(
-        f"{k}={v}" for k, v in sorted(data.items())
-    )
-    secret_key = hmac.new(
-        b"WebAppData",
-        settings.bots.bot_token.encode(),
-        hashlib.sha256,
-    ).digest()
-    data["hash"] = hmac.new(
-        secret_key,
-        data_check_string.encode(),
-        hashlib.sha256,
-    ).hexdigest()
-    init_data = urlencode(data)
-    user_headers[message.from_user.id] = {
-        "Authorization": f"tma {init_data}"
-    }
-
-    headers = user_headers[message.from_user.id]
-    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-        resp = await client.get(f"{settings.bots.app_url}/api/v1/users/me")
+    resp = await client.get(f"{settings.bots.app_url}/api/v1/users/me/", headers={"X-User-Id": str(uid)})
+        
     language = None
     if resp.status_code == 200:
         language = resp.json().get("language")
     if not language:
+        # If the user's first name contains Cyrillic, set the language to Russian automatically
         if any("\u0400" <= c <= "\u04FF" for c in message.from_user.first_name):
             language = "ru"
-            async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-                await client.patch(
-                    f"{settings.bots.app_url}/api/v1/users/me",
-                    json={"language": language},
-                )
+            await client.patch(
+                f"{settings.bots.app_url}/api/v1/users/me/",
+                json={"language": language},
+            )
         else:
             await message.answer("Choose your language", reply_markup=language_keyboard())
             return
@@ -80,7 +63,7 @@ async def start_command(message: Message):
         "Добро пожаловать в <b>Immersia</b>"
     )
     await message.answer(welcome, parse_mode=ParseMode.HTML)
-    await show_presets(message.chat.id, message.bot, headers)
+    await show_presets(message.chat.id, message.bot)
 
 
 @router.message(Command(commands=["help"]))
@@ -104,15 +87,11 @@ async def help_command(message: Message):
 @router.callback_query(F.data.startswith("lang:"))
 async def set_language(call: CallbackQuery):
     lang = call.data.split(":", 1)[1]
-    headers = user_headers.get(call.from_user.id)
-    if not headers:
-        await call.answer()
-        return
-    async with httpx.AsyncClient(timeout=5.0, headers=headers) as client:
-        await client.patch(
-            f"{settings.bots.app_url}/api/v1/users/me",
+    await client.patch(
+            f"{settings.bots.app_url}/api/v1/users/me/",
+            headers={"X-User-Id": str(call.from_user.id)},
             json={"language": lang},
         )
     await call.message.delete()
-    await show_presets(call.message.chat.id, call.message.bot, headers)
+    await show_presets(call.message.chat.id, call.message.bot)
     await call.answer()

@@ -24,6 +24,7 @@ Endings: {endings}
 ---User's actions START---
 History: {history}
 Last choice: {last_choice}
+Last image description: {image_description}
 ---User's actions END---
 
 Game response to user's action: {scene_description}

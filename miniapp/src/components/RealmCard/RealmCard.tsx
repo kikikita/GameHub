@@ -46,15 +46,12 @@ export function RealmCard({
         className
       )}
     >
-      {/* Background image */}
       <img
         src={imageUrl}
         alt={title}
         className="h-full w-full object-cover"
         loading="lazy"
       />
-
-      {/* Text overlay */}
       <div className="absolute inset-x-0 bottom-0 p-3 backdrop-blur-[2px]">
         <h3 className="text-base font-semibold text-white drop-shadow-sm">
           {title}

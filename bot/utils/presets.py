@@ -5,8 +5,8 @@ import httpx
 http_client = httpx.AsyncClient(base_url=settings.bots.app_url, timeout=10.0)
 
 
-async def show_presets(chat_id: int, bot, headers: dict) -> None:
-    resp = await http_client.get("/api/v1/stories/preset", headers=headers)
+async def show_presets(chat_id: int, bot) -> None:
+    resp = await http_client.get("/api/v1/stories/preset/")
     if resp.status_code != 200:
         await bot.send_message(chat_id, "Нет доступных историй")
         return

@@ -1760,6 +1760,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.83.1":
+  version: 5.83.1
+  resolution: "@tanstack/query-core@npm:5.83.1"
+  checksum: 10c0/3eeacf678fcf9803585f1be74979548a33c7f659b8d5f33c1e3b3834ef3b9f3401070b2e2d38bbaa9c6e5a3c359baaa3828078e38007b7c99fb8c9f1e3911142
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.83.1":
+  version: 5.83.1
+  resolution: "@tanstack/react-query@npm:5.83.1"
+  dependencies:
+    "@tanstack/query-core": "npm:5.83.1"
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: 10c0/289ba493b9d2e9baec0d465acb8ad81b5dfa20505f0e535c4bcda79fe1d103880f6206bea7601018fd0f890ff37a0c3afbb39154e840e574a9c6599ed7cd2771
+  languageName: node
+  linkType: hard
+
 "@telegram-apps/bridge@npm:^2.10.3":
   version: 2.10.3
   resolution: "@telegram-apps/bridge@npm:2.10.3"
@@ -1929,6 +1947,13 @@ __metadata:
   dependencies:
     csstype: "npm:^3.0.2"
   checksum: 10c0/4908772be6dc941df276931efeb0e781777fa76e4d5d12ff9f75eb2dcc2db3065e0100efde16fde562c5bafa310cc8f50c1ee40a22640459e066e72cd342143e
+  languageName: node
+  linkType: hard
+
+"@types/telegram-web-app@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@types/telegram-web-app@npm:9.0.0"
+  checksum: 10c0/c6a1a762400d784c8a49f8ce1844edd903742e726f8e91663a966cc93c77b12dd10c18ee220c45dacdb578b40e359904dce48cd71ed49b41036d87c8eb810faf
   languageName: node
   linkType: hard
 
@@ -3603,10 +3628,12 @@ __metadata:
     "@sentry/react": "npm:^9.42.1"
     "@sentry/vite-plugin": "npm:^4.0.1"
     "@tailwindcss/vite": "npm:^4.1.11"
+    "@tanstack/react-query": "npm:^5.83.1"
     "@telegram-apps/sdk": "npm:^3.11.4"
     "@types/node": "npm:^24.1.0"
     "@types/react": "npm:^19.1.8"
     "@types/react-dom": "npm:^19.1.6"
+    "@types/telegram-web-app": "npm:^9.0.0"
     "@vitejs/plugin-react": "npm:^4.6.0"
     class-variance-authority: "npm:^0.7.1"
     clsx: "npm:^2.1.1"

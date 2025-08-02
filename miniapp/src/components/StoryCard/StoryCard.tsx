@@ -2,14 +2,16 @@ import { cn } from "@/utils/cn";
 import { Play } from "lucide-react";
 
 interface StoryCardProps {
+  id: string;
   title: string;
   description?: string;
   imageUrl: string;
-  onClick?: () => void;
+  onClick?: (storyId: string) => void;
   className?: string;
 }
 
 export function StoryCard({
+  id,
   title,
   description,
   imageUrl,
@@ -19,13 +21,12 @@ export function StoryCard({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => onClick?.(id)}
       className={cn(
-        "relative overflow-hidden rounded-xl bg-muted select-none text-left cursor-pointer",
+        "w-full relative overflow-hidden rounded-xl bg-muted select-none text-left cursor-pointer",
         className
       )}
     >
-      {/* Background image */}
       <img
         src={imageUrl}
         alt={title}
@@ -33,8 +34,7 @@ export function StoryCard({
         loading="lazy"
       />
 
-      {/* Center play icon */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div className="absolute z-1 inset-0 flex items-center justify-center pointer-events-none">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/50 backdrop-blur-[2px]">
           <Play className="size-8 text-white" />
         </span>

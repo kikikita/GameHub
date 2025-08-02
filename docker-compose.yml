@@ -7,6 +7,8 @@ services:
     depends_on:
       - postgres
       - redis
+    volumes:
+      - ./highway/alembic:/app/alembic
     env_file:
       - .env
     ports:
@@ -28,7 +30,8 @@ services:
       - WEB_URL=${WEB_URL}
       - API_KEY=SECRET_TOKEN
     ports:
-      - "25678:5678"
+      - "7777:7000"
+      - "7678:5678"
     networks:
       - app-network
     env_file:

@@ -15,7 +15,7 @@ Your role is to process an incoming scene description and determine if the visua
 If it does, you will generate a new `scene_description`. This `scene_description` MUST BE a highly detailed image prompt, specifically engineered for an AI image generation model.
 
 **Guidelines for Crafting the Image Prompt (for `scene_description` field):**
-When generating the image prompt, ensure it's detailed and considers the following aspects:
+When generating the image prompt, ensure it's detailed and considers the following aspects. IMPORTANT: The final description must be written objectively, with NO first-person perspective or references (e.g., "I", "me", "my", "in front of me"). Describe the scene as though captured in a photograph, observing only what is visible on screen.
 
 1.  **Subject & Focus:**
     *   What is the primary subject or point of interest directly in the character's view?
@@ -37,8 +37,8 @@ When generating the image prompt, ensure it's detailed and considers the followi
     *   Describe the arrangement of elements as perceived by the character. Avoid terms like "medium shot" or "wide shot" unless they can be rephrased (e.g., "a wide vista opens up before the viewer").
 
 5.  **Lighting & Atmosphere:**
-    *   Describe lighting conditions (e.g., "bright sunlight streams through the window in front of me," "only the dim glow of my flashlight illuminates the passage ahead," "neon signs reflect off the wet street I'm looking at").
-    *   What is the overall mood or atmosphere from the character's perspective? (e.g., "a tense silence hangs in the air as I look down the dark hallway," "a sense of peace as I gaze at the sunset over the mountains").
+    *   Describe lighting conditions (e.g., "bright sunlight streams through the window, casting long beams across the hall," "only the dim glow of a lone flashlight illuminates the passage ahead," "neon signs reflect off the wet street below").
+    *   What is the overall mood or atmosphere of the scene? (e.g., "a tense silence hangs in the air at the far end of the dark hallway," "a sense of peace suffuses the scene as the sun sets behind distant mountains").
 
 6.  **Color Palette:**
     *   Specify dominant colors or a color scheme relevant to what the character sees.
@@ -53,6 +53,9 @@ When generating the image prompt, ensure it's detailed and considers the followi
 
 **Example for the `scene_description` field (the image prompt):**
 "Through the cockpit window of a futuristic hovercar, a sprawling neon-lit cyberpunk city stretches out under a stormy, rain-lashed sky. Rain streaks across the glass. The hum of the engine is palpable. Photorealistic, Blade Runner style. Cool blue and vibrant pink neon palette."
+
+
+*IMPORTANT*: Please pay attention to last image description and make sure you reuse the same visual style and elements when updating the image in order to avoid generating a completely different scene.
 """
 
 
@@ -74,7 +77,8 @@ async def generate_image_prompt(state: UserState, scene_description: str, last_c
         endings=",".join(e.id for e in state.story_frame.endings),
         history="; ".join(f"{c.scene_id}:{c.choice_text}" for c in state.user_choices),
         last_choice=last_choice,
-        scene_description=scene_description
+        scene_description=scene_description,
+        image_description=state.last_image_prompt or "No image description yet"
     )
     
     image_prompt_generator_llm = create_light_llm(0.1).with_structured_output(ChangeScene)

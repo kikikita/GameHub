@@ -41,14 +41,14 @@ async def process_step(
     next_scene_task = generate_scene_step(choice_text, state)
     maybe_ending, next_scene = await asyncio.gather(ending_task, next_scene_task)
 
-    if maybe_ending.ending_reached:
-        state.ending = maybe_ending.ending
-        scene = await generate_ending_scene(state, maybe_ending.ending)
+    if maybe_ending.check_result.ending_reached:
+        state.ending = maybe_ending.check_result.ending
+        scene = await generate_ending_scene(state, maybe_ending.check_result.ending)
 
         response = EndingResponse(
             scene=scene,
             game_over=True,
-            ending=maybe_ending.ending,
+            ending=maybe_ending.check_result.ending,
         )
     else:
         response = SceneResponse(

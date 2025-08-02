@@ -2,7 +2,7 @@
 
 from typing import Iterable
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
@@ -73,11 +73,11 @@ def stories_keyboard(stories: Iterable[dict], web_url: str) -> InlineKeyboardMar
     for story in stories:
         kb.button(text=story.get("title"), callback_data=f"preset:{story['id']}")
     kb.adjust(2)
-    kb.row(InlineKeyboardButton(text="✨ Откройте все истории", url=web_url))
+    kb.row(InlineKeyboardButton(text="✨ Откройте все истории", web_app=WebAppInfo(url=web_url)))
     return kb.as_markup()
 
 
 def open_app_keyboard(web_url: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.row(InlineKeyboardButton(text="✨ Откройте веб-приложение", url=web_url))
+    kb.row(InlineKeyboardButton(text="✨ Откройте веб-приложение", web_app=WebAppInfo(url=web_url)))
     return kb.as_markup()

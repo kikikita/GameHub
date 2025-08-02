@@ -4,19 +4,17 @@ from __future__ import annotations
 
 import httpx
 import base64
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, BufferedInputFile
 from aiogram.fsm.context import FSMContext
+from bot.bot import bot_instance, dp_instance
 
 from settings import settings
-from .basic import user_headers
 from keyboards.inline import (
     setup_keyboard,
     cancel_keyboard,
     games_keyboard,
-    language_keyboard,
-    stories_keyboard,
     open_app_keyboard,
 )
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -25,6 +23,7 @@ from utils.states import GameSetup, GamePlay
 http_client = httpx.AsyncClient(
     base_url=settings.bots.app_url,
     timeout=httpx.Timeout(60.0),
+    headers={"X-Server-Auth": settings.bots.server_auth_token.get_secret_value()}
 )
 
 
@@ -67,7 +66,7 @@ def _build_setup_text(data: dict) -> str:
 
 async def _send_scene(
     chat_id: int,
-    bot,
+    bot: Bot,
     scene: dict,
     session_id: str,
     state: FSMContext,
@@ -120,17 +119,8 @@ async def _send_scene(
                 break
 
 
-def _get_headers(uid: int) -> dict | None:
-    """Return auth headers for a user or ``None`` if missing."""
-
-    return user_headers.get(uid)
-
-
 async def _has_pro(uid: int) -> bool:
-    headers = _get_headers(uid)
-    if not headers:
-        return False
-    resp = await http_client.get("/api/v1/subscription/status", headers=headers)
+    resp = await http_client.get("/api/v1/subscription/status/", headers={"X-User-Id": str(uid)})
     if resp.status_code != 200:
         return False
     data = resp.json()
@@ -224,13 +214,8 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     template = data.get("template") or DEFAULT_TEMPLATE.copy()
 
-    headers = _get_headers(call.from_user.id)
-    if not headers:
-        await call.answer("Сначала выполните /start", show_alert=True)
-        return
-
     resp = await http_client.post(
-        "/api/v1/stories",
+        "/api/v1/stories/",
         json={
             "title": template.get("genre"),
             "story_desc": template.get("story_desc"),
@@ -243,7 +228,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
             },
             "is_free": False,
         },
-        headers=headers,
+        headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 201:
         if resp.status_code == 403:
@@ -257,17 +242,17 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         return
     story_id = resp.json()["id"]
     resp = await http_client.post(
-        "/api/v1/sessions",
+        "/api/v1/sessions/",
         json={"story_id": story_id},
-        headers=headers,
+        headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 201:
         await call.answer("Ошибка сессии", show_alert=True)
         return
     session_id = resp.json()["id"]
     resp = await http_client.get(
-        f"/api/v1/sessions/{session_id}",
-        headers=headers,
+        f"/api/v1/sessions/{session_id}/",
+        headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 200:
         await call.answer("Ошибка сцены", show_alert=True)
@@ -285,24 +270,65 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     await call.answer()
 
 
-@router.callback_query(F.data.startswith("preset:"))
-async def select_preset(call: CallbackQuery, state: FSMContext):
-    story_id = call.data.split(":", 1)[1]
-    headers = _get_headers(call.from_user.id)
-    if not headers:
-        await call.answer("Сначала выполните /start", show_alert=True)
+async def handle_external_game_start(story_id: str, user_id: int):
+    state = dp_instance.fsm.resolve_context(bot=bot_instance, chat_id=user_id, user_id=user_id)
+    resp = await http_client.get(f"/api/v1/stories/{story_id}/", headers={"X-User-Id": str(user_id)})
+    if resp.status_code != 200:
+        await bot_instance.send_message(user_id, "Ошибка")
         return
+    story = resp.json()
+    world_resp = await http_client.get(
+        f"/api/v1/worlds/{story['world_id']}/", headers={"X-User-Id": str(user_id)}
+    )
+    image_url = None
+    if world_resp.status_code == 200:
+        image_url = world_resp.json().get("image_url")
+    if image_url:
+        try:
+            await bot_instance.send_photo(user_id, image_url, caption=story.get("story_desc", ""))
+        except Exception:
+            await bot_instance.send_message(user_id, text=story.get("story_desc", ""))
+    else:
+        await bot_instance.send_message(user_id, story.get("story_desc", ""))
+    await bot_instance.send_chat_action(user_id, "typing")
+    resp = await http_client.post(
+        "/api/v1/sessions/",
+        json={"story_id": story_id},
+        headers={"X-User-Id": str(user_id)},
+    )
+    if resp.status_code != 201:
+        await bot_instance.send_message(user_id, "Ошибка")
+        return
+    session_id = resp.json()["id"]
+    resp = await http_client.get(
+        f"/api/v1/sessions/{session_id}/",
+        headers={"X-User-Id": str(user_id)},
+    )
+    if resp.status_code != 200:
+        await bot_instance.send_message(user_id, "Ошибка")
+        return
+    scene = resp.json()
+    active_sessions.setdefault(user_id, []).append(
+        {"id": session_id, "title": story.get("title")}
+    )
+    await _send_scene(user_id, bot_instance, scene, session_id, state)
+
+
+@router.callback_query(F.data.startswith("preset:"))
+async def select_preset(call: CallbackQuery | Message, state: FSMContext):
+    story_id = call.data.split(":", 1)[1]
+    uid = call.from_user.id
     try:
         await call.message.delete()
     except Exception:
         pass
-    resp = await http_client.get(f"/api/v1/stories/{story_id}", headers=headers)
+    resp = await http_client.get(f"/api/v1/stories/{story_id}/", headers={"X-User-Id": str(uid)})
     if resp.status_code != 200:
         await call.answer("Ошибка", show_alert=True)
         return
     story = resp.json()
     world_resp = await http_client.get(
-        f"/api/v1/worlds/{story['world_id']}", headers=headers
+        f"/api/v1/worlds/{story['world_id']}/", headers={"X-User-Id": str(uid)}
     )
     image_url = None
     if world_resp.status_code == 200:
@@ -315,23 +341,23 @@ async def select_preset(call: CallbackQuery, state: FSMContext):
     else:
         await call.message.answer(story.get("story_desc", ""))
     resp = await http_client.post(
-        "/api/v1/sessions",
+        "/api/v1/sessions/",
         json={"story_id": story_id},
-        headers=headers,
+        headers={"X-User-Id": str(uid)},
     )
     if resp.status_code != 201:
         await call.answer("Ошибка", show_alert=True)
         return
     session_id = resp.json()["id"]
     resp = await http_client.get(
-        f"/api/v1/sessions/{session_id}",
-        headers=headers,
+        f"/api/v1/sessions/{session_id}/",
+        headers={"X-User-Id": str(uid)},
     )
     if resp.status_code != 200:
         await call.answer("Ошибка", show_alert=True)
         return
     scene = resp.json()
-    active_sessions.setdefault(call.from_user.id, []).append(
+    active_sessions.setdefault(uid, []).append(
         {"id": session_id, "title": story.get("title")}
     )
     await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
@@ -350,15 +376,14 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
     last_photo = data.get("last_scene_photo", False)
     choices_map = data.get("choices_map", {})
     choice = choices_map.get(choice_idx)
-    headers = _get_headers(call.from_user.id)
-    if not session_id or not headers or not choice:
+    if not session_id or not choice:
         await call.answer()
         return
 
     resp = await http_client.post(
-        f"/api/v1/sessions/{session_id}/choice",
+        f"/api/v1/sessions/{session_id}/choice/",
         json={"choice_text": choice},
-        headers=headers,
+        headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 201:
         await call.answer("Ошибка", show_alert=True)
@@ -402,14 +427,13 @@ async def choice_text(message: Message, state: FSMContext):
     last_scene_id = data.get("last_scene_id")
     last_text = data.get("last_scene_text", "")
     last_photo = data.get("last_scene_photo", False)
-    headers = _get_headers(message.from_user.id)
     await message.delete()
-    if not session_id or not headers:
+    if not session_id:
         return
     resp = await http_client.post(
-        f"/api/v1/sessions/{session_id}/choice",
+        f"/api/v1/sessions/{session_id}/choice/",
         json={"choice_text": choice},
-        headers=headers,
+        headers={"X-User-Id": str(message.from_user.id)},
     )
     if resp.status_code != 201:
         return
@@ -462,13 +486,9 @@ async def resume_game(call: CallbackQuery, state: FSMContext):
     """Resume a selected game session."""
 
     session_id = call.data.split(":", 1)[1]
-    headers = _get_headers(call.from_user.id)
-    if not headers:
-        await call.answer("Сначала выполните /start", show_alert=True)
-        return
     resp = await http_client.get(
-        f"/api/v1/sessions/{session_id}",
-        headers=headers,
+        f"/api/v1/sessions/{session_id}/",
+        headers={"X-User-Id": str(call.from_user.id)},
     )
     if resp.status_code != 200:
         await call.answer("Ошибка", show_alert=True)
@@ -489,13 +509,10 @@ async def end_game_cmd(message: Message, state: FSMContext):
     if not session_id:
         await message.answer("Нет активной игры")
         return
-    headers = _get_headers(message.from_user.id)
-    if headers:
-        await http_client.delete(
-            f"/api/v1/sessions/{session_id}",
-            headers=headers,
-            timeout=5.0,
-        )
+    await http_client.delete(
+        f"/api/v1/sessions/{session_id}/",
+        headers={"X-User-Id": str(message.from_user.id)},
+    )
     for g in active_sessions.get(message.from_user.id, []):
         if g["id"] == session_id:
             active_sessions[message.from_user.id].remove(g)

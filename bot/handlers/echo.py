@@ -11,8 +11,5 @@ router = Router()
 async def unknown_message(message: Message, state: FSMContext):
     """Reply when user input is not recognized by any handler."""
 
-    answer = (
-        "🤖 <b>Agent:</b> I didn't understand that. "
-        "Please ask me something else or use the buttons below."
-    )
-    await message.answer(answer, parse_mode="Markdown")
+    answer = "I didn't understand that. Please ask me something else or use the buttons below."
+    await message.answer(answer, parse_mode="HTML")

@@ -1,15 +1,13 @@
-import { getRealms as getRealmsApi } from "@/api/realms";
+import { useRealms } from "@/api/realms";
 import { RealmCard } from "@/components/RealmCard/RealmCard";
-import { use } from "react";
 import { navigationStore } from "@/stores/NavigationStore";
 
-const getRealms = getRealmsApi();
 export function RealmsPage() {
-    const realms = use(getRealms);
+    const { data: realms } = useRealms();
 
     return (
         <div className="grid grid-cols-2 gap-4 p-2">
-            {realms.realms.map((realm) => (
+            {realms.map((realm) => (
                 <RealmCard
                     key={realm.id}
                     {...realm}

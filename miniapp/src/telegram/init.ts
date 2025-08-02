@@ -18,6 +18,5 @@ export async function initTg() {
 }
 
 export function getInitData() {
-    // @ts-expect-error fixme
     return window.Telegram.WebApp.initData;
 }

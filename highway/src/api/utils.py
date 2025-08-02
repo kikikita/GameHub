@@ -1,13 +1,24 @@
 """Utility helpers for API handlers."""
 
-import json
 import os
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.models.user import User
 from src.models.subscription import Subscription
 from src.config import settings
+from src.models.user import User
+
+
+async def resolve_user_id(tg_id: int | None, db: AsyncSession) -> int:
+    """Resolve the user ID from the request."""
+    result = await db.execute(select(User).where(User.tg_id == int(tg_id)))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return user.id
 
 
 async def ensure_pro_plan(db: AsyncSession, user_id: int) -> None:
@@ -26,56 +37,16 @@ async def ensure_pro_plan(db: AsyncSession, user_id: int) -> None:
         )
 
 
-async def resolve_user_id(db: AsyncSession, user_data: dict) -> int:
-    """Return internal user id using telegram data."""
-    tg_id = None
-    if user_data.get("user_id") is not None:
-        tg_id = user_data["user_id"]
-    elif user_data.get("id") is not None:
-        tg_id = user_data["id"]
-    else:
-        raw = user_data.get("user")
-        if isinstance(raw, str):
-            try:
-                tg_id = json.loads(raw).get("id")
-            except Exception:
-                tg_id = None
-    if tg_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid user data",
-        )
-    result = await db.execute(select(User).where(User.tg_id == int(tg_id)))
-    user = result.scalar_one_or_none()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
-    return user.id
-
-
-def ensure_admin(user_data: dict) -> None:
+def ensure_admin(tg_id: int) -> None:
     """Raise 403 if the requester is not an admin."""
-    tg_id = None
-    if user_data.get("user_id") is not None:
-        tg_id = int(user_data["user_id"])
-    elif user_data.get("id") is not None:
-        tg_id = int(user_data["id"])
-    else:
-        raw = user_data.get("user")
-        if isinstance(raw, str):
-            try:
-                tg_id = int(json.loads(raw).get("id"))
-            except Exception:
-                tg_id = None
+
     admins = settings.admin_ids
     if not admins:
         raw = os.getenv("ADMIN_ID")
         if raw:
             admins = [int(x) for x in raw.split(",") if x]
 
-    if tg_id is None or tg_id not in admins:
+    if tg_id not in admins:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin only",

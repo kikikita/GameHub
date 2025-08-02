@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.tg_auth import authenticated_user
-from src.api.utils import ensure_admin, resolve_user_id, ensure_pro_plan
+from src.api.utils import ensure_admin, ensure_pro_plan, resolve_user_id
 from src.core.database import get_session
 from src.models.story import Story
 from src.models.world import World
@@ -43,7 +43,7 @@ class StoryCreate(BaseModel):
     is_free: bool | None = None
 
 
-@router.get("/worlds/{world_id}/stories", response_model=list[StoryOut])
+@router.get("/worlds/{world_id}/stories/", response_model=list[StoryOut])
 async def list_stories(world_id: str, db: AsyncSession = Depends(get_session)) -> list[StoryOut]:
     res = await db.execute(
         select(Story).where(Story.world_id == uuid.UUID(world_id))
@@ -52,7 +52,7 @@ async def list_stories(world_id: str, db: AsyncSession = Depends(get_session)) -
     return [StoryOut.from_orm(s) for s in stories]
 
 
-@router.get("/stories/preset", response_model=list[StoryOut])
+@router.get("/stories/preset/", response_model=list[StoryOut])
 async def list_preset_stories(db: AsyncSession = Depends(get_session)) -> list[StoryOut]:
     res = await db.execute(
         select(Story).where(Story.is_preset.is_(True), Story.is_free.is_(True))
@@ -61,7 +61,7 @@ async def list_preset_stories(db: AsyncSession = Depends(get_session)) -> list[S
     return [StoryOut.from_orm(s) for s in stories]
 
 
-@router.get("/stories/{story_id}", response_model=StoryOut)
+@router.get("/stories/{story_id}/", response_model=StoryOut)
 async def get_story(story_id: str, db: AsyncSession = Depends(get_session)) -> StoryOut:
     obj = await db.get(Story, uuid.UUID(story_id))
     if not obj:
@@ -69,13 +69,13 @@ async def get_story(story_id: str, db: AsyncSession = Depends(get_session)) -> S
     return StoryOut.from_orm(obj)
 
 
-@router.post("/stories", response_model=StoryOut, status_code=status.HTTP_201_CREATED)
+@router.post("/stories/", response_model=StoryOut, status_code=status.HTTP_201_CREATED)
 async def create_story(
     payload: StoryCreate,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> StoryOut:
-    user_id = await resolve_user_id(db, user_data)
+    user_id = await resolve_user_id(tg_id, db)
     await ensure_pro_plan(db, user_id)
     res = await db.execute(select(World).where(World.user_id == user_id))
     world = res.scalars().first()
@@ -125,13 +125,13 @@ async def _import_presets(db: AsyncSession, data: dict) -> None:
     await db.commit()
 
 
-@router.post("/presets/upload", status_code=status.HTTP_201_CREATED)
+@router.post("/presets/upload/", status_code=status.HTTP_201_CREATED)
 async def upload_presets(
     file: UploadFile,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> None:
-    ensure_admin(user_data)
+    ensure_admin(tg_id)
     content = await file.read()
     data = json.loads(content.decode())
     await _import_presets(db, data)

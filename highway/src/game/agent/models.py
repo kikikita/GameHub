@@ -1,6 +1,6 @@
 """Pydantic models representing game state and LLM outputs."""
 
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Literal
 
 from pydantic import BaseModel, Field
 
@@ -67,6 +67,7 @@ class Scene(BaseModel):
     description: str
     choices: List[SceneChoice]
     image: Optional[str] = None
+    image_prompt: Optional[str] = None
     music: Optional[str] = None
 
 
@@ -77,11 +78,15 @@ class SceneLLM(BaseModel):
     choices: List[SceneChoice] = Field(min_items=2, max_items=2)
 
 
+class EndingReached(BaseModel):
+    ending_reached: Literal[True]
+    ending: Ending
+    
+class EndingNotReached(BaseModel):
+    ending_reached: Literal[False]
+    
 class EndingCheckResult(BaseModel):
-    """Result returned from the LLM when checking for an ending."""
-
-    ending_reached: bool = Field(default=False)
-    ending: Optional[Ending] = None
+    check_result: EndingReached | EndingNotReached
 
 
 class UserChoice(BaseModel):
@@ -100,4 +105,5 @@ class UserState(BaseModel):
     milestones_achieved: Set[str] = Field(default_factory=set)
     user_choices: List[UserChoice] = Field(default_factory=list)
     ending: Optional[Ending] = None
+    last_image_prompt: Optional[str] = None
     assets: Dict[str, str] = Field(default_factory=dict)

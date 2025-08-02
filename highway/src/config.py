@@ -21,6 +21,7 @@ class BaseAppSettings(BaseSettings):
 
 class AppSettings(BaseAppSettings):
     tg_bot_token: SecretStr
+    server_auth_token: SecretStr
     debug: bool = False
     database_url: str
     gemini_api_keys: SecretStr | None = None
@@ -30,6 +31,10 @@ class AppSettings(BaseAppSettings):
     pregenerate_next_scene: bool = True
     request_timeout: int = 20
     admin_ids: list[int] = []
+    
+    tg_payment_provider_token: SecretStr | None = None      # @BotFather → “Payment” tab
+    tg_payment_currency: str = "XTR"           # Stars’ pseudo-currency code
+    tg_webapp_bot_username: str = "@aimmersia_bot"               
 
 
 settings = AppSettings()

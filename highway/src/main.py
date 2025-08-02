@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
-from src.routes.auth import auth_router
 from src.api.auth.router import router as api_router
 from src.api.worlds.router import router as worlds_router
 from src.api.stories.router import router as stories_router
@@ -33,7 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
 app.include_router(api_router)
 app.include_router(worlds_router)
 app.include_router(stories_router)
@@ -41,11 +39,6 @@ app.include_router(sessions_router)
 app.include_router(scenes_router)
 app.include_router(payments_router)
 
-@app.get("/")
-def read_root() -> dict:
-    """Return a simple greeting used for smoke tests."""
-
-    return {"Hello": "World"}
 
 @app.get("/health-check")
 def health_check() -> dict:

@@ -13,7 +13,6 @@ COPY highway/poetry.lock highway/pyproject.toml ./
 # Install project dependencies
 RUN poetry install --no-root
 
-COPY highway/alembic ./alembic
 COPY highway/alembic.ini .
 COPY highway/src ./src
 COPY highway/gcloud-key.json ./gcloud-key.json

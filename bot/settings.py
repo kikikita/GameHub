@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import List
 
 from environs import Env
+from pydantic import SecretStr
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,7 +20,8 @@ logging.basicConfig(
 class Bots:
     """Telegram bot settings."""
 
-    bot_token: str
+    bot_token: SecretStr
+    server_auth_token: SecretStr
     admin_id: List[int]
     app_url: str
     web_url: str
@@ -41,10 +43,11 @@ def get_settings(path: str) -> Settings:
 
     return Settings(
         bots=Bots(
-            bot_token=env.str("TG_BOT_TOKEN"),
+            bot_token=SecretStr(env.str("TG_BOT_TOKEN")),
+            server_auth_token=SecretStr(env.str("SERVER_AUTH_TOKEN")),
             admin_id=[int(x) for x in env.list("ADMIN_ID")],
             app_url=env.str("APP_URL", "http://highway:8000"),
-            web_url=env.str("WEB_URL", "https://www.immersia.fun/"),
+            web_url=env.str("WEB_URL", "https://app.immersia.fun/"),
             debug=env.bool("DEBUG", False)
         ),
     )

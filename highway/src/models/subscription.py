@@ -29,6 +29,7 @@ class Subscription(Base):
         nullable=True,
     )
     status: Mapped[str | None] = mapped_column(Text, nullable=True)
+    invoice_payload: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
 
     user: Mapped["User"] = relationship(back_populates="subscriptions")
 

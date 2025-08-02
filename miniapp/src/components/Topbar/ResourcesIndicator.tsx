@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useSubscriptionPlan } from "@/api/plans";
 
 export interface ResourcesIndicatorProps {
   wishes: number;
@@ -8,7 +9,16 @@ export interface ResourcesIndicatorProps {
   onAdd?: () => void;
 }
 
-export function ResourcesIndicator({ wishes, energyCurrent, energyMax, onAdd }: ResourcesIndicatorProps) {
+export function ResourcesIndicator({
+  wishes,
+  energyCurrent,
+  energyMax,
+  onAdd,
+}: ResourcesIndicatorProps) {
+  const {
+    data: { plan },
+  } = useSubscriptionPlan();
+  const isPro = plan === "pro";
   return (
     <button
       type="button"
@@ -24,13 +34,17 @@ export function ResourcesIndicator({ wishes, energyCurrent, energyMax, onAdd }: 
 
       <span className="flex items-center gap-1">
         <span className="text-base leading-none">⚡</span>
-        <span>
-          {energyCurrent}/{energyMax}
-        </span>
+        {isPro ? (
+          <span className="flex items-center justify-center w-5 h-2 text-lg">∞</span>
+        ) : (
+          <span>
+            {energyCurrent}/{energyMax}
+          </span>
+        )}
       </span>
 
       <span className="mx-1 w-px h-5 bg-primary/30" />
       <Plus className="h-4 w-4" />
     </button>
   );
-} 
+}

@@ -74,6 +74,7 @@ async def generate_initial_scene(
         image=image_path,
     )
     state.scenes[scene_id] = scene
+    state.last_image_prompt = image_prompt.scene_description
     return scene
 
 
@@ -102,6 +103,7 @@ async def generate_ending_scene(
         image=image_path,
     )
     state.scenes[scene_id] = scene
+    state.last_image_prompt = image_prompt.scene_description
     return scene
 
 async def generate_scene(
@@ -129,8 +131,9 @@ async def generate_scene_step(last_choice: str, state: UserState) -> Scene:
     image_prompt = await generate_image_prompt(state, scene.description)
     logger.info(f"Generated scene step image prompt: {image_prompt}")
     
+    image_path = None
     if image_prompt.change_scene:
-            image_path, _ = await generate_image(image_prompt.scene_description)
+        image_path, _ = await generate_image(image_prompt.scene_description)
             
     scene_id = str(uuid.uuid4())    
     scene = Scene(
@@ -140,6 +143,7 @@ async def generate_scene_step(last_choice: str, state: UserState) -> Scene:
         image=image_path,
     )
     state.scenes[scene_id] = scene
+    state.last_image_prompt = image_prompt.scene_description
     return scene
 
 

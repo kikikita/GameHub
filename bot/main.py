@@ -2,10 +2,14 @@
 
 import asyncio
 import logging
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from aiogram import Bot, Dispatcher
+from bot.bot import bot_instance, dp_instance
+from aiogram import Bot
 
-from handlers import admin, basic, echo, game
+from handlers import admin, basic, echo, game, payments
+from api.stories.router import router as stories_router
 from middlewares.typing import TypingMiddleware
 from settings import settings
 from utils.commands import set_commands
@@ -33,34 +37,45 @@ async def stop_bot(bot: Bot):
             logger.error(f"Failed to notify admin {admin_id} about shutdown: {e}")
 
 
+
 async def start():
     """Initialize and start polling."""
 
-    bot = Bot(token=settings.bots.bot_token)
-    dp = Dispatcher()
+    dp_instance.startup.register(start_bot)
+    dp_instance.shutdown.register(stop_bot)
 
-    dp.startup.register(start_bot)
-    dp.shutdown.register(stop_bot)
+    dp_instance.message.middleware.register(TypingMiddleware())
 
-    dp.message.middleware.register(TypingMiddleware())
-
-    dp.include_routers(
+    dp_instance.include_routers(
         admin.router,
         basic.router,
         game.router,
         echo.router,
+        payments.router,
     )
 
     try:
-        await bot.delete_webhook(drop_pending_updates=True)
-        await dp.start_polling(bot)
+        await bot_instance.delete_webhook(drop_pending_updates=True)
+        await dp_instance.start_polling(bot_instance)
     finally:
-        await bot.session.close()
+        await bot_instance.session.close()
 
 
-if __name__ == '__main__':
-    if settings.bots.debug:
-        import debugpy
-        debugpy.listen(("0.0.0.0", 5678))
-        logger.info("Debugger enabled!")
-    asyncio.run(start())
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(stories_router)
+
+if settings.bots.debug:
+    import debugpy
+    debugpy.listen(("0.0.0.0", 5678))
+    logger.info("Debugger enabled!")
+
+asyncio.create_task(start())

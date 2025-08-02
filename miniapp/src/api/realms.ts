@@ -1,29 +1,34 @@
-
-export interface RealmDTO {
-    id: string;
-    title: string;
-    description: string;
-    imageUrl: string;
-}
-
-export interface RealmResponse {
-    realms: RealmDTO[];
-}
-
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { API_URL } from "./common";
 
-export async function getRealms(): Promise<RealmResponse> {
-    const resp = await fetch(`${API_URL}/worlds`);
-    if (!resp.ok) {
-        throw new Error("Failed to fetch worlds");
-    }
-    const data = await resp.json();
-    return {
-        realms: data.map((w: any) => ({
-            id: w.id,
-            title: w.title,
-            description: w.world_desc,
-            imageUrl: w.image_url || "",
-        })),
-    };
+export interface Realm {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+}
+
+export interface WorldDTO {
+  id: string;
+  title: string;
+  world_desc: string;
+  image_url: string;
+}
+
+export function getRealms(): Promise<Realm[]> {
+  return fetch(`${API_URL}/api/v1/worlds/`).then((res) =>
+    res.json()
+  ).then<Realm[]>((data) => data.map((item: WorldDTO) => ({
+    id: item.id,
+    title: item.title,
+    description: item.world_desc,
+    imageUrl: item.image_url,
+  })));
+}
+
+export function useRealms() {
+  return useSuspenseQuery({
+    queryKey: ["worlds"],
+    queryFn: getRealms,
+  });
 }

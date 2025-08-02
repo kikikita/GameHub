@@ -10,6 +10,7 @@ import {
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { navigationStore } from "@/stores/NavigationStore";
+import { useSubscriptionPlan } from "@/api/plans";
 
 export type Plan = "free" | "pro";
 
@@ -20,8 +21,7 @@ const languages: Record<string, string> = {
 
 export function SettingsPage() {
   const { t, i18n } = useTranslation('settings');
-  // These could later be loaded from backend/localStorage
-  const [plan] = useState<Plan>("free");
+  const { data: { plan } } = useSubscriptionPlan();
   const [language, setLanguage] = useState<string>(i18n.language ?? "en");
 
   return (

@@ -18,24 +18,23 @@ router = APIRouter(prefix="/api/v1/sessions", tags=["scenes"])
 
 
 @router.post(
-    "/{id}/scenes",
+    "/{id}/scenes/",
     response_model=SceneOut,
     status_code=status.HTTP_201_CREATED,
 )
 async def generate_scene(
     id: str,
-    payload: SceneCreate | None = None,
-    user_data: dict = Depends(authenticated_user),
+    payload: SceneCreate,
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> SceneOut:
     """Generate the next scene for a session."""
-
+    user_id = await resolve_user_id(tg_id, db)
     sid = uuid.UUID(id)
     res = await db.get(GameSession, sid)
     if not res:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    user_id = await resolve_user_id(db, user_data)
-    if res.user_id != user_id:
+    if res.user_id != user_id :
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     story = None
     if res.story_id:
@@ -52,26 +51,25 @@ async def generate_scene(
 
 
 @router.post(
-    "/{id}/choice",
+    "/{id}/choice/",
     response_model=SceneOut,
     status_code=status.HTTP_201_CREATED,
 )
 async def choose_and_generate(
     id: str,
     payload: SceneCreate,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> SceneOut:
     """Generate the next scene using the chosen option."""
+    return await generate_scene(id, payload, tg_id, db)
 
-    return await generate_scene(id, payload, user_data, db)
 
-
-@router.get("/{id}/scenes/{scene_id}", response_model=SceneOut)
+@router.get("/{id}/scenes/{scene_id}/", response_model=SceneOut)
 async def get_scene(
     id: str,
     scene_id: str,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> SceneOut:
     """Retrieve a specific scene for a session."""
@@ -82,10 +80,10 @@ async def get_scene(
     return scene_to_out(scene)
 
 
-@router.get("/{id}/history", response_model=list[SceneOut])
+@router.get("/{id}/history/", response_model=list[SceneOut])
 async def history(
     id: str,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> list[SceneOut]:
     """Return the full scene history for a session."""
@@ -99,12 +97,12 @@ async def history(
     return [scene_to_out(s) for s in scenes]
 
 
-@router.put("/{id}/scenes/{scene_id}", response_model=SceneOut)
+@router.put("/{id}/scenes/{scene_id}/", response_model=SceneOut)
 async def update_scene(
     id: str,
     scene_id: str,
     payload: SceneOut,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> SceneOut:
     """Persist edits to an existing scene."""

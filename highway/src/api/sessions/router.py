@@ -18,15 +18,15 @@ from src.api.utils import resolve_user_id
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
 
 
-@router.post("", response_model=SessionOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=SessionOut, status_code=status.HTTP_201_CREATED)
 async def create_session(
     payload: SessionCreate,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> SessionOut:
     """Create a new gameplay session."""
 
-    user_id = await resolve_user_id(db, user_data)
+    user_id = await resolve_user_id(tg_id, db)
     story_id = (
         uuid.UUID(payload.story_id) if payload.story_id else None
     )
@@ -50,10 +50,10 @@ async def create_session(
     )
 
 
-@router.get("/{id}", response_model=SceneOut | None)
+@router.get("/{id}/", response_model=SceneOut | None)
 async def get_current(
     id: str,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> SceneOut | None:
     """Return the latest scene for a session."""
@@ -73,10 +73,10 @@ async def get_current(
     return scene_to_out(scene)
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_session(
     id: str,
-    user_data: dict = Depends(authenticated_user),
+    tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
 ) -> None:
     """Remove a session and its data."""
