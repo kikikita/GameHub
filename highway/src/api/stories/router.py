@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.tg_auth import authenticated_user
-from src.api.utils import ensure_admin, ensure_pro_plan, resolve_user_id
+from src.api.utils import ensure_admin, ensure_pro_plan, resolve_user_id, get_localized
 from src.core.database import get_session
 from src.models.story import Story
 from src.models.world import World
@@ -29,13 +29,10 @@ class StoryOut(BaseModel):
     is_free: bool | None = None
     is_preset: bool | None = None
 
-    class Config:
-        from_attributes = True
-
 
 class StoryCreate(BaseModel):
-    title: str | None = None
-    story_desc: str | None = None
+    title: dict | None = None
+    story_desc: dict | None = None
     genre: str | None = None
     character: dict | None = None
     story_frame: dict | None = None
@@ -43,30 +40,51 @@ class StoryCreate(BaseModel):
     is_free: bool | None = None
 
 
+def story_to_out(story: Story, lang: str) -> StoryOut:
+    return StoryOut(
+        id=story.id,
+        world_id=story.world_id,
+        title=get_localized(story.title, lang),
+        story_desc=get_localized(story.story_desc, lang),
+        genre=story.genre,
+        character=get_localized(story.character, lang),
+        story_frame=get_localized(story.story_frame, lang),
+        is_public=story.is_public,
+        is_free=story.is_free,
+        is_preset=story.is_preset,
+    )
+
+
 @router.get("/worlds/{world_id}/stories/", response_model=list[StoryOut])
-async def list_stories(world_id: str, db: AsyncSession = Depends(get_session)) -> list[StoryOut]:
+async def list_stories(
+    world_id: str, lang: str = "ru", db: AsyncSession = Depends(get_session)
+) -> list[StoryOut]:
     res = await db.execute(
         select(Story).where(Story.world_id == uuid.UUID(world_id))
     )
     stories = list(res.scalars())
-    return [StoryOut.from_orm(s) for s in stories]
+    return [story_to_out(s, lang) for s in stories]
 
 
 @router.get("/stories/preset/", response_model=list[StoryOut])
-async def list_preset_stories(db: AsyncSession = Depends(get_session)) -> list[StoryOut]:
+async def list_preset_stories(
+    lang: str = "ru", db: AsyncSession = Depends(get_session)
+) -> list[StoryOut]:
     res = await db.execute(
         select(Story).where(Story.is_preset.is_(True), Story.is_free.is_(True))
     )
     stories = list(res.scalars())
-    return [StoryOut.from_orm(s) for s in stories]
+    return [story_to_out(s, lang) for s in stories]
 
 
 @router.get("/stories/{story_id}/", response_model=StoryOut)
-async def get_story(story_id: str, db: AsyncSession = Depends(get_session)) -> StoryOut:
+async def get_story(
+    story_id: str, lang: str = "ru", db: AsyncSession = Depends(get_session)
+) -> StoryOut:
     obj = await db.get(Story, uuid.UUID(story_id))
     if not obj:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return StoryOut.from_orm(obj)
+    return story_to_out(obj, lang)
 
 
 @router.post("/stories/", response_model=StoryOut, status_code=status.HTTP_201_CREATED)
@@ -74,6 +92,7 @@ async def create_story(
     payload: StoryCreate,
     tg_id: int = Depends(authenticated_user),
     db: AsyncSession = Depends(get_session),
+    lang: str = "ru",
 ) -> StoryOut:
     user_id = await resolve_user_id(tg_id, db)
     await ensure_pro_plan(db, user_id)
@@ -91,7 +110,7 @@ async def create_story(
     db.add(story)
     await db.commit()
     await db.refresh(story)
-    return StoryOut.from_orm(story)
+    return story_to_out(story, lang)
 
 
 async def _import_presets(db: AsyncSession, data: dict) -> None:

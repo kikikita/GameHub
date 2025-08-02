@@ -51,3 +51,22 @@ def ensure_admin(tg_id: int) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin only",
         )
+
+
+def get_localized(value, lang: str):
+    """Return localized value from a dict based on the language.
+
+    If ``value`` is a mapping of languages (``{"ru": "...", "en": "..."}``),
+    choose the text for ``lang``. If not available, fall back to ``ru`` or the
+    first available entry. For nested structures lists/dicts are processed
+    recursively.
+    """
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        if all(isinstance(v, str) for v in value.values()):
+            return value.get(lang) or value.get("ru") or next(iter(value.values()), None)
+        return {k: get_localized(v, lang) for k, v in value.items()}
+    if isinstance(value, list):
+        return [get_localized(v, lang) for v in value]
+    return value

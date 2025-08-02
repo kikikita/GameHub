@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, TIMESTAMP, Text, Integer, ForeignKey
+from sqlalchemy import Boolean, TIMESTAMP, Integer, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,8 +22,8 @@ class Story(Base):
         UUID(as_uuid=True), ForeignKey("worlds.id")
     )
     user_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
-    title: Mapped[str | None] = mapped_column(Text, nullable=True)
-    story_desc: Mapped[str | None] = mapped_column(Text, nullable=True)
+    title: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    story_desc: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     genre: Mapped[str | None] = mapped_column(Text, nullable=True)
     character: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     story_frame: Mapped[dict | None] = mapped_column(JSONB, nullable=True)

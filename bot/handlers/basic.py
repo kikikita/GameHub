@@ -10,7 +10,7 @@ from aiogram.types import Message, CallbackQuery
 from keyboards.reply import remove_kb
 from keyboards.inline import language_keyboard
 from utils.presets import show_presets
-from utils.i18n import t, set_user_language, get_user_language
+from utils.i18n import t, get_user_language
 from settings import settings
 import logging
 
@@ -63,7 +63,6 @@ async def start_command(message: Message):
             )
             return
 
-    set_user_language(uid, language)
     welcome = t(language, "start_welcome", name=message.from_user.first_name)
     await message.answer(welcome, parse_mode=ParseMode.HTML)
     await show_presets(message.chat.id, message.bot, language)
@@ -89,7 +88,6 @@ async def set_language(call: CallbackQuery):
             headers={"X-User-Id": str(call.from_user.id)},
             json={"language": lang},
         )
-    set_user_language(call.from_user.id, lang)
     await call.message.delete()
     await show_presets(call.message.chat.id, call.message.bot, lang)
     await call.answer()
