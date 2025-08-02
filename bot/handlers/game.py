@@ -418,22 +418,6 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
     if not session_id or not choice:
         await call.answer()
         return
-
-    resp = await http_client.post(
-        f"/api/v1/sessions/{session_id}/choice/",
-        json={"choice_text": choice},
-        headers={"X-User-Id": str(call.from_user.id)},
-    )
-    if resp.status_code != 201:
-        await call.answer(t(lang, "error_generic"), show_alert=True)
-        return
-    scene = resp.json()
-
-    await call.bot.edit_message_reply_markup(
-        chat_id=call.message.chat.id,
-        message_id=last_scene_id,
-        reply_markup=None,
-    )
     try:
         if last_photo:
             await call.bot.edit_message_caption(
@@ -449,7 +433,20 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
             )
     except Exception:
         pass
-
+    await call.bot.edit_message_reply_markup(
+        chat_id=call.message.chat.id,
+        message_id=last_scene_id,
+        reply_markup=None,
+    )
+    resp = await http_client.post(
+        f"/api/v1/sessions/{session_id}/choice/",
+        json={"choice_text": choice},
+        headers={"X-User-Id": str(call.from_user.id)},
+    )
+    if resp.status_code != 201:
+        await call.answer(t(lang, "error_generic"), show_alert=True)
+        return
+    scene = resp.json()
     await _send_scene(
         call.message.chat.id, call.bot, scene, session_id, state
     )
