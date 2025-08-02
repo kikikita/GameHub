@@ -2,24 +2,27 @@
 
 from __future__ import annotations
 
-import httpx
-import base64
-from aiogram import Router, F, Bot
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, BufferedInputFile
-from aiogram.fsm.context import FSMContext
-from bot.bot import bot_instance, dp_instance
+import asyncio
+from contextlib import suppress
 
-from settings import settings
+import base64
+import httpx
+from aiogram import Bot, F, Router
+from aiogram.exceptions import TelegramBadRequest
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.types import BufferedInputFile, CallbackQuery, Message
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from bot.bot import bot_instance, dp_instance
 from keyboards.inline import (
-    setup_keyboard,
     cancel_keyboard,
     games_keyboard,
     open_app_keyboard,
+    setup_keyboard,
 )
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from utils.states import GameSetup, GamePlay
-from utils.i18n import t, get_user_language
+from settings import settings
+from utils.i18n import get_user_language, t
+from utils.states import GamePlay, GameSetup
 
 http_client = httpx.AsyncClient(
     base_url=settings.bots.app_url,
@@ -86,6 +89,16 @@ def _build_setup_text(data: dict, lang: str) -> str:
         f"{t(lang, 'label_char_personality')}: {data.get('char_personality') or '-'}\n"
         f"{t(lang, 'label_genre')}: {data.get('genre') or '-'}"
     )
+
+
+async def _typing_loop(bot: Bot, chat_id: int, stop: asyncio.Event, interval: float = 4.0) -> None:
+    """Continuously send typing action until stop is set."""
+    while not stop.is_set():
+        try:
+            await bot.send_chat_action(chat_id, "typing")
+            await asyncio.wait_for(stop.wait(), timeout=interval)
+        except asyncio.TimeoutError:
+            continue
 
 
 async def _send_scene(
@@ -239,60 +252,68 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     template = data.get("template") or _get_default_template(lang)
 
-    resp = await http_client.post(
-        "/api/v1/stories/",
-        json={
-            "title": {lang: template.get("genre")},
-            "story_desc": {lang: template.get("story_desc")},
-            "genre": template.get("genre"),
-            "character": {
-                "char_name": {lang: template.get("char_name")},
-                "char_age": template.get("char_age"),
-                "char_background": {lang: template.get("char_background")},
-                "char_personality": {lang: template.get("char_personality")},
-            },
-            "is_free": False,
-        },
-        headers={"X-User-Id": str(call.from_user.id)},
-    )
-    if resp.status_code != 201:
-        if resp.status_code == 403:
-            await call.message.answer(
-                t(lang, "create_story_webapp"),
-                reply_markup=open_app_keyboard(settings.bots.web_url, lang),
-            )
-            await state.clear()
-        else:
-            await call.answer(t(lang, "error_story"), show_alert=True)
-        return
-    story_id = resp.json()["id"]
-    resp = await http_client.post(
-        "/api/v1/sessions/",
-        json={"story_id": story_id},
-        headers={"X-User-Id": str(call.from_user.id)},
-    )
-    if resp.status_code != 201:
-        await call.answer(t(lang, "error_session"), show_alert=True)
-        return
-    session_id = resp.json()["id"]
-    resp = await http_client.get(
-        f"/api/v1/sessions/{session_id}/",
-        headers={"X-User-Id": str(call.from_user.id)},
-    )
-    if resp.status_code != 200:
-        await call.answer(t(lang, "error_scene"), show_alert=True)
-        return
-    scene = resp.json()
-
-    active_sessions.setdefault(call.from_user.id, []).append(
-        {"id": session_id, "title": template.get("genre")}
-    )
-
-    await call.message.delete()
-    await _send_scene(
-        call.message.chat.id, call.bot, scene, session_id, state
-    )
     await call.answer()
+    stop = asyncio.Event()
+    typing_task = asyncio.create_task(
+        _typing_loop(call.bot, call.message.chat.id, stop)
+    )
+    try:
+        resp = await http_client.post(
+            "/api/v1/stories/",
+            json={
+                "title": {lang: template.get("genre")},
+                "story_desc": {lang: template.get("story_desc")},
+                "genre": template.get("genre"),
+                "character": {
+                    "char_name": {lang: template.get("char_name")},
+                    "char_age": template.get("char_age"),
+                    "char_background": {lang: template.get("char_background")},
+                    "char_personality": {lang: template.get("char_personality")},
+                },
+                "is_free": False,
+            },
+            headers={"X-User-Id": str(call.from_user.id)},
+        )
+        if resp.status_code != 201:
+            if resp.status_code == 403:
+                await call.message.answer(
+                    t(lang, "create_story_webapp"),
+                    reply_markup=open_app_keyboard(settings.bots.web_url, lang),
+                )
+                await state.clear()
+            else:
+                await call.message.answer(t(lang, "error_story"))
+            return
+        story_id = resp.json()["id"]
+        resp = await http_client.post(
+            "/api/v1/sessions/",
+            json={"story_id": story_id},
+            headers={"X-User-Id": str(call.from_user.id)},
+        )
+        if resp.status_code != 201:
+            await call.message.answer(t(lang, "error_session"))
+            return
+        session_id = resp.json()["id"]
+        resp = await http_client.get(
+            f"/api/v1/sessions/{session_id}/",
+            headers={"X-User-Id": str(call.from_user.id)},
+        )
+        if resp.status_code != 200:
+            await call.message.answer(t(lang, "error_scene"))
+            return
+        scene = resp.json()
+
+        active_sessions.setdefault(call.from_user.id, []).append(
+            {"id": session_id, "title": template.get("genre")}
+        )
+
+        await call.message.delete()
+        await _send_scene(
+            call.message.chat.id, call.bot, scene, session_id, state
+        )
+    finally:
+        stop.set()
+        await typing_task
 
 
 async def handle_external_game_start(story_id: str, user_id: int):
@@ -351,6 +372,8 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
     story_id = call.data.split(":", 1)[1]
     uid = call.from_user.id
     lang = await get_user_language(uid)
+
+    await call.answer()
     try:
         await call.message.delete()
     except Exception:
@@ -361,7 +384,7 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
         headers={"X-User-Id": str(uid)},
     )
     if resp.status_code != 200:
-        await call.answer(t(lang, "error_generic"), show_alert=True)
+        await call.message.answer(t(lang, "error_generic"))
         return
     story = resp.json()
     world_resp = await http_client.get(
@@ -379,28 +402,36 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
             await call.message.answer(text=story.get("story_desc", ""))
     else:
         await call.message.answer(story.get("story_desc", ""))
-    resp = await http_client.post(
-        "/api/v1/sessions/",
-        json={"story_id": story_id},
-        headers={"X-User-Id": str(uid)},
+
+    stop = asyncio.Event()
+    typing_task = asyncio.create_task(
+        _typing_loop(call.bot, call.message.chat.id, stop)
     )
-    if resp.status_code != 201:
-        await call.answer(t(lang, "error_generic"), show_alert=True)
-        return
-    session_id = resp.json()["id"]
-    resp = await http_client.get(
-        f"/api/v1/sessions/{session_id}/",
-        headers={"X-User-Id": str(uid)},
-    )
-    if resp.status_code != 200:
-        await call.answer(t(lang, "error_generic"), show_alert=True)
-        return
-    scene = resp.json()
-    active_sessions.setdefault(uid, []).append(
-        {"id": session_id, "title": story.get("title")}
-    )
-    await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
-    await call.answer()
+    try:
+        resp = await http_client.post(
+            "/api/v1/sessions/",
+            json={"story_id": story_id},
+            headers={"X-User-Id": str(uid)},
+        )
+        if resp.status_code != 201:
+            await call.message.answer(t(lang, "error_generic"))
+            return
+        session_id = resp.json()["id"]
+        resp = await http_client.get(
+            f"/api/v1/sessions/{session_id}/",
+            headers={"X-User-Id": str(uid)},
+        )
+        if resp.status_code != 200:
+            await call.message.answer(t(lang, "error_generic"))
+            return
+        scene = resp.json()
+        active_sessions.setdefault(uid, []).append(
+            {"id": session_id, "title": story.get("title")}
+        )
+        await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
+    finally:
+        stop.set()
+        await typing_task
 
 
 @router.callback_query(F.data.startswith("choice:"))
@@ -418,39 +449,45 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
     if not session_id or not choice:
         await call.answer()
         return
-    try:
+
+    await call.answer()
+
+    with suppress(TelegramBadRequest):
         if last_photo:
             await call.bot.edit_message_caption(
                 chat_id=call.message.chat.id,
                 message_id=last_scene_id,
                 caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
+                reply_markup=None,
             )
         else:
             await call.bot.edit_message_text(
                 text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
                 chat_id=call.message.chat.id,
                 message_id=last_scene_id,
+                reply_markup=None,
             )
-    except Exception:
-        pass
-    await call.bot.edit_message_reply_markup(
-        chat_id=call.message.chat.id,
-        message_id=last_scene_id,
-        reply_markup=None,
+
+    stop = asyncio.Event()
+    typing_task = asyncio.create_task(
+        _typing_loop(call.bot, call.message.chat.id, stop)
     )
-    resp = await http_client.post(
-        f"/api/v1/sessions/{session_id}/choice/",
-        json={"choice_text": choice},
-        headers={"X-User-Id": str(call.from_user.id)},
-    )
+    try:
+        resp = await http_client.post(
+            f"/api/v1/sessions/{session_id}/choice/",
+            json={"choice_text": choice},
+            headers={"X-User-Id": str(call.from_user.id)},
+        )
+    finally:
+        stop.set()
+        await typing_task
     if resp.status_code != 201:
-        await call.answer(t(lang, "error_generic"), show_alert=True)
+        await call.message.answer(t(lang, "error_generic"))
         return
     scene = resp.json()
     await _send_scene(
         call.message.chat.id, call.bot, scene, session_id, state
     )
-    await call.answer()
 
 
 @router.message(GamePlay.waiting_choice)
@@ -466,35 +503,39 @@ async def choice_text(message: Message, state: FSMContext):
     await message.delete()
     if not session_id:
         return
-    resp = await http_client.post(
-        f"/api/v1/sessions/{session_id}/choice/",
-        json={"choice_text": choice},
-        headers={"X-User-Id": str(message.from_user.id)},
-    )
-    if resp.status_code != 201:
-        return
-    scene = resp.json()
 
-    await message.bot.edit_message_reply_markup(
-        chat_id=message.chat.id,
-        message_id=last_scene_id,
-        reply_markup=None,
-    )
-    try:
+    with suppress(TelegramBadRequest):
         if last_photo:
             await message.bot.edit_message_caption(
                 chat_id=message.chat.id,
                 message_id=last_scene_id,
                 caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
+                reply_markup=None,
             )
         else:
             await message.bot.edit_message_text(
                 text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
                 chat_id=message.chat.id,
                 message_id=last_scene_id,
+                reply_markup=None,
             )
-    except Exception:
-        pass
+
+    stop = asyncio.Event()
+    typing_task = asyncio.create_task(
+        _typing_loop(message.bot, message.chat.id, stop)
+    )
+    try:
+        resp = await http_client.post(
+            f"/api/v1/sessions/{session_id}/choice/",
+            json={"choice_text": choice},
+            headers={"X-User-Id": str(message.from_user.id)},
+        )
+    finally:
+        stop.set()
+        await typing_task
+    if resp.status_code != 201:
+        return
+    scene = resp.json()
 
     await _send_scene(
         message.chat.id, message.bot, scene, session_id, state
@@ -520,18 +561,27 @@ async def resume_game(call: CallbackQuery, state: FSMContext):
     """Resume a selected game session."""
     lang = await get_user_language(call.from_user.id)
     session_id = call.data.split(":", 1)[1]
-    resp = await http_client.get(
-        f"/api/v1/sessions/{session_id}/",
-        headers={"X-User-Id": str(call.from_user.id)},
-    )
-    if resp.status_code != 200:
-        await call.answer(t(lang, "error_generic"), show_alert=True)
-        return
-    scene = resp.json()
 
-    await call.message.delete()
-    await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
     await call.answer()
+    stop = asyncio.Event()
+    typing_task = asyncio.create_task(
+        _typing_loop(call.bot, call.message.chat.id, stop)
+    )
+    try:
+        resp = await http_client.get(
+            f"/api/v1/sessions/{session_id}/",
+            headers={"X-User-Id": str(call.from_user.id)},
+        )
+        if resp.status_code != 200:
+            await call.message.answer(t(lang, "error_generic"))
+            return
+        scene = resp.json()
+
+        await call.message.delete()
+        await _send_scene(call.message.chat.id, call.bot, scene, session_id, state)
+    finally:
+        stop.set()
+        await typing_task
 
 
 @router.message(Command("end_game"))
