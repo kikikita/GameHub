@@ -11,6 +11,7 @@ from src.game.agent.runner import process_step, SceneResponse
 from src.game.agent.redis_state import get_user_state, set_user_state
 from src.game.agent.models import StoryFrame, UserChoice, UserState
 from src.game.agent.tools import generate_story_frame, generate_initial_scene
+from src.api.utils import get_localized
 import logging
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,7 @@ async def create_and_store_scene(
                 sf_data.setdefault("character", session.story.character or {})
                 sf_data.setdefault("genre", session.story.genre)
             sf_data.setdefault("language", state.language)
+            sf_data = get_localized(sf_data, state.language)
             state.story_frame = StoryFrame(**sf_data)
         elif session.story and session.story.story_frame:
             await db.refresh(session.story, ["world"])
@@ -53,6 +55,7 @@ async def create_and_store_scene(
             sf_data.setdefault("character", session.story.character or {})
             sf_data.setdefault("genre", session.story.genre)
             sf_data.setdefault("language", state.language)
+            sf_data = get_localized(sf_data, state.language)
             state.story_frame = StoryFrame(**sf_data)
 
     if not state.user_choices:
@@ -82,8 +85,8 @@ async def create_and_store_scene(
         world = story.world
         if not state.story_frame:
             story_frame = await generate_story_frame(
-                setting=world.world_desc,
-                character=story.character or {},
+                setting=get_localized(world.world_desc, state.language),
+                character=get_localized(story.character or {}, state.language),
                 genre=story.genre,
                 language=state.language,
             )
