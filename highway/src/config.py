@@ -31,6 +31,9 @@ class AppSettings(BaseAppSettings):
     pregenerate_next_scene: bool = True
     request_timeout: int = 20
     admin_ids: list[int] = []
+
+    # Cost in wishes to create a custom story
+    create_story_cost: int = 5
     
     tg_payment_provider_token: SecretStr | None = None      # @BotFather → “Payment” tab
     tg_payment_currency: str = "XTR"           # Stars’ pseudo-currency code

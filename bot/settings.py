@@ -33,6 +33,7 @@ class Settings:
     """Application settings container."""
 
     bots: Bots
+    create_story_cost: int
 
 
 def get_settings(path: str) -> Settings:
@@ -50,6 +51,7 @@ def get_settings(path: str) -> Settings:
             web_url=env.str("WEB_URL", "https://app.immersia.fun/"),
             debug=env.bool("DEBUG", False)
         ),
+        create_story_cost=env.int("CREATE_STORY_COST", 5),
     )
 
 

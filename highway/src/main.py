@@ -10,7 +10,10 @@ from src.api.stories.router import router as stories_router
 from src.api.sessions.router import router as sessions_router
 from src.api.scenes.router import router as scenes_router
 from src.api.payments.router import router as payments_router
-from src.api.wish_payments.router import router as wish_payments_router 
+from src.api.wish_payments.router import router as wish_payments_router
+from src.cron import energy_restore_worker
+
+import asyncio
 
 import logging
 
@@ -46,3 +49,10 @@ def health_check() -> dict:
     """Endpoint for liveness probes."""
 
     return {"status": "ok"}
+
+
+@app.on_event("startup")
+async def startup_tasks() -> None:
+    """Launch background cron workers on application startup."""
+
+    asyncio.create_task(energy_restore_worker())
