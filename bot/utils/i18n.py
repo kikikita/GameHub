@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import httpx
+
+from settings import settings
+
+
 TRANSLATIONS = {
     "en": {
         "choose_language": "Choose your language",
@@ -120,21 +125,30 @@ TRANSLATIONS = {
 DEFAULT_LANG = "en"
 
 
+# Reusable HTTPX client for backend requests
+client = httpx.AsyncClient(
+    base_url=settings.bots.app_url,
+    timeout=10.0,
+    headers={"X-Server-Auth": settings.bots.server_auth_token.get_secret_value()},
+)
+
+
+# Simple in-memory cache for user languages to avoid frequent backend calls
+_LANG_CACHE: dict[int, str] = {}
+
+
 def t(lang: str, key: str, **kwargs) -> str:
     lang_dict = TRANSLATIONS.get(lang, TRANSLATIONS[DEFAULT_LANG])
     text = lang_dict.get(key) or TRANSLATIONS[DEFAULT_LANG].get(key, "")
     return text.format(**kwargs)
 
 
-async def get_user_language(uid: int) -> str:
-    import httpx
-    from settings import settings
+async def get_user_language(uid: int, *, refresh: bool = False) -> str:
+    """Return the language for a user, using a simple in-memory cache."""
 
-    client = httpx.AsyncClient(
-        base_url=settings.bots.app_url,
-        timeout=10.0,
-        headers={"X-Server-Auth": settings.bots.server_auth_token.get_secret_value()},
-    )
+    if not refresh and uid in _LANG_CACHE:
+        return _LANG_CACHE[uid]
+
     resp = await client.get(
         "/api/v1/users/me/",
         headers={"X-User-Id": str(uid)},
@@ -143,7 +157,13 @@ async def get_user_language(uid: int) -> str:
         lang = resp.json().get("language") or DEFAULT_LANG
     else:
         lang = DEFAULT_LANG
-    await client.aclose()
+    _LANG_CACHE[uid] = lang
     return lang
+
+
+def set_user_language(uid: int, lang: str) -> None:
+    """Update the cached language for a user (e.g. after miniapp change)."""
+
+    _LANG_CACHE[uid] = lang
 
 

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.tg_auth import authenticated_user
 from src.api.utils import ensure_admin, resolve_user_id, get_localized
+from src.config import settings
 from src.core.database import get_session
 from src.models.story import Story
 from src.models.world import World
@@ -97,7 +98,7 @@ async def create_story(
 ) -> StoryOut:
     user_id = await resolve_user_id(tg_id, db)
     user = await db.get(User, user_id)
-    cost = 5
+    cost = settings.create_story_cost
     if not user or user.wishes < cost:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="not_enough_wishes")
     user.wishes -= cost

@@ -6,6 +6,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from utils.i18n import t
+from settings import settings
 
 
 def example_keyboard() -> InlineKeyboardMarkup:
@@ -18,8 +19,13 @@ def example_keyboard() -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-def setup_keyboard(lang: str, wishes_cost: int = 5) -> InlineKeyboardMarkup:
+def setup_keyboard(
+    lang: str, wishes_cost: int | None = None
+) -> InlineKeyboardMarkup:
     """Keyboard for the game setup step."""
+    if wishes_cost is None:
+        wishes_cost = settings.create_story_cost
+
     kb = InlineKeyboardBuilder()
     kb.button(text=t(lang, "setup_setting"), callback_data="edit:world_desc")
     kb.button(text=t(lang, "setup_char_name"), callback_data="edit:char_name")
