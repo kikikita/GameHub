@@ -437,20 +437,12 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
 
     await call.answer()
 
-    stop = asyncio.Event()
-    typing_task = asyncio.create_task(
-        _typing_loop(call.bot, call.message.chat.id, stop)
+    # Check energy before triggering heavy scene generation
+    energy_resp = await http_client.get(
+        "/api/v1/users/me/",
+        headers={"X-User-Id": str(call.from_user.id)},
     )
-    try:
-        resp = await http_client.post(
-            f"/api/v1/sessions/{session_id}/choice/",
-            json={"choice_text": choice, "energy_cost": 1},
-            headers={"X-User-Id": str(call.from_user.id)},
-        )
-    finally:
-        stop.set()
-        await typing_task
-    if resp.status_code == 403:
+    if energy_resp.status_code != 200 or energy_resp.json().get("energy", 0) < 1:
         title = t(lang, "not_enough_energy_title")
         subtitle = t(lang, "not_enough_energy_subtitle")
         engry_msg = f"{title}\n{subtitle}"
@@ -461,10 +453,8 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
             ),
         )
         return
-    if resp.status_code != 201:
-        await call.message.answer(t(lang, "error_generic"))
-        return
 
+    # Provide immediate feedback while backend processes the choice
     with suppress(TelegramBadRequest):
         if last_photo:
             await call.bot.edit_message_caption(
@@ -480,6 +470,34 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
                 message_id=last_scene_id,
                 reply_markup=None,
             )
+
+    stop = asyncio.Event()
+    typing_task = asyncio.create_task(
+        _typing_loop(call.bot, call.message.chat.id, stop)
+    )
+    try:
+        resp = await http_client.post(
+            f"/api/v1/sessions/{session_id}/choice/",
+            json={"choice_text": choice, "energy_cost": 1},
+            headers={"X-User-Id": str(call.from_user.id)},
+        )
+    finally:
+        stop.set()
+        await typing_task
+    if resp.status_code != 201:
+        if resp.status_code == 403:
+            title = t(lang, "not_enough_energy_title")
+            subtitle = t(lang, "not_enough_energy_subtitle")
+            engry_msg = f"{title}\n{subtitle}"
+            await call.message.answer(
+                engry_msg,
+                reply_markup=top_up_keyboard(
+                    f"{settings.bots.web_url}store", lang, "energy"
+                ),
+            )
+        else:
+            await call.message.answer(t(lang, "error_generic"))
+        return
 
     scene = resp.json()
     await _send_scene(
@@ -501,20 +519,12 @@ async def choice_text(message: Message, state: FSMContext):
     if not session_id:
         return
 
-    stop = asyncio.Event()
-    typing_task = asyncio.create_task(
-        _typing_loop(message.bot, message.chat.id, stop)
+    # Ensure the user has enough energy for text choice (costs 2)
+    energy_resp = await http_client.get(
+        "/api/v1/users/me/",
+        headers={"X-User-Id": str(message.from_user.id)},
     )
-    try:
-        resp = await http_client.post(
-            f"/api/v1/sessions/{session_id}/choice/",
-            json={"choice_text": choice, "energy_cost": 2},
-            headers={"X-User-Id": str(message.from_user.id)},
-        )
-    finally:
-        stop.set()
-        await typing_task
-    if resp.status_code == 403:
+    if energy_resp.status_code != 200 or energy_resp.json().get("energy", 0) < 2:
         title = t(lang, "not_enough_energy_title")
         subtitle = t(lang, "not_enough_energy_subtitle")
         engry_msg = f"{title}\n{subtitle}"
@@ -525,8 +535,6 @@ async def choice_text(message: Message, state: FSMContext):
                 f"{settings.bots.web_url}store", lang, "energy"
             ),
         )
-        return
-    if resp.status_code != 201:
         return
 
     with suppress(TelegramBadRequest):
@@ -544,6 +552,33 @@ async def choice_text(message: Message, state: FSMContext):
                 message_id=last_scene_id,
                 reply_markup=None,
             )
+
+    stop = asyncio.Event()
+    typing_task = asyncio.create_task(
+        _typing_loop(message.bot, message.chat.id, stop)
+    )
+    try:
+        resp = await http_client.post(
+            f"/api/v1/sessions/{session_id}/choice/",
+            json={"choice_text": choice, "energy_cost": 2},
+            headers={"X-User-Id": str(message.from_user.id)},
+        )
+    finally:
+        stop.set()
+        await typing_task
+    if resp.status_code != 201:
+        if resp.status_code == 403:
+            title = t(lang, "not_enough_energy_title")
+            subtitle = t(lang, "not_enough_energy_subtitle")
+            engry_msg = f"{title}\n{subtitle}"
+            await message.bot.send_message(
+                message.chat.id,
+                engry_msg,
+                reply_markup=top_up_keyboard(
+                    f"{settings.bots.web_url}store", lang, "energy"
+                ),
+            )
+        return
 
     scene = resp.json()
 
