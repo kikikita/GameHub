@@ -102,3 +102,13 @@ def open_app_keyboard(web_url: str, lang: str) -> InlineKeyboardMarkup:
         )
     )
     return kb.as_markup()
+
+
+def top_up_keyboard(web_url: str, lang: str) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.row(
+        InlineKeyboardButton(
+            text=t(lang, "top_up_balance"), web_app=WebAppInfo(url=web_url)
+        )
+    )
+    return kb.as_markup()

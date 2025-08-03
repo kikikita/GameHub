@@ -18,6 +18,7 @@ from keyboards.inline import (
     cancel_keyboard,
     games_keyboard,
     setup_keyboard,
+    top_up_keyboard,
 )
 from settings import settings
 from utils.i18n import get_user_language, t
@@ -259,7 +260,10 @@ async def start_game(call: CallbackQuery, state: FSMContext):
         if resp.status_code != 201:
             if resp.status_code == 403:
                 await call.message.answer(
-                    t(lang, "not_enough_wishes", link=f"{settings.bots.web_url}store"),
+                    t(lang, "not_enough_wishes"),
+                    reply_markup=top_up_keyboard(
+                        f"{settings.bots.web_url}store", lang
+                    ),
                 )
                 await state.clear()
             else:
