@@ -262,7 +262,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
                 await call.message.answer(
                     t(lang, "not_enough_wishes"),
                     reply_markup=top_up_keyboard(
-                        f"{settings.bots.web_url}store", lang
+                        f"{settings.bots.web_url}store", lang, 'whishes'
                     ),
                 )
                 await state.clear()
@@ -467,7 +467,14 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
         stop.set()
         await typing_task
     if resp.status_code == 403:
-        await call.message.answer(t(lang, "not_enough_energy"))
+        title = t(lang, "not_enough_energy_title")
+        subtitle = t(lang, "not_enough_energy_subtitle")
+        engry_msg = f"{title}\n{subtitle}"
+        await call.message.answer(
+            engry_msg, reply_markup=top_up_keyboard(
+                f"{settings.bots.web_url}store", lang, 'energy'
+            )
+        )
         return
     if resp.status_code != 201:
         await call.message.answer(t(lang, "error_generic"))
@@ -522,7 +529,13 @@ async def choice_text(message: Message, state: FSMContext):
         stop.set()
         await typing_task
     if resp.status_code == 403:
-        await message.bot.send_message(message.chat.id, t(lang, "not_enough_energy"))
+        title = t(lang, "not_enough_energy_title")
+        subtitle = t(lang, "not_enough_energy_subtitle")
+        engry_msg = f"{title}\n{subtitle}"
+        await message.bot.send_message(
+            message.chat.id, engry_msg, reply_markup=top_up_keyboard(
+                f"{settings.bots.web_url}store", lang, 'energy')
+        )
         return
     if resp.status_code != 201:
         return
