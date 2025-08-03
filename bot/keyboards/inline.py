@@ -115,7 +115,7 @@ def top_up_keyboard(web_url: str, lang: str, type: str = 'energy') -> InlineKeyb
     else:
         kb.row(
             InlineKeyboardButton(
-                text=t(lang, "top_up_whishes"), web_app=WebAppInfo(url=web_url)
+                text=t(lang, "top_up_wishes"), web_app=WebAppInfo(url=web_url)
             )
         )
     return kb.as_markup()

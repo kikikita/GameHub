@@ -262,7 +262,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
                 await call.message.answer(
                     t(lang, "not_enough_wishes"),
                     reply_markup=top_up_keyboard(
-                        f"{settings.bots.web_url}store", lang, 'whishes'
+                        f"{settings.bots.web_url}store", lang, 'wishes'
                     ),
                 )
                 await state.clear()
