@@ -437,22 +437,6 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
 
     await call.answer()
 
-    with suppress(TelegramBadRequest):
-        if last_photo:
-            await call.bot.edit_message_caption(
-                chat_id=call.message.chat.id,
-                message_id=last_scene_id,
-                caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
-                reply_markup=None,
-            )
-        else:
-            await call.bot.edit_message_text(
-                text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
-                chat_id=call.message.chat.id,
-                message_id=last_scene_id,
-                reply_markup=None,
-            )
-
     stop = asyncio.Event()
     typing_task = asyncio.create_task(
         _typing_loop(call.bot, call.message.chat.id, stop)
@@ -471,14 +455,32 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
         subtitle = t(lang, "not_enough_energy_subtitle")
         engry_msg = f"{title}\n{subtitle}"
         await call.message.answer(
-            engry_msg, reply_markup=top_up_keyboard(
-                f"{settings.bots.web_url}store", lang, 'energy'
-            )
+            engry_msg,
+            reply_markup=top_up_keyboard(
+                f"{settings.bots.web_url}store", lang, "energy"
+            ),
         )
         return
     if resp.status_code != 201:
         await call.message.answer(t(lang, "error_generic"))
         return
+
+    with suppress(TelegramBadRequest):
+        if last_photo:
+            await call.bot.edit_message_caption(
+                chat_id=call.message.chat.id,
+                message_id=last_scene_id,
+                caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
+                reply_markup=None,
+            )
+        else:
+            await call.bot.edit_message_text(
+                text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
+                chat_id=call.message.chat.id,
+                message_id=last_scene_id,
+                reply_markup=None,
+            )
+
     scene = resp.json()
     await _send_scene(
         call.message.chat.id, call.bot, scene, session_id, state
@@ -499,22 +501,6 @@ async def choice_text(message: Message, state: FSMContext):
     if not session_id:
         return
 
-    with suppress(TelegramBadRequest):
-        if last_photo:
-            await message.bot.edit_message_caption(
-                chat_id=message.chat.id,
-                message_id=last_scene_id,
-                caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
-                reply_markup=None,
-            )
-        else:
-            await message.bot.edit_message_text(
-                text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
-                chat_id=message.chat.id,
-                message_id=last_scene_id,
-                reply_markup=None,
-            )
-
     stop = asyncio.Event()
     typing_task = asyncio.create_task(
         _typing_loop(message.bot, message.chat.id, stop)
@@ -533,12 +519,32 @@ async def choice_text(message: Message, state: FSMContext):
         subtitle = t(lang, "not_enough_energy_subtitle")
         engry_msg = f"{title}\n{subtitle}"
         await message.bot.send_message(
-            message.chat.id, engry_msg, reply_markup=top_up_keyboard(
-                f"{settings.bots.web_url}store", lang, 'energy')
+            message.chat.id,
+            engry_msg,
+            reply_markup=top_up_keyboard(
+                f"{settings.bots.web_url}store", lang, "energy"
+            ),
         )
         return
     if resp.status_code != 201:
         return
+
+    with suppress(TelegramBadRequest):
+        if last_photo:
+            await message.bot.edit_message_caption(
+                chat_id=message.chat.id,
+                message_id=last_scene_id,
+                caption=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
+                reply_markup=None,
+            )
+        else:
+            await message.bot.edit_message_text(
+                text=f"{last_text}\n\n{t(lang, 'you_chose', choice=choice)}",
+                chat_id=message.chat.id,
+                message_id=last_scene_id,
+                reply_markup=None,
+            )
+
     scene = resp.json()
 
     await _send_scene(
