@@ -1,7 +1,7 @@
 """new_migration
 
 Revision ID: 922b6f6d0192
-Revises: 2a6ae631907c
+Revises: 1b2c3d4e5f6a
 Create Date: 2025-08-02 14:26:48.370224
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '922b6f6d0192'
-down_revision: Union[str, Sequence[str], None] = '2a6ae631907c'
+down_revision: Union[str, Sequence[str], None] = '1b2c3d4e5f6a'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
