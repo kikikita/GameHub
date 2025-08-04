@@ -21,7 +21,7 @@ export function Topbar({ selectedScreen }: TopbarProps) {
         <span className="text-foreground text-2xl font-medium">
           {t(selectedScreen)}
         </span>
-        <ResourcesIndicator wishes={0} energyCurrent={100} energyMax={100} onAdd={handleAddResources} />
+        <ResourcesIndicator onAdd={handleAddResources} />
       </nav>
       <div className="h-12" />
     </>

@@ -11,6 +11,7 @@ from src.core.database import get_session
 from src.models.subscription import Subscription
 from src.api.utils import resolve_user_id, ensure_admin
 from src.utils.tg_invoice import export_tg_invoice
+from src.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +157,14 @@ async def confirm_subscription(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid payload",
         )
+
+    # Top up user wishes according to the purchased plan
+    plans_list = await plans()
+    plan_data = next((p for p in plans_list if p.id == sub.plan), None)
+    user = await db.get(User, sub.user_id)
+    if user and plan_data:
+        user.wishes += plan_data.wishes
+
     sub.status = "active"
     await db.commit()
     await db.refresh(sub)

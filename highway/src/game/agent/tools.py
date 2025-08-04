@@ -1,4 +1,5 @@
 """LLM tools used by the game graph."""
+
 import logging
 import uuid
 from typing import Annotated, Dict
@@ -25,6 +26,7 @@ logger = logging.getLogger(__name__)
 def _err(msg: str) -> str:
     logger.error(msg)
     return f"{{'error': '{msg}'}}"
+
 
 async def generate_story_frame(
     setting: Annotated[str, "Game world setting"],
@@ -65,11 +67,11 @@ async def generate_initial_scene(
     )
     image_prompt = await generate_image_prompt(state, init_description)
     logger.info(f"Generated initial scene image prompt: {image_prompt}")
-    
+
     if image_prompt.change_scene:
-            image_path, _ = await generate_image(image_prompt.scene_description)
-            
-    scene_id = str(uuid.uuid4())    
+        image_path, _ = await generate_image(image_prompt.scene_description)
+
+    scene_id = str(uuid.uuid4())
     scene = Scene(
         scene_id=scene_id,
         description=first_scene.description,
@@ -94,11 +96,11 @@ async def generate_ending_scene(
     )
     image_prompt = await generate_image_prompt(state, ending_description)
     logger.info(f"Generated ending scene image prompt: {image_prompt}")
-    
+
     if image_prompt.change_scene:
-            image_path, _ = await generate_image(image_prompt.scene_description)
-            
-    scene_id = str(uuid.uuid4())    
+        image_path, _ = await generate_image(image_prompt.scene_description)
+
+    scene_id = str(uuid.uuid4())
     scene = Scene(
         scene_id=scene_id,
         description=ending.description,
@@ -108,6 +110,7 @@ async def generate_ending_scene(
     state.scenes[scene_id] = scene
     state.last_image_prompt = image_prompt.scene_description
     return scene
+
 
 async def generate_scene(
     last_choice: Annotated[str, "Last user choice"],
@@ -125,21 +128,26 @@ async def generate_scene(
         history="; ".join(f"{c.scene_id}:{c.choice_text}" for c in state.user_choices),
         last_choice=last_choice,
         language=state.language,
+        npc_characters="\n".join(
+            f"{c.char_name}: {c.visual_description}"
+            for c in state.story_frame.npc_characters
+        ),
     )
     resp: SceneLLM = await with_retries(lambda: llm.ainvoke(prompt))
     return resp
+
 
 async def generate_scene_step(last_choice: str, state: UserState) -> Scene:
     """Generate a new scene based on the current user state."""
     scene = await generate_scene(last_choice, state)
     image_prompt = await generate_image_prompt(state, scene.description)
     logger.info(f"Generated scene step image prompt: {image_prompt}")
-    
+
     image_path = None
     if image_prompt.change_scene:
         image_path, _ = await generate_image(image_prompt.scene_description)
-            
-    scene_id = str(uuid.uuid4())    
+
+    scene_id = str(uuid.uuid4())
     scene = Scene(
         scene_id=scene_id,
         description=scene.description,

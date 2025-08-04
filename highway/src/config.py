@@ -30,11 +30,15 @@ class AppSettings(BaseAppSettings):
     temperature: float = 0.5
     pregenerate_next_scene: bool = True
     request_timeout: int = 20
+    bot_server_url: str = "http://bot:7000"
     admin_ids: list[int] = []
 
     # Cost in wishes to create a custom story
     create_story_cost: int = 5
-    
+
+    # Path to JSON file with default preset worlds and stories
+    presets_file_path: str = "/app/stories/golden_set.json"
+
     tg_payment_provider_token: SecretStr | None = None      # @BotFather → “Payment” tab
     tg_payment_currency: str = "XTR"           # Stars’ pseudo-currency code
     tg_webapp_bot_username: str = "@aimmersia_bot"               

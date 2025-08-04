@@ -1,0 +1,452 @@
+{
+    "worlds": [
+      {
+        "id": "0a1b2c3d-0000-4000-9000-000000000004",
+        "user_id": null,
+        "title": {
+          "ru": "Универ",
+          "en": "College life"
+        },
+        "world_desc": {
+          "ru": "Оживлённый студенческий кампус, полный жизни и эмоций.",
+          "en": "A lively college campus full of life and emotions."
+        },
+        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/uni/uni_world.webp",
+        "is_free": true,
+        "is_preset": true,
+        "created_at": "2025-08-03T12:00:00Z",
+        "stories": [
+          {
+            "id": "1111aaaa-0000-4000-9000-000000000004",
+            "user_id": null,
+            "visual_style": "Bustling university campus during the golden hour of sunset. The warm, soft light bathes the scene, casting long shadows and highlighting the autumnal colors of the trees. Several students are scattered across a lush green lawn, some walking along paved pathways, others sitting and socializing. Two male students with backpacks are prominently featured in the foreground, walking away from the viewer. To their right, two female students are seated on the grass, one holding a book and smiling. In the background, modern brick and glass university buildings are visible, surrounded by well-maintained landscaping. The overall atmosphere is one of youthful energy, learning, and community.",
+            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/uni/uni_world.webp",
+            "title": {
+              "ru": "Новое начало",
+              "en": "New Beginning"
+            },
+            "character": {
+              "char_name": {
+                "ru": "Вы",
+                "en": "You"
+              },
+              "char_age": "20",
+              "char_background": {
+                "ru": "Студент второго курса, недавно переехал в новый город.",
+                "en": "A sophomore who just moved to a new city."
+              },
+              "char_personality": {
+                "ru": "Застенчивый, но умный и добрый.",
+                "en": "Shy, but smart and kind-hearted."
+              }
+            },
+            "story_frame": {
+              "lore": {
+                "ru": "Жизнь в колледже кипит новыми возможностями, и Вы влюбились в Майю — умную и независимую однокурсницу. Но завоевать её доверие будет непросто.",
+                "en": "College life is buzzing with new opportunities, and You have set your heart on Maya – a bright, independent classmate. But winning her trust won’t be easy."
+              },
+              "goal": {
+                "ru": "Завоевать доверие Майи и пригласить её на свидание до конца семестра.",
+                "en": "Earn Maya’s trust and go on a date with her before the semester ends."
+              },
+              "milestones": [
+                {
+                  "id": "m1",
+                  "description": {
+                    "ru": "Поговорить с Майей после лекции в коридоре, чтобы узнать о её впечатлениях от курса и попытаться завести дружеский разговор.",
+                    "en": "Approach Maya in the hallway after the lecture to ask about her thoughts on the course and try to start a friendly conversation."
+                  }
+                },
+                {
+                  "id": "m2",
+                  "description": {
+                    "ru": "Предложить Майе помощь с её курсовым проектом по биологии, обсудить детали задания и вместе поработать в библиотеке. Она пригласит тебя на вечеринку после помощи с проектом.",
+                    "en": "Offer Maya help with her biology course project, discuss the assignment details, and spend time working together in the library. She will invite you to a party after helping."
+                  }
+                },
+                {
+                  "id": "m3",
+                  "description": {
+                    "ru": "Избежать скандала на вечеринке",
+                    "en": "Avoid a scandal at the party"
+                  }
+                }
+              ],
+              "endings": [
+                {
+                  "id": "good_end",
+                  "type": "good",
+                  "condition": {
+                    "ru": "успешно пройти все испытания и пригласить Майю на свидание в конце вечеринки",
+                    "en": "successfully complete all challenges and ask Maya out at the end of the party"
+                  },
+                  "description": {
+                    "ru": "Майя улыбается и соглашается. Это начало чего-то особенного.",
+                    "en": "Maya smiles and says yes. It’s the beginning of something special."
+                  }
+                },
+                {
+                  "id": "bad_end",
+                  "type": "bad",
+                  "condition": {
+                    "ru": "упустить шансы и потерять доверие Майи",
+                    "en": "miss opportunities and lose Maya’s trust"
+                  },
+                  "description": {
+                    "ru": "Майя отдаляется. Ты остаёшься один и с разбитым сердцем.",
+                    "en": "Maya drifts away. You're left alone and heartbroken."
+                  }
+                }
+              ]
+            },
+            "is_public": true,
+            "is_free": true,
+            "is_preset": true,
+            "created_at": "2025-08-03T12:05:00Z",
+            "story_desc": {
+              "ru": "Завоюй сердце Майи.",
+              "en": "Make the right choices to win Maya’s heart."
+            },
+            "genre": "Romance",
+            "npc_characters": [
+              {
+                "char_name": {
+                  "ru": "Майя Лоран",
+                  "en": "Maya Laurent"
+                },
+                "char_age": "21",
+                "char_background": {
+                  "ru": "Талантливая студентка с творческим подходом, активистка экологического клуба и участница литературного кружка.",
+                  "en": "A talented student with a creative edge, environmental club activist and member of the literature society."
+                },
+                "char_personality": {
+                  "ru": "Умная, независимая, с тонким чувством юмора. Сначала держится настороженно, но способна на глубокую привязанность.",
+                  "en": "Intelligent, independent, with a dry sense of humor. Initially cautious but capable of deep emotional connection."
+                },
+                "visual_description": {
+                  "en": "Maya has long, voluminous blonde hair that cascades in waves around her shoulders. She possesses a warm, inviting complexion with softly illuminated features, highlighting her defined cheekbones and full lips, which are adorned with a subtle, natural-toned lipstick. Her eyes are bright and expressive, holding a confident and engaging gaze, often accompanied by a hint of a smile. She is wearing a simple yet elegant black top that subtly hints at her figure. The overall impression is one of natural beauty and poise.",
+                  "ru": "У Майи длинные, объёмные светлые волосы, ниспадающие волнами на плечи. Её тёплый, располагающий оттенок кожи и мягко подсвеченные черты лица подчёркивают выразительные скулы и полные губы с лёгкой помадой естественного оттенка. Глаза яркие и выразительные, взгляд уверенный и открытый, часто с намёком на улыбку. На ней простая, но элегантная чёрная блуза, ненавязчиво подчёркивающая фигуру. В целом она производит впечатление естественной красоты и внутреннего достоинства."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "0a1b2c3d-0000-4000-9000-000000000001",
+        "user_id": null,
+        "title": {
+          "ru": "Прохладный замок",
+          "en": "Cool Castle"
+        },
+        "world_desc": {
+          "ru": "Средневековый замок, полный тайн и привидений.",
+          "en": "A medieval castle full of secrets and ghosts."
+        },
+        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/ghost_castle/ghost_castle_world.webp",
+        "is_free": true,
+        "is_preset": true,
+        "created_at": "2025-07-31T12:00:00Z",
+        "stories": [
+          {
+            "id": "1111aaaa-0000-4000-9000-000000000001",
+            "user_id": null,
+            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/ghost_castle/ghost_castle_world.webp",
+            "title": {
+              "ru": "Проклятие замка",
+              "en": "Castle Curse"
+            },
+            "visual_style": "A chilling, atmospheric digital painting of a gothic castle shrouded in mist under a full moon. The castle is dark and imposing, with multiple spires and turrets reaching into a cloudy, moonlit sky. In the foreground, a ghostly figure with glowing eyes emerges from the fog, adding to the eerie and supernatural ambiance. The overall color palette is dominated by dark blues, grays, and greens, creating a sense of mystery and foreboding.",
+            "character": {
+              "char_name": {
+                "ru": "Ричард",
+                "en": "Richard"
+              },
+              "char_age": "25",
+              "char_background": {
+                "ru": "Отважный рыцарь, ищущий приключений",
+                "en": "A brave knight seeking adventure"
+              },
+              "char_personality": {
+                "ru": "Бесстрашный и благородный",
+                "en": "Fearless and noble"
+              },
+              "avatar_url": "/avatars/richard.png"
+            },
+            "story_frame": {
+              "lore": {
+                "ru": "Старый замок скрывает мрачные тайны прошлого.",
+                "en": "The old castle hides grim secrets of the past."
+              },
+              "goal": {
+                "ru": "Разгадать проклятие и выбраться живым.",
+                "en": "Solve the curse and escape alive."
+              },
+              "milestones": [
+                {
+                  "id": "m1",
+                  "description": {
+                    "ru": "Встретить местного духа",
+                    "en": "Meet the local ghost"
+                  }
+                },
+                {
+                  "id": "m2",
+                  "description": {
+                    "ru": "Найти скрытую комнату",
+                    "en": "Find the hidden room"
+                  }
+                }
+              ],
+              "endings": [
+                {
+                  "id": "good_end",
+                  "type": "good",
+                  "condition": {
+                    "ru": "разгадать все тайны замка",
+                    "en": "uncover all the secrets of the castle"
+                  },
+                  "description": {
+                    "ru": "Вы нашли сокровища и сняли проклятие.",
+                    "en": "You found the treasure and lifted the curse."
+                  }
+                },
+                {
+                  "id": "bad_end",
+                  "type": "bad",
+                  "condition": {
+                    "ru": "потерпеть поражение от призраков",
+                    "en": "be defeated by the ghosts"
+                  },
+                  "description": {
+                    "ru": "Духи навсегда заточили вас в замке.",
+                    "en": "The ghosts trapped you in the castle forever."
+                  }
+                }
+              ]
+            },
+            "is_public": true,
+            "is_free": true,
+            "is_preset": true,
+            "created_at": "2025-07-31T12:05:00Z",
+            "story_desc": {
+              "ru": "Зловещие тайны и опасные приключения ждут тебя внутри стен замка.",
+              "en": "Sinister secrets and dangerous adventures await you inside the castle walls."
+            },
+            "genre": "Adventure"
+          }
+        ]
+      },
+      {
+        "id": "0a1b2c3d-0000-4000-9000-000000000002",
+        "user_id": null,
+        "title": {
+          "ru": "Solar Eden",
+          "en": "Solar Eden"
+        },
+        "world_desc": {
+          "ru": "Футуристическая утопия с идеальными технологиями и скрытыми опасностями.",
+          "en": "A futuristic utopia with perfect technologies and hidden dangers."
+        },
+        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/solar_eden/solar_eden_world.webp",
+        "is_free": true,
+        "is_preset": true,
+        "created_at": "2025-07-31T12:10:00Z",
+        "stories": [
+          {
+            "id": "1111aaaa-0000-4000-9000-000000000002",
+            "user_id": null,
+            "visual_style": "A breathtaking and optimistic digital painting of a futuristic utopian city bathed in warm sunlight. Soaring, elegant skyscrapers with smooth, organic lines dominate the skyline, some stretching to incredible heights with pointed spires. The architecture features gleaming white and light blue materials, suggesting advanced technology and sustainability. There are meticulously manicured gardens, winding pathways, and tranquil bodies of water, all interconnected by sleek, elevated transportation infrastructure that curves gracefully through the scene. Several futuristic flying vehicles, reminiscent of streamlined saucers, are visible in the bright blue sky. The overall impression is one of harmony between nature and advanced civilization, peace, and technological marvel.",
+            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/solar_eden/solar_eden_world.webp",
+            "title": {
+              "ru": "Последний протокол",
+              "en": "Last Protocol"
+            },
+            "character": {
+              "char_name": {
+                "ru": "Алия Сайрус",
+                "en": "Aliya Cyrus"
+              },
+              "char_age": "28",
+              "char_background": {
+                "ru": "Инженер искусственного интеллекта в городе будущего",
+                "en": "An artificial intelligence engineer in the city of the future"
+              },
+              "char_personality": {
+                "ru": "Любознательная, аналитичная, немного замкнутая",
+                "en": "Curious, analytical, a bit reserved"
+              },
+              "avatar_url": "/avatars/aliya.png"
+            },
+            "story_frame": {
+              "lore": {
+                "ru": "Город Solar Eden создан для совершенства, но за фасадом скрываются тайные угрозы.",
+                "en": "The city of Solar Eden is built for perfection, but hidden threats lurk beneath the surface."
+              },
+              "goal": {
+                "ru": "Раскрыть саботаж и спасти город от катастрофы.",
+                "en": "Uncover sabotage and save the city from disaster."
+              },
+              "milestones": [
+                {
+                  "id": "m1",
+                  "description": {
+                    "ru": "Обнаружить сбой в системе безопасности",
+                    "en": "Detect a failure in the security system"
+                  }
+                },
+                {
+                  "id": "m2",
+                  "description": {
+                    "ru": "Найти союзника среди жителей",
+                    "en": "Find an ally among the citizens"
+                  }
+                }
+              ],
+              "endings": [
+                {
+                  "id": "good_end",
+                  "type": "good",
+                  "condition": {
+                    "ru": "успешно остановить катастрофу",
+                    "en": "successfully prevent the disaster"
+                  },
+                  "description": {
+                    "ru": "Solar Eden спасён, а ты стал героем города.",
+                    "en": "Solar Eden is saved and you have become a hero of the city."
+                  }
+                },
+                {
+                  "id": "bad_end",
+                  "type": "bad",
+                  "condition": {
+                    "ru": "не успеть предотвратить аварию",
+                    "en": "fail to prevent the accident"
+                  },
+                  "description": {
+                    "ru": "Город охвачен хаосом, а жители винят тебя.",
+                    "en": "The city is plunged into chaos and the citizens blame you."
+                  }
+                }
+              ]
+            },
+            "is_public": true,
+            "is_free": true,
+            "is_preset": true,
+            "created_at": "2025-07-31T12:11:00Z",
+            "story_desc": {
+              "ru": "Герой должен разгадать заговор и спасти технологический рай от гибели.",
+              "en": "The hero must uncover a conspiracy and save the technological paradise from doom."
+            },
+            "genre": "Sci-fi"
+          }
+        ]
+      },
+      {
+        "id": "0a1b2c3d-0000-4000-9000-000000000003",
+        "user_id": null,
+        "title": {
+          "ru": "Мистический лес",
+          "en": "Mystic Forest"
+        },
+        "world_desc": {
+          "ru": "Загадочный и туманный лес, где реальность и сны переплетаются.",
+          "en": "A mysterious, misty forest where reality and dreams intertwine."
+        },
+        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/mystic_forest/mystic_forest_world.webp",
+        "is_free": true,
+        "is_preset": true,
+        "created_at": "2025-07-31T12:20:00Z",
+        "stories": [
+          {
+            "id": "1111aaaa-0000-4000-9000-000000000003",
+            "user_id": null,
+            "visual_style": "A mysterious and ethereal digital painting of a dark forest at night, illuminated by a large, glowing full moon peeking through the canopy. A winding, narrow path leads into the misty depths of the woods, inviting the viewer deeper. The trees are tall and silhouetted, their branches creating an archway over the path. The overall atmosphere is one of serene mystery and tranquility, with a hint of the unknown, rendered in deep blues, greens, and shadowy tones.",
+            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/mystic_forest/mystic_forest_world.webp",
+            "title": {
+              "ru": "Потерянная тень",
+              "en": "Lost Shadow"
+            },
+            "character": {
+              "char_name": {
+                "ru": "Эльза",
+                "en": "Elsa"
+              },
+              "char_age": "19",
+              "char_background": {
+                "ru": "Дочь лесного целителя, обладающая магией снов",
+                "en": "Daughter of a forest healer, gifted with dream magic"
+              },
+              "char_personality": {
+                "ru": "Мечтательная, добрая, иногда слишком доверчивая",
+                "en": "Dreamy, kind, sometimes too trusting"
+              },
+              "avatar_url": "/avatars/elsa.png"
+            },
+            "story_frame": {
+              "lore": {
+                "ru": "В этом лесу всё не то, чем кажется. Иллюзии и страхи оживают среди деревьев.",
+                "en": "In this forest, nothing is as it seems. Illusions and fears come alive among the trees."
+              },
+              "goal": {
+                "ru": "Вернуть утраченную тень и выйти из леса невредимой.",
+                "en": "Retrieve your lost shadow and escape the forest unharmed."
+              },
+              "milestones": [
+                {
+                  "id": "m1",
+                  "description": {
+                    "ru": "Встретить говорящего волка",
+                    "en": "Meet the talking wolf"
+                  }
+                },
+                {
+                  "id": "m2",
+                  "description": {
+                    "ru": "Преодолеть страхи и иллюзии",
+                    "en": "Overcome fears and illusions"
+                  }
+                }
+              ],
+              "endings": [
+                {
+                  "id": "good_end",
+                  "type": "good",
+                  "condition": {
+                    "ru": "принять свою тень и найти путь домой",
+                    "en": "accept your shadow and find your way home"
+                  },
+                  "description": {
+                    "ru": "Ты возвращаешься с новыми силами и знаниями.",
+                    "en": "You return with new strength and wisdom."
+                  }
+                },
+                {
+                  "id": "bad_end",
+                  "type": "bad",
+                  "condition": {
+                    "ru": "поддаться иллюзиям леса",
+                    "en": "succumb to the illusions of the forest"
+                  },
+                  "description": {
+                    "ru": "Лес оставляет тебя среди снов навсегда.",
+                    "en": "The forest leaves you among dreams forever."
+                  }
+                }
+              ]
+            },
+            "is_public": true,
+            "is_free": true,
+            "is_preset": true,
+            "created_at": "2025-07-31T12:25:00Z",
+            "story_desc": {
+              "ru": "Тебя ждут магические испытания в лесу, полном чудес и опасностей.",
+              "en": "Magical challenges await you in a forest full of wonders and dangers."
+            },
+            "genre": "Horror"
+          }
+        ]
+      }
+    ]
+  }
+  

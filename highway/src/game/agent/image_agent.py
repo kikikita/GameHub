@@ -56,6 +56,8 @@ When generating the image prompt, ensure it's detailed and considers the followi
 
 
 *IMPORTANT*: Please pay attention to last image description and make sure you reuse the same visual style and elements when updating the image in order to avoid generating a completely different scene.
+
+If you are describing other character and the player is interacting with them, make sure to prompt this character to look into the camera.
 """
 
 
@@ -78,7 +80,9 @@ async def generate_image_prompt(state: UserState, scene_description: str, last_c
         history="; ".join(f"{c.scene_id}:{c.choice_text}" for c in state.user_choices),
         last_choice=last_choice,
         scene_description=scene_description,
-        image_description=state.last_image_prompt or "No image description yet"
+        image_description=state.last_image_prompt or "No image description yet",
+        visual_style=state.story_frame.visual_style,
+        npc_characters="\n".join(f"{c.char_name}: {c.visual_description}" for c in state.story_frame.npc_characters)
     )
     
     image_prompt_generator_llm = create_light_llm(0.1).with_structured_output(ChangeScene)

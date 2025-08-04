@@ -8,8 +8,16 @@ from pydantic import BaseModel
 from src.core.database import get_session
 from src.models.user import User
 from src.auth.tg_auth import authenticated_user
+import httpx
+from src.config import settings
 
 router = APIRouter(prefix="/api/v1")
+
+client = httpx.AsyncClient(
+    base_url=settings.bot_server_url,
+    timeout=httpx.Timeout(60.0),
+    headers={"X-Server-Auth": settings.server_auth_token.get_secret_value()},
+)
 
 
 class RegisterIn(BaseModel):
@@ -92,6 +100,10 @@ async def update_me(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if payload.language is not None:
+        await client.post(
+            "/api/v1/cache/language/update/",
+            json={"language": payload.language, "user_id": tg_id},
+        )
         user.language = payload.language
     await session.commit()
     await session.refresh(user)

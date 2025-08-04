@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Zap } from "lucide-react";
+import energyIcon from "@/assets/images/energy_icon.webp";
 import { navigationStore } from "@/stores/NavigationStore";
 
 export function RechargeEnergyBanner() {
@@ -11,11 +11,11 @@ export function RechargeEnergyBanner() {
   return (
     <button
       onClick={handleUnlimitedEnergy}
-      className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-primary/60 to-violet-600/60 p-4 text-left shadow-lg hover:brightness-105 transition-all cursor-pointer"
+      className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500/60 via-purple-600/70 to-fuchsia-600/60 p-4 text-left shadow-lg hover:brightness-105 transition-all cursor-pointer"
     >
       <div className="flex items-center gap-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-black/20">
-          <Zap className="h-10 w-10 text-yellow-400" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400/40 via-purple-500/50 to-purple-700/60 shadow-inner">
+          <img src={energyIcon} alt="Energy Icon" className="h-16 w-16 object-contain" />
         </div>
         <div className="flex-1 space-y-1">
           <h2 className="text-lg font-semibold text-white">
@@ -29,7 +29,7 @@ export function RechargeEnergyBanner() {
         </div>
       </div>
       <div className="mt-4">
-        <span className="w-full inline-block rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm text-center">
+        <span className="w-full inline-block rounded-[22px] bg-gradient-to-r from-green-400 to-green-600 px-8 py-3 text-lg font-semibold text-white text-center shadow-md" style={{ border: "none" }}>
           {t("store:recharge", { defaultValue: "Recharge" })}
         </span>
       </div>

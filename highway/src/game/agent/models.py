@@ -11,6 +11,14 @@ class Milestone(BaseModel):
     id: str
     description: str
 
+class NPCCharacter(BaseModel):
+    """NPC character."""
+
+    char_name: str
+    char_age: str
+    char_background: str
+    char_personality: str
+    visual_description: str
 
 class Ending(BaseModel):
     """Possible game ending."""
@@ -30,8 +38,10 @@ class StoryFrame(BaseModel):
     endings: List[Ending]
     setting: str
     character: Dict[str, str]
+    visual_style: str
     genre: str
     language: str = "en"
+    npc_characters: List[NPCCharacter]
 
 
 class StoryFrameLLM(BaseModel):
@@ -79,15 +89,10 @@ class SceneLLM(BaseModel):
     choices: List[SceneChoice] = Field(min_items=2, max_items=2)
 
 
-class EndingReached(BaseModel):
-    ending_reached: Literal[True]
-    ending: Ending
-    
-class EndingNotReached(BaseModel):
-    ending_reached: Literal[False]
-    
 class EndingCheckResult(BaseModel):
-    check_result: EndingReached | EndingNotReached
+    ending_reached: bool
+    """If ending_reached is True, ending is not None"""
+    ending: Optional[Ending] = None
 
 
 class UserChoice(BaseModel):

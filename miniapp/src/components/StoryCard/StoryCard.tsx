@@ -1,4 +1,5 @@
 import { cn } from "@/utils/cn";
+import fallbackImage from "@/assets/images/new_story_background.webp";
 import { Play } from "lucide-react";
 
 interface StoryCardProps {
@@ -28,7 +29,12 @@ export function StoryCard({
       )}
     >
       <img
-        src={imageUrl}
+        src={imageUrl || fallbackImage}
+        onError={(e) => {
+          if (e.currentTarget.src !== fallbackImage) {
+            e.currentTarget.src = fallbackImage;
+          }
+        }}
         alt={title}
         className="h-full w-full object-cover"
         loading="lazy"

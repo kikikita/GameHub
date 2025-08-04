@@ -25,11 +25,7 @@ class StoryOut(BaseModel):
     title: str | None = None
     story_desc: str | None = None
     genre: str | None = None
-    character: dict | None = None
-    story_frame: dict | None = None
-    is_public: bool | None = None
-    is_free: bool | None = None
-    is_preset: bool | None = None
+    image_url: str | None = None
 
 
 class StoryCreate(BaseModel):
@@ -49,11 +45,7 @@ def story_to_out(story: Story, lang: str) -> StoryOut:
         title=get_localized(story.title, lang),
         story_desc=get_localized(story.story_desc, lang),
         genre=story.genre,
-        character=get_localized(story.character, lang),
-        story_frame=get_localized(story.story_frame, lang),
-        is_public=story.is_public,
-        is_free=story.is_free,
-        is_preset=story.is_preset,
+        image_url=story.image_url,
     )
 
 
@@ -101,7 +93,6 @@ async def create_story(
     cost = settings.create_story_cost
     if not user or user.wishes < cost:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="not_enough_wishes")
-    user.wishes -= cost
     res = await db.execute(select(World).where(World.user_id == user_id))
     world = res.scalars().first()
     if not world:
@@ -113,6 +104,7 @@ async def create_story(
         db.add(world)
         await db.flush()
     story = Story(world_id=world.id, user_id=user_id, **payload.model_dump())
+    user.wishes -= cost
     db.add(story)
     await db.commit()
     await db.refresh(story)
@@ -144,7 +136,10 @@ async def _import_presets(db: AsyncSession, data: dict) -> None:
                 is_public=s.get("is_public", False),
                 is_free=s.get("is_free", False),
                 is_preset=True,
+                visual_style=s.get("visual_style"),
+                image_url=s.get("image_url"),
                 user_id=s.get("user_id"),
+                npc_characters=s.get("npc_characters"),
             )
             db.add(story)
     await db.commit()

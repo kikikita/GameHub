@@ -12,6 +12,7 @@ from src.api.scenes.router import router as scenes_router
 from src.api.payments.router import router as payments_router
 from src.api.wish_payments.router import router as wish_payments_router
 from src.cron import energy_restore_worker
+from src.utils.import_stories_on_startup import import_stories_on_startup
 
 import asyncio
 
@@ -53,6 +54,5 @@ def health_check() -> dict:
 
 @app.on_event("startup")
 async def startup_tasks() -> None:
-    """Launch background cron workers on application startup."""
-
     asyncio.create_task(energy_restore_worker())
+    asyncio.create_task(import_stories_on_startup())

@@ -44,7 +44,7 @@ export function StorePage() {
   return (
     <div className="p-4 space-y-6 pb-20">
       {plan !== "pro" && <RechargeEnergyBanner />}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {bundles.map((bundle) => {
           const isLoading = loadingFor === bundle.id;
           return (
@@ -62,12 +62,12 @@ export function StorePage() {
               <div className="relative w-full flex items-center justify-center">
                 {/* shadow blur effect below image */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-3/5 h-3/5 rounded-full bg-yellow-400/40 blur-2xl" />
+                  <div className="w-2/5 h-3/5 rounded-full bg-yellow-400/40 blur-2xl" />
                 </div>
                 <img
                   src={bundle.image_url}
                   alt={bundle.title}
-                  className="relative z-10 w-full object-contain min-h-36"
+                  className="relative z-10 w-full object-contain min-h-32"
                   loading="lazy"
                 />
               </div>

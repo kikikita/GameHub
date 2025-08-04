@@ -2,9 +2,10 @@ import hashlib
 import hmac
 from urllib.parse import parse_qsl
 
-from fastapi import HTTPException, Header, Request, Cookie
+from fastapi import HTTPException, Header, Request
 import logging
 from settings import settings
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -52,23 +53,7 @@ def _is_valid_tg_init_data(init_data: str, bot_token: str) -> dict | None:
 def authenticated_user(
     request: Request,
     authorization: str | None = Header(default=None),
-    session_id: str | None = Cookie(default=None),
 ) -> dict:
-    """
-    FastAPI dependency to verify a user is authenticated.
-    Checks for a session_id cookie first, then falls back to
-    the Authorization header with Telegram initData.
-    """
-    # Prioritize cookie-based session
-    if session_id:
-        # In a real-world scenario, you'd look this session_id up in a database.
-        # For this demo, we'll accept any non-empty session_id as valid
-        # since it's set by our secure /auth/session endpoint.
-        # A better approach would be to check it against the user data in redis.
-        # For now we just return a simple dict.
-        return {"user_id": session_id, "auth_method": "cookie"}
-
-    # Fallback to Authorization header
     if not authorization:
         logger.error(f"Request to {request.url.path} rejected: Authentication is missing")
         raise HTTPException(status_code=401, detail="Authentication is missing")
@@ -84,27 +69,4 @@ def authenticated_user(
         logger.error(f"Request to {request.url.path} rejected: Invalid initData in header")
         raise HTTPException(status_code=403, detail="Invalid initData")
 
-    return validated_data
-
-def verify_tg_data(request: Request, authorization: str | None = Header(default=None)) -> dict:
-    """
-    FastAPI dependency to verify Telegram initData.
-    Expects initData in the "Authorization" header, e.g., "tma <initData>".
-    """
-    if not authorization:
-        logger.error(f"Request to {request.url.path} rejected: Authorization header is missing")
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-
-    # Support "tma <initData>" or just "<initData>"
-    if authorization.lower().startswith('tma '):
-        init_data = authorization[4:]
-    else:
-        init_data = authorization
-
-    validated_data = _is_valid_tg_init_data(init_data, settings.bots.bot_token.get_secret_value())
-
-    if validated_data is None:
-        logger.error(f"Request to {request.url.path} rejected: Invalid initData")
-        raise HTTPException(status_code=403, detail="Invalid initData")
-
-    return validated_data
+    return json.loads(validated_data.get("user", "{}")).get("id")

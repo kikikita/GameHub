@@ -10,6 +10,7 @@ from aiogram import Bot
 
 from handlers import admin, basic, echo, game, payments
 from api.stories.router import router as stories_router
+from api.cache.routes import router as cache_router
 from middlewares.typing import TypingMiddleware
 from settings import settings
 from utils.commands import set_commands
@@ -72,6 +73,7 @@ app.add_middleware(
 )
 
 app.include_router(stories_router)
+app.include_router(cache_router)
 
 if settings.bots.debug:
     import debugpy

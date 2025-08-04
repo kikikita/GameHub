@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { API_URL } from "./common";
+import { useTranslation } from "react-i18next";
 
 export interface Realm {
   id: string;
@@ -15,8 +16,8 @@ export interface WorldDTO {
   image_url: string;
 }
 
-export function getRealms(): Promise<Realm[]> {
-  return fetch(`${API_URL}/api/v1/worlds/`).then((res) =>
+export function getRealms(lang: string = "en"): Promise<Realm[]> {
+  return fetch(`${API_URL}/api/v1/worlds/?lang=${lang}`).then((res) =>
     res.json()
   ).then<Realm[]>((data) => data.map((item: WorldDTO) => ({
     id: item.id,
@@ -27,8 +28,10 @@ export function getRealms(): Promise<Realm[]> {
 }
 
 export function useRealms() {
+  const { i18n } = useTranslation();
+
   return useSuspenseQuery({
     queryKey: ["worlds"],
-    queryFn: getRealms,
+    queryFn: () => getRealms(i18n.language),
   });
 }

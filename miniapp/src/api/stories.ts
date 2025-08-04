@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { API_URL } from "./common";
 import { getInitData } from "@/telegram/init";
+import { useTranslation } from "react-i18next";
 
 export interface StoryDTO {
   id: string;
@@ -18,14 +19,16 @@ export interface Story {
 }
 
 export function useStories(realmId: string) {
+  const { i18n } = useTranslation();
+  
   return useSuspenseQuery({
     queryKey: ["stories", realmId],
-    queryFn: () => getStories(realmId),
+    queryFn: () => getStories(realmId, i18n.language),
   });
 }
 
-export async function getStories(realmId: string): Promise<Story[]> {
-  return fetch(`${API_URL}/api/v1/worlds/${realmId}/stories/`).then((res) => res.json()).then((data) => data.map((item: StoryDTO) => ({
+export async function getStories(realmId: string, lang: string = "en"): Promise<Story[]> {
+  return fetch(`${API_URL}/api/v1/worlds/${realmId}/stories/?lang=${lang}`).then((res) => res.json()).then((data) => data.map((item: StoryDTO) => ({
     id: item.id,
     title: item.title,
     description: item.story_desc,
@@ -35,6 +38,16 @@ export async function getStories(realmId: string): Promise<Story[]> {
 
 export async function startStory(storyId: string) {
   return fetch(`${API_URL}/bot/api/v1/stories/start/${storyId}/`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `tma ${getInitData()}`,
+    },
+  });
+}
+
+export async function createStory() {
+  return fetch(`${API_URL}/bot/api/v1/stories/`, {
     method: "POST",
     headers: {
       'Content-Type': 'application/json',

@@ -115,7 +115,7 @@ async def verify_bundle_payload(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid payload",
         )
-    logger.info(f"Subscription payload {payload.invoice_payload} verified!")
+    logger.info(f"Wishes bundle payload {payload.invoice_payload} verified!")
     return {"status": "success"}
 
 

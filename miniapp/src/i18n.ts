@@ -19,7 +19,8 @@ const resources = {
     },
     planUpgrade: {
       infiniteEnergy: 'Infinite energy',
-      wishesForShopping: '{{count}} wishes for bringing your ideas to life',
+      wishesForShopping_one: '{{count}} wish for bringing your ideas to life',
+      wishesForShopping_other: '{{count}} wishes for bringing your ideas to life',
       mostAdvancedAI: 'Our most advanced AI',
       unlimitedPhotoGeneration: 'Unlimited photo generation',
       nearInstantReplyTimes: 'Near instant reply times',
@@ -31,6 +32,9 @@ const resources = {
       recharge: 'Recharge',
       wishes: 'Wishes',
       purchaseSuccess: 'Purchase successful!',
+    },
+    createNewStoryCard: {
+      createStory: 'Create a Story',
     },
   },
   ru: {
@@ -50,7 +54,10 @@ const resources = {
     },
     planUpgrade: {
       infiniteEnergy: 'Бесконечная энергия',
-      wishesForShopping: '{{count}} желаний для реализации своих идей',
+      wishesForShopping_one: '{{count}} желание для реализации своих идей',
+      wishesForShopping_few: '{{count}} желания для реализации своих идей',
+      wishesForShopping_many: '{{count}} желаний для реализации своих идей',
+      wishesForShopping_other: '{{count}} желаний для реализации своих идей',
       mostAdvancedAI: 'Наш самый продвинутый ИИ',
       unlimitedPhotoGeneration: 'Неограниченная генерация фото',
       nearInstantReplyTimes: 'Быстрые ответы',
@@ -62,6 +69,9 @@ const resources = {
       recharge: 'Пополнить',
       wishes: 'Желаний',
       purchaseSuccess: 'Желания успешно куплены!',
+    },
+    createNewStoryCard: {
+      createStory: 'Создать историю',
     },
   },
 } as const;

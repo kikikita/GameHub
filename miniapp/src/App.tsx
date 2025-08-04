@@ -1,16 +1,17 @@
+import { BottomBar } from "@/components/BottomBar/BottomBar";
+import { Topbar } from "@/components/Topbar/Topbar";
+import { PlanUpgradePage } from "@/pages/plan/PlanUpgradePage";
+import { RealmsPage } from "@/pages/realms/RealmsPage";
+import { SettingsPage } from "@/pages/settings/SettingsPage";
+import { StorePage } from "@/pages/store/StorePage";
+import { StoryPage } from "@/pages/story/StoryPage";
+import { navigationStore } from "@/stores/NavigationStore";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
-import { Topbar } from "@/components/Topbar/Topbar";
-import { RealmsPage } from "@/pages/realms/RealmsPage";
-import { StoryPage } from "@/pages/story/StoryPage";
-import { BottomBar } from "@/components/BottomBar/BottomBar";
-import { SettingsPage } from "@/pages/settings/SettingsPage";
-import { PlanUpgradePage } from "@/pages/plan/PlanUpgradePage";
-import { StorePage } from "@/pages/store/StorePage";
-import { navigationStore } from "@/stores/NavigationStore";
-import { QueryClient, QueryClientProvider, usePrefetchQuery } from "@tanstack/react-query";
-import { getPlans, getSubscriptionPlan } from "./api/plans";
+import { usePrefetchData } from "./hooks/usePrefetchData";
+import { useSyncLanguageToApp } from "./hooks/useSetInitialLanguage";
 
 const screens = {
   realms: RealmsPage,
@@ -35,15 +36,8 @@ const AppBase = observer(() => {
 
   const Screen = screens[screen];
 
-  usePrefetchQuery({
-    queryKey: ["plans"],
-    queryFn: getPlans,
-  });
-
-  usePrefetchQuery({
-    queryKey: ["subscription"],
-    queryFn: getSubscriptionPlan,
-  });
+  usePrefetchData();
+  useSyncLanguageToApp();
 
   return (
     <>

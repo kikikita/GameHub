@@ -1,4 +1,5 @@
 import { cn } from "@/utils/cn";
+import fallbackImage from "@/assets/images/new_story_background.webp";
 
 interface RealmCardProps {
   /**
@@ -47,19 +48,29 @@ export function RealmCard({
       )}
     >
       <img
-        src={imageUrl}
+        src={imageUrl ?? fallbackImage}
+        onError={(e) => {
+          if (e.currentTarget.src !== fallbackImage) {
+            e.currentTarget.src = fallbackImage;
+          }
+        }}
         alt={title}
         className="h-full w-full object-cover"
         loading="lazy"
       />
-      <div className="absolute inset-x-0 bottom-0 p-3 backdrop-blur-[2px]">
-        <h3 className="text-base font-semibold text-white drop-shadow-sm">
+      <div className="absolute inset-x-0 top-0 p-3 pointer-events-none">
+        <h3
+          className="text-xl sm:text-2xl font-bold text-white leading-snug"
+          style={{ textShadow: "0 0 5px rgba(0, 0, 0, 0.5)" }}
+        >
           {title}
         </h3>
-        {description && (
-          <p className="text-sm text-white/80 drop-shadow-sm">{description}</p>
-        )}
       </div>
+      {description && (
+        <div className="absolute inset-x-0 bottom-0 p-3 pointer-events-none backdrop-blur-[2px]">
+          <p className="text-sm text-white/80 drop-shadow-sm">{description}</p>
+        </div>
+      )}
     </button>
   );
 }

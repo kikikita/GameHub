@@ -19,12 +19,13 @@ Lore: {lore}
 Goal: {goal}
 Milestones: {milestones}
 Endings: {endings}
+World visual style: {visual_style}
+NPC characters: {npc_characters}
 ---Game Settings END---
 
 ---User's actions START---
 History: {history}
 Last choice: {last_choice}
-Last image description: {image_description}
 ---User's actions END---
 
 Game response to user's action: {scene_description}
@@ -39,6 +40,7 @@ Lore: {lore}
 Goal: {goal}
 Milestones: {milestones}
 Endings: {endings}
+NPC characters: {npc_characters}
 ---Game Settings END---
 
 ---User's actions START---

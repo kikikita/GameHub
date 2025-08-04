@@ -87,5 +87,3 @@ async def delete_session(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     await db.delete(session_obj)
     await db.commit()
-
-

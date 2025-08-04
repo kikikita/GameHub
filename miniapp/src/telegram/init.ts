@@ -1,8 +1,11 @@
 import { viewport, init, isTMA } from "@telegram-apps/sdk";
+import { initTheme } from "./theme";
 
 export async function initTg() {
     if (isTMA()) {
         init();
+        // Sync dark / light mode according to Telegram color scheme
+        initTheme();
 
         if (viewport.mount.isAvailable()) {
             await viewport.mount();

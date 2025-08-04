@@ -104,10 +104,10 @@ export function PlanUpgradePage() {
           <span className="text-primary">🖼️</span>
           {t("unlimitedPhotoGeneration")}
         </li>
-        <li className="flex items-center gap-2">
+        {/* <li className="flex items-center gap-2">
           <span className="text-primary">💬</span>
           {t("nearInstantReplyTimes")}
-        </li>
+        </li> */}
       </ul>
 
       <Button

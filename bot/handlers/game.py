@@ -53,6 +53,7 @@ DEFAULT_TEMPLATES = {
             "Brave, tech-savvy, has trust issues but deeply loyal to those who "
             "earn his respect"
         ),
+        "visual_style": "Post-apocalyptic wasteland",
         "genre": "Adventure",
     },
     "ru": {
@@ -70,6 +71,7 @@ DEFAULT_TEMPLATES = {
             "Храбрый, технически подкованный, не доверяет никому, но предан тем, "
             "кто заслуживает его уважения"
         ),
+        "visual_style": "Пост-апокалиптический стиль",
         "genre": "Приключение",
     },
 }
@@ -156,8 +158,19 @@ async def _send_scene(
                 break
 
 
+async def handle_create_story(tg_id: int):
+    state = dp_instance.fsm.resolve_context(bot=bot_instance, chat_id=tg_id, user_id=tg_id)
+    lang = await get_user_language(tg_id)
+
+    data = _get_default_template(lang)
+    txt = _build_setup_text(data, lang)
+    kb = setup_keyboard(lang)
+    msg = await bot_instance.send_message(tg_id, txt, reply_markup=kb)
+    await state.clear()
+    await state.update_data(base_id=msg.message_id, template=data)
+
 @router.message(Command(commands=["my_game"]))
-async def play_cmd(message: Message, state: FSMContext):
+async def create_my_game_cmd(message: Message, state: FSMContext):
     """Begin game setup by sending initial template."""
     lang = await get_user_language(message.from_user.id)
 
@@ -253,6 +266,8 @@ async def start_game(call: CallbackQuery, state: FSMContext):
                     "char_background": {lang: template.get("char_background")},
                     "char_personality": {lang: template.get("char_personality")},
                 },
+                "npc_characters": [],
+                "visual_style": template.get("visual_style"),
                 "is_free": False,
             },
             headers={"X-User-Id": str(call.from_user.id)},
@@ -313,14 +328,7 @@ async def handle_external_game_start(story_id: str, user_id: int):
         await bot_instance.send_message(user_id, t(lang, "error_generic"))
         return
     story = resp.json()
-    world_resp = await http_client.get(
-        f"/api/v1/worlds/{story['world_id']}/",
-        params={"lang": lang},
-        headers={"X-User-Id": str(user_id)},
-    )
-    image_url = None
-    if world_resp.status_code == 200:
-        image_url = world_resp.json().get("image_url")
+    image_url = story.get("image_url")
     if image_url:
         try:
             await bot_instance.send_photo(user_id, image_url, caption=story.get("story_desc", ""))

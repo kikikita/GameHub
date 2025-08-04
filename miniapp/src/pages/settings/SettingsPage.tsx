@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useSubscriptionPlan } from "@/api/plans";
+import { useUpdateUser, useUser } from "@/api/user";
+import { Button } from "@/components/ui/button";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { navigationStore } from "@/stores/NavigationStore";
-import { useSubscriptionPlan } from "@/api/plans";
+import { ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type Plan = "free" | "pro";
 
@@ -20,9 +20,10 @@ const languages: Record<string, string> = {
 };
 
 export function SettingsPage() {
-  const { t, i18n } = useTranslation('settings');
+  const { t } = useTranslation('settings');
   const { data: { plan } } = useSubscriptionPlan();
-  const [language, setLanguage] = useState<string>(i18n.language ?? "en");
+  const { data: { language } } = useUser();
+  const { mutate: updateUser } = useUpdateUser();
 
   return (
     <div className="p-4 space-y-6">
@@ -45,9 +46,7 @@ export function SettingsPage() {
         <Select
           value={language}
           onValueChange={(code) => {
-            setLanguage(code);
-            i18n.changeLanguage(code);
-            localStorage.setItem("language", code);
+            updateUser({ language: code });
           }}
         >
           <SelectTrigger className="w-full flex items-center justify-between px-4 py-3 text-foreground text-sm focus:outline-none rounded-2xl bg-transparent border-none hover:bg-muted/10 [&>svg]:hidden cursor-pointer">

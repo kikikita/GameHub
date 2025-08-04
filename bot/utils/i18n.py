@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import httpx
-
 from settings import settings
 
 
@@ -133,7 +132,6 @@ client = httpx.AsyncClient(
 )
 
 
-# Simple in-memory cache for user languages to avoid frequent backend calls
 _LANG_CACHE: dict[int, str] = {}
 
 
@@ -163,7 +161,4 @@ async def get_user_language(uid: int, *, refresh: bool = False) -> str:
 
 def set_user_language(uid: int, lang: str) -> None:
     """Update the cached language for a user (e.g. after miniapp change)."""
-
     _LANG_CACHE[uid] = lang
-
-
