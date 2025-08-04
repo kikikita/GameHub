@@ -44,7 +44,7 @@ async def start_command(message: Message):
         return
 
     resp = await client.get(f"{settings.bots.app_url}/api/v1/users/me/", headers={"X-User-Id": str(uid)})
-        
+
     language = None
     if resp.status_code == 200:
         language = resp.json().get("language")

@@ -39,37 +39,33 @@ active_sessions: dict[int, list[dict]] = {}
 # Default game template values per language
 DEFAULT_TEMPLATES = {
     "en": {
+        "story_settings": "🎲 Your story settings",
         "story_desc": (
             "A post-apocalyptic wasteland where survivors struggle to rebuild "
             "civilization among the ruins of the old world"
         ),
-        "char_name": "Marcus Steelborn",
-        "char_age": "32",
-        "char_background": (
-            "A former soldier turned cybernetic engineer in a dystopian future, "
-            "seeking to expose corporate corruption"
-        ),
-        "char_personality": (
-            "Brave, tech-savvy, has trust issues but deeply loyal to those who "
-            "earn his respect"
+        "char_desc": (
+            "Marcus Steelborn, 32 years old. "
+            "A former soldier turned cybernetic engineer in a dystopian "
+            "future, seeking to expose corporate corruption. "
+            "Brave, tech-savvy, has trust issues but deeply loyal "
+            "to those who earn his respect."
         ),
         "visual_style": "Post-apocalyptic wasteland",
         "genre": "Adventure",
     },
     "ru": {
+        "story_settings": "🎲 Настройки вашей истории",
         "story_desc": (
             "Постапокалиптическая пустошь, где выжившие пытаются восстановить "
             "цивилизацию среди руин старого мира"
         ),
-        "char_name": "Маркус Стилборн",
-        "char_age": "32",
-        "char_background": (
+        "char_desc": (
+            "Маркус Стилборн, 32 года. "
             "Бывший солдат, ставший кибернетическим инженером в антиутопичном "
-            "будущем, стремится раскрыть корпоративную коррупцию"
-        ),
-        "char_personality": (
-            "Храбрый, технически подкованный, не доверяет никому, но предан тем, "
-            "кто заслуживает его уважения"
+            "будущем, стремится раскрыть корпоративную коррупцию. "
+            "Храбрый, технически подкованный, не доверяет никому, "
+            "но предан тем, кто заслуживает его уважения."
         ),
         "visual_style": "Пост-апокалиптический стиль",
         "genre": "Приключение",
@@ -84,11 +80,9 @@ def _get_default_template(lang: str) -> dict:
 def _build_setup_text(data: dict, lang: str) -> str:
     """Build setup message with current template data."""
     return (
-        f"{t(lang, 'label_setting_desc')}: {data.get('story_desc') or '-'}\n"
-        f"{t(lang, 'label_char_name')}: {data.get('char_name') or '-'}\n"
-        f"{t(lang, 'label_char_age')}: {data.get('char_age') or '-'}\n"
-        f"{t(lang, 'label_char_background')}: {data.get('char_background') or '-'}\n"
-        f"{t(lang, 'label_char_personality')}: {data.get('char_personality') or '-'}\n"
+        f"{data.get('story_settings') or '🎲 Story settings'}:      \n\n"
+        f"{t(lang, 'label_setting_desc')}:\n{data.get('story_desc') or '-'}\n\n"
+        f"{t(lang, 'label_char')}:\n{data.get('char_desc') or '-'}\n\n"
         f"{t(lang, 'label_genre')}: {data.get('genre') or '-'}"
     )
 
@@ -169,6 +163,7 @@ async def handle_create_story(tg_id: int):
     await state.clear()
     await state.update_data(base_id=msg.message_id, template=data)
 
+
 @router.message(Command(commands=["my_game"]))
 async def create_my_game_cmd(message: Message, state: FSMContext):
     """Begin game setup by sending initial template."""
@@ -189,10 +184,7 @@ async def edit_field(call: CallbackQuery, state: FSMContext):
     field = call.data.split(":", 1)[1]
     prompts = {
         "story_desc": t(lang, "enter_setting_desc"),
-        "char_name": t(lang, "enter_char_name"),
-        "char_age": t(lang, "enter_char_age"),
-        "char_background": t(lang, "enter_char_background"),
-        "char_personality": t(lang, "enter_char_personality"),
+        "char_desc": t(lang, "enter_char_desc"),
         "genre": t(lang, "enter_genre"),
     }
     msg = await call.message.answer(
@@ -261,10 +253,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
                 "story_desc": {lang: template.get("story_desc")},
                 "genre": template.get("genre"),
                 "character": {
-                    "char_name": {lang: template.get("char_name")},
-                    "char_age": template.get("char_age"),
-                    "char_background": {lang: template.get("char_background")},
-                    "char_personality": {lang: template.get("char_personality")},
+                    "char_desc": {lang: template.get("char_desc")},
                 },
                 "npc_characters": [],
                 "visual_style": template.get("visual_style"),

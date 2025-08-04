@@ -27,21 +27,14 @@ def setup_keyboard(
         wishes_cost = settings.create_story_cost
 
     kb = InlineKeyboardBuilder()
-    kb.button(text=t(lang, "setup_setting"), callback_data="edit:world_desc")
-    kb.button(text=t(lang, "setup_char_name"), callback_data="edit:char_name")
-    kb.button(text=t(lang, "setup_char_age"), callback_data="edit:char_age")
-    kb.button(
-        text=t(lang, "setup_char_background"), callback_data="edit:char_background"
-    )
-    kb.button(
-        text=t(lang, "setup_char_personality"), callback_data="edit:char_personality"
-    )
+    kb.button(text=t(lang, "setup_setting"), callback_data="edit:story_desc")
+    kb.button(text=t(lang, "setup_char"), callback_data="edit:char_desc")
     kb.button(text=t(lang, "setup_genre"), callback_data="edit:genre")
     kb.button(
         text=t(lang, "create_story_btn", cost=wishes_cost),
         callback_data="start_game",
     )
-    kb.adjust(2, 2, 2, 1)
+    kb.adjust(3, 1)
     return kb.as_markup()
 
 

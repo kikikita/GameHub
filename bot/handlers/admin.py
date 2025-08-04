@@ -29,11 +29,7 @@ async def admin_cmd(msg: Message):
     txt = (
         "Доступные команды:\n"
         "/health - Проверить состояние API\n"
-        "/start_session - Начать сессию\n"
-        "/make_choice - Отправить выбор\n"
-        "/history - История сцен\n"
         "/plans - Тарифы\n"
-        "/subscribe - Оформить подписку\n"
         "/status - Статус подписки\n"
         "/change_plan_pro - Включить Pro\n"
         "/change_plan_free - Включить Free\n"
@@ -69,77 +65,12 @@ async def upload_presets_cmd(message: Message):
     await message.answer(str(resp.status_code))
 
 
-@router.message(AdminFilter(), Command("start_session"))
-async def start_session_cmd(message: Message):
-    """Start a new game session based on stored template."""
-    uid = message.from_user.id
-    story_id = stories_store.get(uid)
-    if not story_id:
-        worlds = await client.get(
-            f"{settings.bots.app_url}/api/v1/worlds/", headers={"X-User-Id": str(uid)}
-        )
-        if worlds.status_code != 200:
-            await message.answer("Ошибка миров")
-            return
-        world_id = worlds.json()[0]["id"]
-        stories = await client.get(
-            f"{settings.bots.app_url}/api/v1/worlds/{world_id}/stories/"
-        )
-        if stories.status_code != 200 or not stories.json():
-            await message.answer("Нет историй")
-            return
-        story_id = stories.json()[0]["id"]
-        stories_store[uid] = story_id
-    url = f"{settings.bots.app_url}/api/v1/sessions/"
-    resp = await client.post(
-        url, json={"story_id": story_id}, headers={"X-User-Id": str(uid)}
-    )
-    if resp.status_code == 201:
-        sessions_store[uid] = resp.json()["id"]
-    await message.answer(str(resp.json()))
-
-
-@router.message(AdminFilter(), Command("make_choice"))
-async def make_choice_cmd(message: Message):
-    """Send a test choice to the active session."""
-
-    session_id = sessions_store.get(message.from_user.id)
-    if not session_id:
-        await message.answer("Нет активной сессии")
-        return
-    url = f"{settings.bots.app_url}/api/v1/sessions/{session_id}/choice/"
-    resp = await client.post(url, json={"choice_text": "test choice"}, headers={"X-User-Id": str(message.from_user.id)})
-    await message.answer(str(resp.json()))
-
-
-@router.message(AdminFilter(), Command("history"))
-async def history_cmd(message: Message):
-    """Show history of scenes for the active session."""
-
-    session_id = sessions_store.get(message.from_user.id)
-    if not session_id:
-        await message.answer("Нет активной сессии")
-        return
-    url = f"{settings.bots.app_url}/api/v1/sessions/{session_id}/history/"
-    resp = await client.get(url, headers={"X-User-Id": str(message.from_user.id)})
-    await message.answer(str(resp.json()))
-
-
 @router.message(AdminFilter(), Command("plans"))
 async def plans_cmd(message: Message):
     """Retrieve available subscription plans."""
 
     url = f"{settings.bots.app_url}/api/v1/plans/"
     resp = await client.get(url, headers={"X-User-Id": str(message.from_user.id)})
-    await message.answer(str(resp.json()))
-
-
-@router.message(AdminFilter(), Command("subscribe"))
-async def subscribe_cmd(message: Message):
-    """Subscribe the user to a plan."""
-
-    url = f"{settings.bots.app_url}/api/v1/subscribe/"
-    resp = await client.post(url, headers={"X-User-Id": str(message.from_user.id)})
     await message.answer(str(resp.json()))
 
 
