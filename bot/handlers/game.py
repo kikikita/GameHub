@@ -376,7 +376,7 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
     )
     image_url = None
     if world_resp.status_code == 200:
-        image_url = world_resp.json().get("image_url")
+        image_url = story.get("image_url")
     if image_url:
         try:
             await call.message.answer_photo(image_url, caption=story.get("story_desc", ""))
