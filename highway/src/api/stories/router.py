@@ -14,6 +14,9 @@ from src.core.database import get_session
 from src.models.story import Story
 from src.models.world import World
 from src.models.user import User
+from src.models.game_session import GameSession
+from src.models.scene import Scene
+from src.models.choice import Choice
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/v1", tags=["stories"])
@@ -117,10 +120,28 @@ async def _import_presets(db: AsyncSession, data: dict) -> None:
     if not isinstance(data, dict) or "worlds" not in data:
         raise ValueError("invalid structure")
 
-    # Remove previously imported preset worlds and stories so that the
-    # JSON file can be treated as the single source of truth. This allows
-    # regular updates of the presets without creating duplicates.
-    await db.execute(delete(Story).where(Story.is_preset.is_(True)))
+    # Remove previously imported preset data so that the JSON file can be
+    # treated as the single source of truth. Because several tables are
+    # linked together via foreign keys, we have to remove the dependent
+    # records (choices -> scenes -> sessions) before deleting stories and
+    # worlds to avoid integrity errors.
+
+    preset_story_ids = (
+        select(Story.id).where(Story.is_preset.is_(True)).scalar_subquery()
+    )
+    preset_session_ids = (
+        select(GameSession.id)
+        .where(GameSession.story_id.in_(preset_story_ids))
+        .scalar_subquery()
+    )
+    preset_scene_ids = (
+        select(Scene.id).where(Scene.session_id.in_(preset_session_ids)).scalar_subquery()
+    )
+
+    await db.execute(delete(Choice).where(Choice.scene_id.in_(preset_scene_ids)))
+    await db.execute(delete(Scene).where(Scene.session_id.in_(preset_session_ids)))
+    await db.execute(delete(GameSession).where(GameSession.id.in_(preset_session_ids)))
+    await db.execute(delete(Story).where(Story.id.in_(preset_story_ids)))
     await db.execute(delete(World).where(World.is_preset.is_(True)))
     await db.commit()
 
