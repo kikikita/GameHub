@@ -1,5 +1,6 @@
 from src.core.database import AsyncSessionLocal
 from src.models.world import World
+from src.models.story import Story
 from src.api.stories.router import _import_presets
 from pathlib import Path
 import json
@@ -13,8 +14,9 @@ logger = logging.getLogger(__name__)
 async def import_stories_on_startup():
     # Automatically import preset worlds and stories on first startup if none exist
     async with AsyncSessionLocal() as session:
-        res = await session.execute(select(World).where(World.is_preset.is_(True)))
-        if res.scalars().first() is None:
+        world_res = await session.execute(select(World.id).limit(1))
+        story_res = await session.execute(select(Story.id).limit(1))
+        if world_res.scalars().first() is None and story_res.scalars().first() is None:
             presets_path = Path(settings.presets_file_path)
             if not presets_path.is_absolute():
                 presets_path = Path(__file__).resolve().parent.parent / presets_path

@@ -50,7 +50,13 @@ async def show_presets(chat_id: int, bot, lang: str) -> None:
         title = s.get("title")
         if isinstance(title, dict):
             title = title.get(lang) or title.get("en") or next(iter(title.values()), "")
-        lines.append(f"{emoji} [{genre}] {title}")
+        desc = s.get("story_desc")
+        if isinstance(desc, dict):
+            desc = desc.get(lang) or desc.get("en") or next(iter(desc.values()), "")
+        entry = f"{emoji} [{genre}] {title}"
+        if desc:
+            entry = f"{entry}\n{desc}"
+        lines.append(entry)
     text = "\n\n".join(lines)
     kb = stories_keyboard(stories, settings.bots.web_url, lang)
     await bot.send_message(chat_id, text, reply_markup=kb, parse_mode="HTML")

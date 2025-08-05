@@ -4,7 +4,7 @@ import uuid
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.tg_auth import authenticated_user
@@ -116,6 +116,14 @@ async def create_story(
 async def _import_presets(db: AsyncSession, data: dict) -> None:
     if not isinstance(data, dict) or "worlds" not in data:
         raise ValueError("invalid structure")
+
+    # Remove previously imported preset worlds and stories so that the
+    # JSON file can be treated as the single source of truth. This allows
+    # regular updates of the presets without creating duplicates.
+    await db.execute(delete(Story).where(Story.is_preset.is_(True)))
+    await db.execute(delete(World).where(World.is_preset.is_(True)))
+    await db.commit()
+
     for w in data["worlds"]:
         world = World(
             title=w.get("title"),
