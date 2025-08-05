@@ -91,6 +91,8 @@ async def create_and_store_scene(
                 character=get_localized(story.character or {}, state.language),
                 genre=story.genre,
                 language=state.language,
+                visual_style=get_localized(story.visual_style, state.language),
+                npc_characters=story.npc_characters or [],
             )
             state.story_frame = story_frame
         else:

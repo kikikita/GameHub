@@ -33,6 +33,8 @@ async def generate_story_frame(
     character: Annotated[Dict[str, str], "Character info"],
     genre: Annotated[str, "Genre"],
     language: Annotated[str, "Output language"],
+    visual_style: Annotated[str, "Visual style"],
+    npc_characters: Annotated[list[dict], "NPC characters"],
 ) -> StoryFrame:
     """Create the initial story frame and store it in user state."""
     llm = create_llm().with_structured_output(StoryFrameLLM)
@@ -48,6 +50,8 @@ async def generate_story_frame(
         goal=resp.goal,
         milestones=resp.milestones,
         endings=resp.endings,
+        visual_style=visual_style,
+        npc_characters=npc_characters,
         setting=setting,
         character=character,
         genre=genre,

@@ -11,6 +11,7 @@ from src.api.sessions.router import router as sessions_router
 from src.api.scenes.router import router as scenes_router
 from src.api.payments.router import router as payments_router
 from src.api.wish_payments.router import router as wish_payments_router
+from src.api.admin.router import router as admin_router
 from src.cron import energy_restore_worker
 from src.utils.import_stories_on_startup import import_stories_on_startup
 
@@ -44,6 +45,7 @@ app.include_router(sessions_router)
 app.include_router(scenes_router)
 app.include_router(payments_router)
 app.include_router(wish_payments_router)
+app.include_router(admin_router)
 
 @app.get("/health-check")
 def health_check() -> dict:

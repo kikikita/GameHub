@@ -32,7 +32,8 @@ async def admin_cmd(msg: Message):
         "/plans - Тарифы\n"
         "/status - Статус подписки\n"
         "/change_plan_pro - Включить Pro\n"
-        "/change_plan_free - Включить Free\n"
+        "/change_plan_free - Включить Free\n"        
+        "/grant_wishes - Выдать желания пользователю\n"
         "/upload_presets - Загрузить пресеты из JSON"
     )
     await msg.answer(txt)
@@ -93,3 +94,35 @@ async def change_plan_cmd(message: Message):
     url = f"{settings.bots.app_url}/api/v1/subscription/change-plan/"
     resp = await client.post(url, params={"plan": plan}, headers={"X-User-Id": str(message.from_user.id)})
     await message.answer(str(resp.json()))
+
+
+@router.message(AdminFilter(), Command("grant_wishes"))
+async def grant_wishes_cmd(message: Message):
+    """Grant wishes to a user by their Telegram username.
+
+    Usage: /grant_wishes <username> <count>
+    """
+
+    parts = message.text.split()
+    if len(parts) < 3:
+        await message.answer("Использование: /grant_wishes <username> <count>")
+        return
+
+    username = parts[1].lstrip("@")
+    try:
+        wishes = int(parts[2])
+    except ValueError:
+        await message.answer("Количество желаний должно быть числом")
+        return
+
+    url = "/api/v1/admin/grant_wishes/"
+    resp = await client.post(
+        url,
+        json={"username": username, "wishes": wishes},
+        headers={"X-User-Id": str(message.from_user.id)},
+    )
+
+    if resp.status_code == 200:
+        await message.answer("✅ Желания успешно выданы")
+    else:
+        await message.answer(f"❌ Ошибка: {resp.text}")

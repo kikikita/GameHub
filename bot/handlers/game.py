@@ -256,7 +256,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
                     "char_desc": {lang: template.get("char_desc")},
                 },
                 "npc_characters": [],
-                "visual_style": template.get("visual_style"),
+                "visual_style": {lang: template.get("visual_style")},
                 "is_free": False,
             },
             headers={"X-User-Id": str(call.from_user.id)},

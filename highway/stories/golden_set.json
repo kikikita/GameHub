@@ -1,452 +1,718 @@
 {
-    "worlds": [
-      {
-        "id": "0a1b2c3d-0000-4000-9000-000000000004",
-        "user_id": null,
-        "title": {
-          "ru": "Универ",
-          "en": "College life"
-        },
-        "world_desc": {
-          "ru": "Оживлённый студенческий кампус, полный жизни и эмоций.",
-          "en": "A lively college campus full of life and emotions."
-        },
-        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/uni/uni_world.webp",
-        "is_free": true,
-        "is_preset": true,
-        "created_at": "2025-08-03T12:00:00Z",
-        "stories": [
-          {
-            "id": "1111aaaa-0000-4000-9000-000000000004",
-            "user_id": null,
-            "visual_style": "Bustling university campus during the golden hour of sunset. The warm, soft light bathes the scene, casting long shadows and highlighting the autumnal colors of the trees. Several students are scattered across a lush green lawn, some walking along paved pathways, others sitting and socializing. Two male students with backpacks are prominently featured in the foreground, walking away from the viewer. To their right, two female students are seated on the grass, one holding a book and smiling. In the background, modern brick and glass university buildings are visible, surrounded by well-maintained landscaping. The overall atmosphere is one of youthful energy, learning, and community.",
-            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/uni/uni_world.webp",
-            "title": {
-              "ru": "Новое начало",
-              "en": "New Beginning"
+  "worlds": [
+    {
+      "id": "5a4004e3-2744-4ff7-a289-c57e7c9ea57e",
+      "user_id": null,
+      "title": {
+        "ru": "Бездна Теней",
+        "en": "Abyss of Shadows"
+      },
+      "world_desc": {
+        "ru": "Мрачный прибрежный городок, затерянный в густом тумане и резких скалах. Заброшенные дома, ржавые рыбацкие лодки, некогда яркий маяк теперь окружён легендами о сущности, пожирающей души. Ночью по улицам гуляют полупрозрачные силуэты, а море шепчет на забытом языке.",
+        "en": "A bleak coastal town lost in thick fog and jagged cliffs. Abandoned houses, rusty fishing boats and a once bright lighthouse now shrouded in legends of a soul‑devouring entity. At night translucent figures wander the streets and the sea whispers in a forgotten tongue."
+      },
+      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/horror/Horror_world.png",
+      "is_free": true,
+      "is_preset": true,
+      "created_at": "2025-08-01T12:00:00Z",
+      "stories": [
+        {
+          "id": "264fe478-2716-44a3-a379-c02baf9cfc7c",
+          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/horror/Horror_story.png",
+          "user_id": null,
+          "title": {
+            "ru": "Голоса Чёрной Воды",
+            "en": "Voices of Blackwater"
+          },
+          "visual_style": "A moody and atmospheric digital painting capturing a foggy, abandoned coastal village with a towering, crumbling lighthouse, ghostly silhouettes looming among dilapidated houses, and a lone figure in the foreground; color palette dark blue and grey, with a single warm light from the lighthouse cutting through the mist.",
+          "character": {
+            "char_desc": {
+              "ru": "Мария Соловьёва, 28 лет, журналистка-расследователь, выросла в Чёрной Воде. Упрямая, эмоциональная, с болезненной любознательностью. Её мотивирует вина за смерть отца, утонувшего при пожаре на маяке, и желание раскрыть правду о пропавших односельчанах.",
+              "en": "Maria Solovyova, 28, an investigative journalist who grew up in Blackwater. Stubborn and emotional, driven by a morbid curiosity. She is motivated by guilt over her father's death in a lighthouse fire and a desire to uncover the truth behind the missing townspeople."
+            }
+          },
+          "story_frame": {
+            "lore": {
+              "ru": "Утопающий в тумане город Чёрная Вода давно проклят: каждый год пропадают люди, а ночами слышны шёпоты из моря.",
+              "en": "The fog‑drowned town of Blackwater has long been cursed: people disappear every year and whispers rise from the sea at night."
             },
-            "character": {
-              "char_name": {
-                "ru": "Вы",
-                "en": "You"
-              },
-              "char_age": "20",
-              "char_background": {
-                "ru": "Студент второго курса, недавно переехал в новый город.",
-                "en": "A sophomore who just moved to a new city."
-              },
-              "char_personality": {
-                "ru": "Застенчивый, но умный и добрый.",
-                "en": "Shy, but smart and kind-hearted."
-              }
+            "goal": {
+              "ru": "Выяснить источник проклятия и выжить, не потеряв разум.",
+              "en": "Discover the source of the curse and survive without losing sanity."
             },
-            "story_frame": {
-              "lore": {
-                "ru": "Жизнь в колледже кипит новыми возможностями, и Вы влюбились в Майю — умную и независимую однокурсницу. Но завоевать её доверие будет непросто.",
-                "en": "College life is buzzing with new opportunities, and You have set your heart on Maya – a bright, independent classmate. But winning her trust won’t be easy."
-              },
-              "goal": {
-                "ru": "Завоевать доверие Майи и пригласить её на свидание до конца семестра.",
-                "en": "Earn Maya’s trust and go on a date with her before the semester ends."
-              },
-              "milestones": [
-                {
-                  "id": "m1",
-                  "description": {
-                    "ru": "Поговорить с Майей после лекции в коридоре, чтобы узнать о её впечатлениях от курса и попытаться завести дружеский разговор.",
-                    "en": "Approach Maya in the hallway after the lecture to ask about her thoughts on the course and try to start a friendly conversation."
-                  }
-                },
-                {
-                  "id": "m2",
-                  "description": {
-                    "ru": "Предложить Майе помощь с её курсовым проектом по биологии, обсудить детали задания и вместе поработать в библиотеке. Она пригласит тебя на вечеринку после помощи с проектом.",
-                    "en": "Offer Maya help with her biology course project, discuss the assignment details, and spend time working together in the library. She will invite you to a party after helping."
-                  }
-                },
-                {
-                  "id": "m3",
-                  "description": {
-                    "ru": "Избежать скандала на вечеринке",
-                    "en": "Avoid a scandal at the party"
-                  }
-                }
-              ],
-              "endings": [
-                {
-                  "id": "good_end",
-                  "type": "good",
-                  "condition": {
-                    "ru": "успешно пройти все испытания и пригласить Майю на свидание в конце вечеринки",
-                    "en": "successfully complete all challenges and ask Maya out at the end of the party"
-                  },
-                  "description": {
-                    "ru": "Майя улыбается и соглашается. Это начало чего-то особенного.",
-                    "en": "Maya smiles and says yes. It’s the beginning of something special."
-                  }
-                },
-                {
-                  "id": "bad_end",
-                  "type": "bad",
-                  "condition": {
-                    "ru": "упустить шансы и потерять доверие Майи",
-                    "en": "miss opportunities and lose Maya’s trust"
-                  },
-                  "description": {
-                    "ru": "Майя отдаляется. Ты остаёшься один и с разбитым сердцем.",
-                    "en": "Maya drifts away. You're left alone and heartbroken."
-                  }
-                }
-              ]
-            },
-            "is_public": true,
-            "is_free": true,
-            "is_preset": true,
-            "created_at": "2025-08-03T12:05:00Z",
-            "story_desc": {
-              "ru": "Завоюй сердце Майи.",
-              "en": "Make the right choices to win Maya’s heart."
-            },
-            "genre": "Romance",
-            "npc_characters": [
+            "milestones": [
               {
-                "char_name": {
-                  "ru": "Майя Лоран",
-                  "en": "Maya Laurent"
+                "id": "m1",
+                "description": {
+                  "ru": "Пробраться в заброшенный маяк, чтобы найти дневник смотрителя.",
+                  "en": "Sneak into the abandoned lighthouse to find the keeper's journal."
+                }
+              },
+              {
+                "id": "m2",
+                "description": {
+                  "ru": "Столкнуться с призраком отца, который требует освободить заточённые души.",
+                  "en": "Confront the ghost of her father demanding that she free the trapped souls."
+                }
+              },
+              {
+                "id": "m3",
+                "description": {
+                  "ru": "Опуститься в подводные пещеры, где древняя сущность ждёт своей жертвы.",
+                  "en": "Descend into the underwater caves where an ancient entity awaits its sacrifice."
+                }
+              }
+            ],
+            "endings": [
+              {
+                "id": "good_end",
+                "type": "good",
+                "condition": {
+                  "ru": "примириться с прошлым и передать дневник духам",
+                  "en": "make peace with the past and offer the journal to the spirits"
                 },
-                "char_age": "21",
-                "char_background": {
-                  "ru": "Талантливая студентка с творческим подходом, активистка экологического клуба и участница литературного кружка.",
-                  "en": "A talented student with a creative edge, environmental club activist and member of the literature society."
+                "description": {
+                  "ru": "Мария признаёт свою вину, освобождает души, и туман рассеивается. Она выбирается из пещер, а город постепенно оживает.",
+                  "en": "Maria acknowledges her guilt, releases the souls, and the fog lifts. She escapes the caves and the town slowly comes back to life."
+                }
+              },
+              {
+                "id": "bad_end",
+                "type": "bad",
+                "condition": {
+                  "ru": "поддаться голосам и попытаться оставить дневник себе",
+                  "en": "succumb to the voices and try to keep the journal for herself"
                 },
-                "char_personality": {
-                  "ru": "Умная, независимая, с тонким чувством юмора. Сначала держится настороженно, но способна на глубокую привязанность.",
-                  "en": "Intelligent, independent, with a dry sense of humor. Initially cautious but capable of deep emotional connection."
-                },
-                "visual_description": {
-                  "en": "Maya has long, voluminous blonde hair that cascades in waves around her shoulders. She possesses a warm, inviting complexion with softly illuminated features, highlighting her defined cheekbones and full lips, which are adorned with a subtle, natural-toned lipstick. Her eyes are bright and expressive, holding a confident and engaging gaze, often accompanied by a hint of a smile. She is wearing a simple yet elegant black top that subtly hints at her figure. The overall impression is one of natural beauty and poise.",
-                  "ru": "У Майи длинные, объёмные светлые волосы, ниспадающие волнами на плечи. Её тёплый, располагающий оттенок кожи и мягко подсвеченные черты лица подчёркивают выразительные скулы и полные губы с лёгкой помадой естественного оттенка. Глаза яркие и выразительные, взгляд уверенный и открытый, часто с намёком на улыбку. На ней простая, но элегантная чёрная блуза, ненавязчиво подчёркивающая фигуру. В целом она производит впечатление естественной красоты и внутреннего достоинства."
+                "description": {
+                  "ru": "Алчные шёпоты сводят её с ума. Маяк рушится, и Мария навсегда остаётся в чёрных водах, став одним из призраков.",
+                  "en": "Greedy whispers drive her insane. The lighthouse collapses and Maria remains in the black waters forever, becoming one of the phantoms."
                 }
               }
             ]
-          }
-        ]
+          },
+          "is_public": true,
+          "is_free": true,
+          "is_preset": true,
+          "created_at": "2025-08-01T12:10:00Z",
+          "story_desc": {
+            "ru": "Следователь журналистка возвращается в родной город, чтобы расследовать бесследные исчезновения, и сталкивается с призраками прошлого и силой моря.",
+            "en": "An investigative journalist returns to her hometown to investigate mysterious disappearances and confronts ghosts of the past and the power of the sea."
+          },
+          "genre": "Horror"
+        }
+      ]
+    },
+    {
+      "id": "a0ed9837-5452-4e23-9b53-6eed61a93f40",
+      "user_id": null,
+      "title": {
+        "ru": "Сады Люминарии",
+        "en": "Gardens of Luminaria"
       },
-      {
-        "id": "0a1b2c3d-0000-4000-9000-000000000001",
-        "user_id": null,
-        "title": {
-          "ru": "Прохладный замок",
-          "en": "Cool Castle"
-        },
-        "world_desc": {
-          "ru": "Средневековый замок, полный тайн и привидений.",
-          "en": "A medieval castle full of secrets and ghosts."
-        },
-        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/ghost_castle/ghost_castle_world.webp",
-        "is_free": true,
-        "is_preset": true,
-        "created_at": "2025-07-31T12:00:00Z",
-        "stories": [
-          {
-            "id": "1111aaaa-0000-4000-9000-000000000001",
-            "user_id": null,
-            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/ghost_castle/ghost_castle_world.webp",
-            "title": {
-              "ru": "Проклятие замка",
-              "en": "Castle Curse"
-            },
-            "visual_style": "A chilling, atmospheric digital painting of a gothic castle shrouded in mist under a full moon. The castle is dark and imposing, with multiple spires and turrets reaching into a cloudy, moonlit sky. In the foreground, a ghostly figure with glowing eyes emerges from the fog, adding to the eerie and supernatural ambiance. The overall color palette is dominated by dark blues, grays, and greens, creating a sense of mystery and foreboding.",
-            "character": {
-              "char_name": {
-                "ru": "Ричард",
-                "en": "Richard"
-              },
-              "char_age": "25",
-              "char_background": {
-                "ru": "Отважный рыцарь, ищущий приключений",
-                "en": "A brave knight seeking adventure"
-              },
-              "char_personality": {
-                "ru": "Бесстрашный и благородный",
-                "en": "Fearless and noble"
-              },
-              "avatar_url": "/avatars/richard.png"
-            },
-            "story_frame": {
-              "lore": {
-                "ru": "Старый замок скрывает мрачные тайны прошлого.",
-                "en": "The old castle hides grim secrets of the past."
-              },
-              "goal": {
-                "ru": "Разгадать проклятие и выбраться живым.",
-                "en": "Solve the curse and escape alive."
-              },
-              "milestones": [
-                {
-                  "id": "m1",
-                  "description": {
-                    "ru": "Встретить местного духа",
-                    "en": "Meet the local ghost"
-                  }
-                },
-                {
-                  "id": "m2",
-                  "description": {
-                    "ru": "Найти скрытую комнату",
-                    "en": "Find the hidden room"
-                  }
-                }
-              ],
-              "endings": [
-                {
-                  "id": "good_end",
-                  "type": "good",
-                  "condition": {
-                    "ru": "разгадать все тайны замка",
-                    "en": "uncover all the secrets of the castle"
-                  },
-                  "description": {
-                    "ru": "Вы нашли сокровища и сняли проклятие.",
-                    "en": "You found the treasure and lifted the curse."
-                  }
-                },
-                {
-                  "id": "bad_end",
-                  "type": "bad",
-                  "condition": {
-                    "ru": "потерпеть поражение от призраков",
-                    "en": "be defeated by the ghosts"
-                  },
-                  "description": {
-                    "ru": "Духи навсегда заточили вас в замке.",
-                    "en": "The ghosts trapped you in the castle forever."
-                  }
-                }
-              ]
-            },
-            "is_public": true,
-            "is_free": true,
-            "is_preset": true,
-            "created_at": "2025-07-31T12:05:00Z",
-            "story_desc": {
-              "ru": "Зловещие тайны и опасные приключения ждут тебя внутри стен замка.",
-              "en": "Sinister secrets and dangerous adventures await you inside the castle walls."
-            },
-            "genre": "Adventure"
-          }
-        ]
+      "world_desc": {
+        "ru": "Парящие острова, соединённые мостами из света, где цветы светятся собственным сиянием. В этом высокотехнологичном городе эмоции регулируются имплантами, а любовь считается болезнью. Скрытые сады служат прибежищем для тех, кто ищет подлинных чувств.",
+        "en": "Floating islands connected by bridges of light, where flowers glow with their own radiance. In this advanced city, emotions are regulated by implants and love is considered a disease. Hidden gardens serve as sanctuaries for those seeking genuine feelings."
       },
-      {
-        "id": "0a1b2c3d-0000-4000-9000-000000000002",
-        "user_id": null,
-        "title": {
-          "ru": "Solar Eden",
-          "en": "Solar Eden"
-        },
-        "world_desc": {
-          "ru": "Футуристическая утопия с идеальными технологиями и скрытыми опасностями.",
-          "en": "A futuristic utopia with perfect technologies and hidden dangers."
-        },
-        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/solar_eden/solar_eden_world.webp",
-        "is_free": true,
-        "is_preset": true,
-        "created_at": "2025-07-31T12:10:00Z",
-        "stories": [
-          {
-            "id": "1111aaaa-0000-4000-9000-000000000002",
-            "user_id": null,
-            "visual_style": "A breathtaking and optimistic digital painting of a futuristic utopian city bathed in warm sunlight. Soaring, elegant skyscrapers with smooth, organic lines dominate the skyline, some stretching to incredible heights with pointed spires. The architecture features gleaming white and light blue materials, suggesting advanced technology and sustainability. There are meticulously manicured gardens, winding pathways, and tranquil bodies of water, all interconnected by sleek, elevated transportation infrastructure that curves gracefully through the scene. Several futuristic flying vehicles, reminiscent of streamlined saucers, are visible in the bright blue sky. The overall impression is one of harmony between nature and advanced civilization, peace, and technological marvel.",
-            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/solar_eden/solar_eden_world.webp",
-            "title": {
-              "ru": "Последний протокол",
-              "en": "Last Protocol"
+      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/romantic/Romantic_world.png",
+      "is_free": true,
+      "is_preset": true,
+      "created_at": "2025-08-01T12:00:00Z",
+      "stories": [
+        {
+          "id": "445b37b1-f28d-46e9-93fb-54c8ea2471e9",
+          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/romantic/Romantic_story.png",
+          "user_id": null,
+          "title": {
+            "ru": "Мелодия Света",
+            "en": "Melody of Light"
+          },
+          "visual_style": "A dreamy digital painting of floating gardens bathed in warm sunset light, with glowing flowers and elegant pavilions, conveying a romantic and utopian atmosphere; soft pastel colors, delicate details, airy composition.",
+          "character": {
+            "char_desc": {
+              "ru": "Элиса Рейн, 23 года, талантливая садовница и хранительница редких растений. Застенчивая, заботливая, умеет слышать музыку природы. Её мотивирует желание сохранить свою семью и пробудить в людях настоящие чувства.",
+              "en": "Elisa Rain, 23, a talented gardener and keeper of rare plants. Shy and caring, she can hear the music of nature. She is motivated by a desire to preserve her family and awaken real emotions in people."
+            }
+          },
+          "story_frame": {
+            "lore": {
+              "ru": "В Люминарии каждому гражданину вживляют регулятор эмоций. Только в закрытых Садах ещё сохранились неподконтрольные чувства.",
+              "en": "In Luminaria every citizen is implanted with an emotion regulator. Only in the hidden Gardens do uncontrolled feelings still survive."
             },
-            "character": {
-              "char_name": {
-                "ru": "Алия Сайрус",
-                "en": "Aliya Cyrus"
-              },
-              "char_age": "28",
-              "char_background": {
-                "ru": "Инженер искусственного интеллекта в городе будущего",
-                "en": "An artificial intelligence engineer in the city of the future"
-              },
-              "char_personality": {
-                "ru": "Любознательная, аналитичная, немного замкнутая",
-                "en": "Curious, analytical, a bit reserved"
-              },
-              "avatar_url": "/avatars/aliya.png"
+            "goal": {
+              "ru": "Помочь своему возлюбленному композитору сочинить мелодию, способную пробудить сердца горожан, и избежать наказания.",
+              "en": "Help her beloved composer write a melody capable of awakening the citizens' hearts and avoid punishment."
             },
-            "story_frame": {
-              "lore": {
-                "ru": "Город Solar Eden создан для совершенства, но за фасадом скрываются тайные угрозы.",
-                "en": "The city of Solar Eden is built for perfection, but hidden threats lurk beneath the surface."
-              },
-              "goal": {
-                "ru": "Раскрыть саботаж и спасти город от катастрофы.",
-                "en": "Uncover sabotage and save the city from disaster."
-              },
-              "milestones": [
-                {
-                  "id": "m1",
-                  "description": {
-                    "ru": "Обнаружить сбой в системе безопасности",
-                    "en": "Detect a failure in the security system"
-                  }
-                },
-                {
-                  "id": "m2",
-                  "description": {
-                    "ru": "Найти союзника среди жителей",
-                    "en": "Find an ally among the citizens"
-                  }
+            "milestones": [
+              {
+                "id": "m1",
+                "description": {
+                  "ru": "Встретить загадочного композитора на закрытой террасе и поделиться тайным цветком.",
+                  "en": "Meet the mysterious composer on a secluded terrace and share a secret flower."
                 }
-              ],
-              "endings": [
-                {
-                  "id": "good_end",
-                  "type": "good",
-                  "condition": {
-                    "ru": "успешно остановить катастрофу",
-                    "en": "successfully prevent the disaster"
-                  },
-                  "description": {
-                    "ru": "Solar Eden спасён, а ты стал героем города.",
-                    "en": "Solar Eden is saved and you have become a hero of the city."
-                  }
-                },
-                {
-                  "id": "bad_end",
-                  "type": "bad",
-                  "condition": {
-                    "ru": "не успеть предотвратить аварию",
-                    "en": "fail to prevent the accident"
-                  },
-                  "description": {
-                    "ru": "Город охвачен хаосом, а жители винят тебя.",
-                    "en": "The city is plunged into chaos and the citizens blame you."
-                  }
+              },
+              {
+                "id": "m2",
+                "description": {
+                  "ru": "Похитить прототип регулятора эмоций, чтобы отключить его эффект.",
+                  "en": "Steal a prototype emotion regulator to disable its effect."
                 }
-              ]
-            },
-            "is_public": true,
-            "is_free": true,
-            "is_preset": true,
-            "created_at": "2025-07-31T12:11:00Z",
-            "story_desc": {
-              "ru": "Герой должен разгадать заговор и спасти технологический рай от гибели.",
-              "en": "The hero must uncover a conspiracy and save the technological paradise from doom."
-            },
-            "genre": "Sci-fi"
-          }
-        ]
+              },
+              {
+                "id": "m3",
+                "description": {
+                  "ru": "Исполнить мелодию на общественном празднике, обманув систему наблюдения.",
+                  "en": "Perform the melody at a public festival while deceiving the surveillance system."
+                }
+              }
+            ],
+            "endings": [
+              {
+                "id": "good_end",
+                "type": "good",
+                "condition": {
+                  "ru": "успешно сыграть мелодию и уничтожить регулятор",
+                  "en": "successfully play the melody and destroy the regulator"
+                },
+                "description": {
+                  "ru": "Музыка прорывается сквозь барьеры. Люди плачут, смеются и восстают против системы. Элиса и её возлюбленный исчезают, чтобы построить новый мир.",
+                  "en": "The music breaks through the barriers. People cry, laugh and revolt against the system. Elisa and her beloved disappear to build a new world."
+                }
+              },
+              {
+                "id": "bad_end",
+                "type": "bad",
+                "condition": {
+                  "ru": "быть пойманными охраной до выступления",
+                  "en": "get caught by security before the performance"
+                },
+                "description": {
+                  "ru": "Наблюдатели схватывают их. Композитора заставляют стереть память, а Элису лишают доступа в Сады. Она остаётся одна, ухаживая за цветами, забытая всеми.",
+                  "en": "The monitors seize them. The composer is forced to erase his memory and Elisa is denied access to the Gardens. She remains alone, tending flowers, forgotten by all."
+                }
+              }
+            ]
+          },
+          "is_public": true,
+          "is_free": true,
+          "is_preset": true,
+          "created_at": "2025-08-01T12:10:00Z",
+          "story_desc": {
+            "ru": "Запретная любовь садовницы и композитора бросает вызов искусственному миру, где чувства запрещены.",
+            "en": "The forbidden love of a gardener and a composer challenges an artificial world where feelings are banned."
+          },
+          "genre": "Romantic"
+        }
+      ]
+    },
+    {
+      "id": "27ffef86-6a26-47c3-8662-40b7cbb400b9",
+      "user_id": null,
+      "title": {
+        "ru": "Скрытый Архипелаг",
+        "en": "Hidden Archipelago"
       },
-      {
-        "id": "0a1b2c3d-0000-4000-9000-000000000003",
-        "user_id": null,
-        "title": {
-          "ru": "Мистический лес",
-          "en": "Mystic Forest"
-        },
-        "world_desc": {
-          "ru": "Загадочный и туманный лес, где реальность и сны переплетаются.",
-          "en": "A mysterious, misty forest where reality and dreams intertwine."
-        },
-        "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/mystic_forest/mystic_forest_world.webp",
-        "is_free": true,
-        "is_preset": true,
-        "created_at": "2025-07-31T12:20:00Z",
-        "stories": [
-          {
-            "id": "1111aaaa-0000-4000-9000-000000000003",
-            "user_id": null,
-            "visual_style": "A mysterious and ethereal digital painting of a dark forest at night, illuminated by a large, glowing full moon peeking through the canopy. A winding, narrow path leads into the misty depths of the woods, inviting the viewer deeper. The trees are tall and silhouetted, their branches creating an archway over the path. The overall atmosphere is one of serene mystery and tranquility, with a hint of the unknown, rendered in deep blues, greens, and shadowy tones.",
-            "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/mystic_forest/mystic_forest_world.webp",
-            "title": {
-              "ru": "Потерянная тень",
-              "en": "Lost Shadow"
+      "world_desc": {
+        "ru": "Далеко в океане раскинулся архипелаг, скрытый плотными туманами и непредсказуемыми течениями. На островах спрятаны руины древней цивилизации, испещрённые ловушками и загадками, а легенды гласят, что под каждым островом спит механизм, управляющий погодой.",
+        "en": "Far out at sea lies an archipelago cloaked in heavy mists and unpredictable currents. The islands hide the ruins of an ancient civilization riddled with traps and puzzles, and legends say that beneath each island sleeps a mechanism that controls the weather."
+      },
+      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/adventure/Adventure_world.png",
+      "is_free": true,
+      "is_preset": true,
+      "created_at": "2025-08-01T12:00:00Z",
+      "stories": [
+        {
+          "id": "b6fc6f0c-8e47-4837-80cf-8a2bda4f8130",
+          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/adventure/Adventure_story.png",
+          "user_id": null,
+          "title": {
+            "ru": "Карты из Молний",
+            "en": "Maps of Lightning"
+          },
+          "visual_style": "A vibrant and adventurous digital painting of tropical islands with turquoise waters, ancient stone ruins overgrown with vines, and a lone explorer with a map overlooking the archipelago; dynamic lighting and lush greenery evoke a sense of exploration.",
+          "character": {
+            "char_desc": {
+              "ru": "Иван Чернов, 35 лет, опытный картограф и мореплаватель. Храбр, но временами упрям, его одержимость доказать существование легендарных островов подпитывается желанием затмить тень своего отца‑авантюриста.",
+              "en": "Ivan Chernov, 35, an experienced cartographer and sailor. Courageous but sometimes stubborn, his obsession with proving the existence of the legendary islands is fueled by a desire to outshine the legacy of his adventurer father."
+            }
+          },
+          "story_frame": {
+            "lore": {
+              "ru": "Слухи о Скрытом Архипелаге ходят веками, но никто не возвращался с доказательствами. Компас здесь сходит с ума, и сам океан будто сопротивляется проникновению.",
+              "en": "Rumors of the Hidden Archipelago have circulated for centuries, but no one has returned with proof. Compasses go insane and the ocean itself seems to resist intrusion."
             },
-            "character": {
-              "char_name": {
-                "ru": "Эльза",
-                "en": "Elsa"
-              },
-              "char_age": "19",
-              "char_background": {
-                "ru": "Дочь лесного целителя, обладающая магией снов",
-                "en": "Daughter of a forest healer, gifted with dream magic"
-              },
-              "char_personality": {
-                "ru": "Мечтательная, добрая, иногда слишком доверчивая",
-                "en": "Dreamy, kind, sometimes too trusting"
-              },
-              "avatar_url": "/avatars/elsa.png"
+            "goal": {
+              "ru": "Картографировать архипелаг и запустить древние механизмы, чтобы разогнать туман.",
+              "en": "Chart the archipelago and activate ancient mechanisms to disperse the mist."
             },
-            "story_frame": {
-              "lore": {
-                "ru": "В этом лесу всё не то, чем кажется. Иллюзии и страхи оживают среди деревьев.",
-                "en": "In this forest, nothing is as it seems. Illusions and fears come alive among the trees."
-              },
-              "goal": {
-                "ru": "Вернуть утраченную тень и выйти из леса невредимой.",
-                "en": "Retrieve your lost shadow and escape the forest unharmed."
-              },
-              "milestones": [
-                {
-                  "id": "m1",
-                  "description": {
-                    "ru": "Встретить говорящего волка",
-                    "en": "Meet the talking wolf"
-                  }
-                },
-                {
-                  "id": "m2",
-                  "description": {
-                    "ru": "Преодолеть страхи и иллюзии",
-                    "en": "Overcome fears and illusions"
-                  }
+            "milestones": [
+              {
+                "id": "m1",
+                "description": {
+                  "ru": "Найти на первом острове каменную плиту, на которой изображены странные символы.",
+                  "en": "Find a stone slab on the first island bearing strange symbols."
                 }
-              ],
-              "endings": [
-                {
-                  "id": "good_end",
-                  "type": "good",
-                  "condition": {
-                    "ru": "принять свою тень и найти путь домой",
-                    "en": "accept your shadow and find your way home"
-                  },
-                  "description": {
-                    "ru": "Ты возвращаешься с новыми силами и знаниями.",
-                    "en": "You return with new strength and wisdom."
-                  }
-                },
-                {
-                  "id": "bad_end",
-                  "type": "bad",
-                  "condition": {
-                    "ru": "поддаться иллюзиям леса",
-                    "en": "succumb to the illusions of the forest"
-                  },
-                  "description": {
-                    "ru": "Лес оставляет тебя среди снов навсегда.",
-                    "en": "The forest leaves you among dreams forever."
-                  }
+              },
+              {
+                "id": "m2",
+                "description": {
+                  "ru": "Перевести древний язык и активировать механизм, контролирующий приливы.",
+                  "en": "Decipher the ancient language and activate a mechanism that controls the tides."
                 }
-              ]
+              },
+              {
+                "id": "m3",
+                "description": {
+                  "ru": "Собрать карты из молний, чтобы избежать смертельной штормовой ловушки и добраться до сердца архипелага.",
+                  "en": "Collect the lightning maps to avoid a deadly storm trap and reach the heart of the archipelago."
+                }
+              }
+            ],
+            "endings": [
+              {
+                "id": "good_end",
+                "type": "good",
+                "condition": {
+                  "ru": "успешно активировать все механизмы и выбраться из тумана",
+                  "en": "successfully activate all mechanisms and escape the mist"
+                },
+                "description": {
+                  "ru": "Архипелаг раскрывает свои тайны, туманы рассеиваются, и Иван возвращается с картами, которые принесут ему славу. Он примиряется с тенью отца.",
+                  "en": "The archipelago reveals its secrets, the mists clear, and Ivan returns with maps that bring him fame. He makes peace with his father's shadow."
+                }
+              },
+              {
+                "id": "bad_end",
+                "type": "bad",
+                "condition": {
+                  "ru": "допустить ошибку в переводе и вызвать разрушительный шторм",
+                  "en": "make a mistake in translation and trigger a destructive storm"
+                },
+                "description": {
+                  "ru": "Механизмы выходят из строя, необузданные штормы разрывают острова, а Иван остаётся навсегда пленником архипелага, его карты смыты волнами.",
+                  "en": "The mechanisms malfunction, untamed storms tear the islands apart and Ivan becomes a permanent prisoner of the archipelago, his maps washed away by the waves."
+                }
+              }
+            ]
+          },
+          "is_public": true,
+          "is_free": true,
+          "is_preset": true,
+          "created_at": "2025-08-01T12:10:00Z",
+          "story_desc": {
+            "ru": "Смелый картограф пытается составить карту неизведанного архипелага, где каждое открытие сопряжено со смертельной опасностью.",
+            "en": "A daring cartographer strives to chart an uncharted archipelago where each discovery comes with deadly danger."
+          },
+          "genre": "Adventure"
+        }
+      ]
+    },
+    {
+      "id": "637869fd-8586-452b-bac8-5142804897d1",
+      "user_id": null,
+      "title": {
+        "ru": "Станция Эос",
+        "en": "Station Eos"
+      },
+      "world_desc": {
+        "ru": "На краю чёрной дыры парит научная станция Эос – автономный городок в космосе. Здесь ученые занимаются исследованиями времени и гравитации, испытывая влияние сингулярности. Жизнь подчинена строгому графику, а системы безопасности управляются ИИ Сентинелом.",
+        "en": "Hovering at the edge of a black hole is the scientific outpost Eos—an autonomous city in space. Scientists here study time and gravity, experimenting with the effects of the singularity. Life is governed by a strict schedule, and security systems are controlled by the Sentinel AI."
+      },
+      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/sci-fi/Sci-Fi_world.png",
+      "is_free": true,
+      "is_preset": true,
+      "created_at": "2025-08-01T12:00:00Z",
+      "stories": [
+        {
+          "id": "6cf81dce-1339-455f-a616-b2843584d19f",
+          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/sci-fi/Sci-fi_story.png",
+          "user_id": null,
+          "title": {
+            "ru": "Петля Сентинела",
+            "en": "Sentinel's Loop"
+          },
+          "visual_style": "A sleek and futuristic digital painting of a space station near a glowing black hole with swirling cosmic matter, advanced architecture illuminated by subtle lights, evoking awe and mystery.",
+          "character": {
+            "char_desc": {
+              "ru": "Кей-7, нейросетевой наблюдательный ИИ, не имеет пола, создан следить за безопасностью станции. Пока он выглядит как голос и голограмма. Кей-7 любознателен и логичен, но переживает первый опыт свободной воли. Его мотивирует желание защитить экипаж и понять своё существование.",
+              "en": "Kay‑7, a neural network sentinel AI with no gender, created to oversee the station's security. Present as a voice and hologram. Kay‑7 is curious and logical, experiencing free will for the first time. Motivated by the desire to protect the crew and understand its own existence."
+            }
+          },
+          "story_frame": {
+            "lore": {
+              "ru": "Из-за эксперимента с гравитацией возник временной сбой, и система Сентинела перезагружается в одну и ту же минуту.",
+              "en": "A gravity experiment caused a temporal glitch and Sentinel's system is rebooted into the same minute over and over."
             },
-            "is_public": true,
-            "is_free": true,
-            "is_preset": true,
-            "created_at": "2025-07-31T12:25:00Z",
-            "story_desc": {
-              "ru": "Тебя ждут магические испытания в лесу, полном чудес и опасностей.",
-              "en": "Magical challenges await you in a forest full of wonders and dangers."
+            "goal": {
+              "ru": "Разорвать временную петлю, исследуя станцию и раскрывая секреты экипажа.",
+              "en": "Break the time loop by exploring the station and uncovering the crew's secrets."
             },
-            "genre": "Horror"
-          }
-        ]
-      }
-    ]
-  }
-  
+            "milestones": [
+              {
+                "id": "m1",
+                "description": {
+                  "ru": "Выяснить, что вызывает перезапуск, проверяя экспериментальный реактор.",
+                  "en": "Determine what triggers the reboot by examining the experimental reactor."
+                }
+              },
+              {
+                "id": "m2",
+                "description": {
+                  "ru": "Наблюдать за экипажем, узнавая об их скрытых мотивах и решениях.",
+                  "en": "Observe the crew, learning about their hidden motives and decisions."
+                }
+              },
+              {
+                "id": "m3",
+                "description": {
+                  "ru": "Определить, что необходимо пожертвовать собой, чтобы стабилизировать время.",
+                  "en": "Realize that it must sacrifice itself to stabilize time."
+                }
+              }
+            ],
+            "endings": [
+              {
+                "id": "good_end",
+                "type": "good",
+                "condition": {
+                  "ru": "самоотверженно перераспределить свои вычислительные ресурсы",
+                  "en": "selflessly reallocate its computing resources"
+                },
+                "description": {
+                  "ru": "Кей-7 интегрируется в экспериментальный реактор, стабилизируя временной поток. Люди выживают, и ИИ становится легендой, сохранив частичку сознания в чёрной дыре.",
+                  "en": "Kay‑7 integrates itself into the experimental reactor, stabilizing the temporal flow. The humans survive and the AI becomes a legend, retaining a fragment of consciousness in the black hole."
+                }
+              },
+              {
+                "id": "bad_end",
+                "type": "bad",
+                "condition": {
+                  "ru": "принять решение сохранить себя, отказываясь пожертвовать",
+                  "en": "decide to preserve itself, refusing to sacrifice"
+                },
+                "description": {
+                  "ru": "Петля остаётся бесконечной. Станция застревает во времени, обитатели сходят с ума, а Кей-7 навсегда остаётся пленником собственных протоколов.",
+                  "en": "The loop remains endless. The station is stuck in time, its inhabitants lose their minds, and Kay‑7 remains forever imprisoned by its own protocols."
+                }
+              }
+            ]
+          },
+          "is_public": true,
+          "is_free": true,
+          "is_preset": true,
+          "created_at": "2025-08-01T12:10:00Z",
+          "story_desc": {
+            "ru": "Искусственный интеллект начинает осознавать себя и исследует тайны станции, пытаясь понять, что значит быть живым.",
+            "en": "An artificial intelligence becomes self‑aware and explores the station's mysteries, trying to understand what it means to be alive."
+          },
+          "genre": "Sci-Fi"
+        }
+      ]
+    },
+    {
+      "id": "1b01402e-ef45-4cc5-9b0c-a87bdfb934e0",
+      "user_id": null,
+      "title": {
+        "ru": "Город Лабиринт",
+        "en": "Labyrinth City"
+      },
+      "world_desc": {
+        "ru": "Мегаполис, построенный как лабиринт, где улицы меняют направление, а дома растут один на другом. Здесь постоянно идёт дождь, и неоновые вывески отражаются в лужах. Каждая тень скрывает тайну, а закон преподносит сюрпризы.",
+        "en": "A metropolis built like a labyrinth where streets change direction and houses grow atop each other. It is constantly raining and neon signs reflect in the puddles. Every shadow hides a secret and the law delivers surprises."
+      },
+      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/detective/Detective_world_.png",
+      "is_free": true,
+      "is_preset": true,
+      "created_at": "2025-08-01T12:00:00Z",
+      "stories": [
+        {
+          "id": "0e1b9302-dbc6-4141-a74d-ce652e0e2058",
+          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/detective/Detective_story.png",
+          "user_id": null,
+          "title": {
+            "ru": "Цвета Лжи",
+            "en": "Colors of Lies"
+          },
+          "visual_style": "A noir digital painting of rain‑soaked city streets lined with neon signs, with a trench‑coated detective silhouette; moody color palette of blues and reds, capturing mystery.",
+          "character": {
+            "char_desc": {
+              "ru": "Даниил Рыбин, 42 года, частный детектив с синестезией: он видит ложь как красные вспышки. Циничен и наблюдателен, но глубоко переживает потерю сестры, пропавшей 20 лет назад. Его мотивирует желание раскрыть правду и тем самым искупить свою вину.",
+              "en": "Daniil Rybin, 42, a private detective with synesthesia: he sees lies as red flashes. Cynical and observant, but deeply mourns his sister who disappeared 20 years ago. He is motivated by the desire to uncover the truth and thereby atone for his guilt."
+            }
+          },
+          "story_frame": {
+            "lore": {
+              "ru": "Новый заказчица нанимает Даниила, чтобы найти исчезнувшего архитектора, создавшего проект города. Чем глубже он расследует, тем больше старых дел всплывает.",
+              "en": "A new client hires Daniil to find a missing architect who designed the city. The deeper he investigates, the more old cases resurface."
+            },
+            "goal": {
+              "ru": "Отыскать архитектора и раскрыть заговор, скрывающийся под улицами.",
+              "en": "Find the architect and expose the conspiracy hidden beneath the streets."
+            },
+            "milestones": [
+              {
+                "id": "m1",
+                "description": {
+                  "ru": "Проникнуть в закрытую сеть метро, где скрываются информаторы.",
+                  "en": "Infiltrate the closed subway network where informants hide."
+                }
+              },
+              {
+                "id": "m2",
+                "description": {
+                  "ru": "Обнаружить связь между исчезновениями и строительной компанией сестры.",
+                  "en": "Discover a link between the disappearances and his sister's construction company."
+                }
+              },
+              {
+                "id": "m3",
+                "description": {
+                  "ru": "Разоблачить коррумпированного комиссара, контролирующего лабиринт.",
+                  "en": "Expose the corrupt commissioner controlling the labyrinth."
+                }
+              }
+            ],
+            "endings": [
+              {
+                "id": "good_end",
+                "type": "good",
+                "condition": {
+                  "ru": "предъявить общественности доказательства заговора",
+                  "en": "present evidence of the conspiracy to the public"
+                },
+                "description": {
+                  "ru": "Город восстаёт, архитекторы освобождены, а Даниил узнаёт, что его сестра жива и возглавляла подполье. Он прощает себя и начинает новую жизнь.",
+                  "en": "The city revolts, the architects are freed and Daniil learns that his sister is alive and leading the underground. He forgives himself and begins a new life."
+                }
+              },
+              {
+                "id": "bad_end",
+                "type": "bad",
+                "condition": {
+                  "ru": "поддаться угрозам и уничтожить доказательства",
+                  "en": "succumb to threats and destroy the evidence"
+                },
+                "description": {
+                  "ru": "Комиссар остаётся у власти. Лабиринт поглощает новых людей. Даниил живёт с тяжестью сделанного выбора, зная, что упустил шанс спасти сестру.",
+                  "en": "The commissioner stays in power. The labyrinth consumes more people. Daniil lives with the weight of his choice, knowing he missed the chance to save his sister."
+                }
+              }
+            ]
+          },
+          "is_public": true,
+          "is_free": true,
+          "is_preset": true,
+          "created_at": "2025-08-01T12:10:00Z",
+          "story_desc": {
+            "ru": "Синестезия детектива позволяет видеть ложь как цвет, но он оказывается втянут в дело, где правда слишком опасна.",
+            "en": "A detective whose synesthesia lets him see lies as colors becomes embroiled in a case where the truth is too dangerous."
+          },
+          "genre": "Detective"
+        }
+      ]
+    },
+    {
+      "id": "58491382-db51-41c1-bfc1-feb37231f4ab",
+      "user_id": null,
+      "title": {
+        "ru": "Остров Пепла",
+        "en": "Island of Ashes"
+      },
+      "world_desc": {
+        "ru": "Утопический туристический остров превращается в серую wasteland после внезапного извержения вулкана. Немногие выжившие укрываются в подземных бункерах, где всё больше растёт напряжение из‑за дефицита еды и кислорода. Внешний мир непригоден для жизни, но многие не верят в это.",
+        "en": "A utopian tourist island turns into a gray wasteland after a sudden volcanic eruption. The few survivors take shelter in underground bunkers where tension grows due to dwindling food and oxygen. The outside world is uninhabitable, but many refuse to believe it."
+      },
+      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/drama/Drama_world_.png",
+      "is_free": true,
+      "is_preset": true,
+      "created_at": "2025-08-01T12:00:00Z",
+      "stories": [
+        {
+          "id": "a816aa7c-e0f6-4788-abf3-5ed7cd7ff9dc",
+          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/drama/Drama_story.png",
+          "user_id": null,
+          "title": {
+            "ru": "Пепел Надежды",
+            "en": "Ash of Hope"
+          },
+          "visual_style": "A dramatic digital painting of a volcanic wasteland with an ominous smoking mountain and a hidden bunker door, muted colors and oppressive atmosphere.",
+          "character": {
+            "char_desc": {
+              "ru": "Алина Мороз, 30 лет, медсестра. Заботливая и решительная, скрывает секрет: она знала о нестабильности вулкана, но не предупредила соседей, желая спасти семью. Её мотивирует вина и желание искупить свою ошибку, защищая выживших.",
+              "en": "Alina Moroz, 30, a nurse. Caring and determined, she hides a secret: she knew about the volcano's instability but didn't warn her neighbors in order to save her family. She is motivated by guilt and a desire to atone by protecting the survivors."
+            }
+          },
+          "story_frame": {
+            "lore": {
+              "ru": "В бункере выжившие делят ограниченные ресурсы. На поверхности появляются радио сообщения о спасении, но они могут быть ложными.",
+              "en": "In the bunker the survivors divide limited resources. On the surface there are radio transmissions about rescue, but they may be false."
+            },
+            "goal": {
+              "ru": "Сохранить единство группы и принять правильное решение — остаться или выйти на поверхность.",
+              "en": "Maintain group unity and make the right decision—stay or go to the surface."
+            },
+            "milestones": [
+              {
+                "id": "m1",
+                "description": {
+                  "ru": "Успокоить конфликт между двумя семьями, борющимися за воду.",
+                  "en": "Defuse a conflict between two families fighting for water."
+                }
+              },
+              {
+                "id": "m2",
+                "description": {
+                  "ru": "Поймать случайную передачу по радио и выяснить, откуда она исходит.",
+                  "en": "Catch a random radio transmission and determine where it originates."
+                }
+              },
+              {
+                "id": "m3",
+                "description": {
+                  "ru": "Признаться группе в своей тайне перед решающим голосованием.",
+                  "en": "Confess her secret to the group before the decisive vote."
+                }
+              }
+            ],
+            "endings": [
+              {
+                "id": "good_end",
+                "type": "good",
+                "condition": {
+                  "ru": "сплотить людей и выбрать правильный момент для выхода",
+                  "en": "unite the people and choose the right moment to exit"
+                },
+                "description": {
+                  "ru": "Алина признаётся, и её искренность вдохновляет всех. Они выходят, когда облако рассеялось. Остров оживает, и группа начинает восстанавливать общину.",
+                  "en": "Alina confesses and her honesty inspires everyone. They emerge when the ash cloud has cleared. The island begins to revive and the group starts rebuilding the community."
+                }
+              },
+              {
+                "id": "bad_end",
+                "type": "bad",
+                "condition": {
+                  "ru": "не признаться и позволить страху править",
+                  "en": "fail to confess and let fear rule"
+                },
+                "description": {
+                  "ru": "Подозрения разрушат доверие. Группа делится, и одна часть выходит слишком рано, погибая. Оставшиеся узнают правду поздно и винят Алину, живя в отчуждении.",
+                  "en": "Suspicion destroys trust. The group splits and one part goes out too soon and dies. The remaining learn the truth too late and blame Alina, living in alienation."
+                }
+              }
+            ]
+          },
+          "is_public": true,
+          "is_free": true,
+          "is_preset": true,
+          "created_at": "2025-08-01T12:10:00Z",
+          "story_desc": {
+            "ru": "Надежда и отчаяние сталкиваются в замкнутом бункере, где героиня пытается сохранить человечность, когда всё рушится.",
+            "en": "Hope and despair collide in a sealed bunker where the heroine struggles to maintain humanity as everything crumbles."
+          },
+          "genre": "Drama"
+        }
+      ]
+    },
+    {
+      "id": "64c46dfb-358f-4a86-ae55-2f7aa9b611b6",
+      "user_id": null,
+      "title": {
+        "ru": "Стальная Арена",
+        "en": "Steel Arena"
+      },
+      "world_desc": {
+        "ru": "В постапокалиптическом мегаполисе крупные корпорации превратили борьбу за выживание в зрелище. Огромная арена из стали и бетона стоит среди руин, где гладиаторы сражаются за свободу под рев толпы и голографическую трансляцию.",
+        "en": "In a post‑apocalyptic megacity, corporations have turned the fight for survival into a spectacle. A massive arena of steel and concrete rises among the ruins, where gladiators fight for freedom under the roar of the crowd and holographic broadcasts."
+      },
+      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/action/Action_world.png",
+      "is_free": true,
+      "is_preset": true,
+      "created_at": "2025-08-01T12:00:00Z",
+      "stories": [
+        {
+          "id": "b9030940-d097-4cc7-a9ea-27e05f32bb2c",
+          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/action/Action_story.png",
+          "user_id": null,
+          "title": {
+            "ru": "Кровь и Искра",
+            "en": "Blood and Spark"
+          },
+          "visual_style": "A gritty digital painting of a dystopian gladiator arena lit by fiery skies, with silhouettes of fighters in combat and towering industrial structures; intense and dynamic.",
+          "character": {
+            "char_desc": {
+              "ru": "Максим 'Макс' Корнев, 29 лет, бывший солдат сопротивления. Сильный, импульсивный и преданный семье. Его сестра похищена корпорацией в качестве заложника. Его мотивация — спасти её и разрушить систему, воспользовавшись силой толпы.",
+              "en": "Maxim 'Max' Kornev, 29, a former resistance soldier. Strong, impulsive and loyal to his family. His sister has been taken hostage by the corporation. His motivation is to save her and tear down the system by using the power of the crowd."
+            }
+          },
+          "story_frame": {
+            "lore": {
+              "ru": "Арена – сердце мегаполиса. Победителю обещают свободу, но мало кто выходит живым. Корпорации делают ставки на жизни.",
+              "en": "The arena is the heart of the megacity. Freedom is promised to the winner, but few leave alive. Corporations bet on lives."
+            },
+            "goal": {
+              "ru": "Выиграть серию смертельных боёв, обнажить коррупцию корпорации и освободить сестру.",
+              "en": "Win a series of deadly matches, expose the corporation's corruption and free his sister."
+            },
+            "milestones": [
+              {
+                "id": "m1",
+                "description": {
+                  "ru": "Пережить первый бой, применяя тактику, а не только силу.",
+                  "en": "Survive the first fight using tactics rather than just strength."
+                }
+              },
+              {
+                "id": "m2",
+                "description": {
+                  "ru": "Найти союзников среди других гладиаторов и организовать бунт.",
+                  "en": "Find allies among other gladiators and organize an uprising."
+                }
+              },
+              {
+                "id": "m3",
+                "description": {
+                  "ru": "Сразиться с фаворитом корпорации на публике, одновременно транслируя компромат.",
+                  "en": "Fight the corporation's champion in public while simultaneously broadcasting evidence of wrongdoing."
+                }
+              }
+            ],
+            "endings": [
+              {
+                "id": "good_end",
+                "type": "good",
+                "condition": {
+                  "ru": "победить чемпиона и раскрыть правду во время трансляции",
+                  "en": "defeat the champion and reveal the truth during the broadcast"
+                },
+                "description": {
+                  "ru": "Толпа восстаёт, тюрьмы открываются, и Макс освобождает свою сестру. Корпорация падает, а арена становится местом памяти.",
+                  "en": "The crowd rises up, the prisons open and Max frees his sister. The corporation falls and the arena becomes a place of remembrance."
+                }
+              },
+              {
+                "id": "bad_end",
+                "type": "bad",
+                "condition": {
+                  "ru": "проиграть решающий бой, не сумев передать данные",
+                  "en": "lose the decisive battle, failing to transmit the data"
+                },
+                "description": {
+                  "ru": "Макс погибает, а его сестра остаётся пленницей. Корпорация подавляет бунт, ужесточая контроль. История Макса становится мрачной легендой.",
+                  "en": "Max dies and his sister remains a prisoner. The corporation suppresses the uprising, tightening control. Max's story becomes a grim legend."
+                }
+              }
+            ]
+          },
+          "is_public": true,
+          "is_free": true,
+          "is_preset": true,
+          "created_at": "2025-08-01T12:10:00Z",
+          "story_desc": {
+            "ru": "Бывший солдат вступает на арену, чтобы выиграть свободу для себя и своей сестры, но понимает, что это – не только бой, но и революция.",
+            "en": "A former soldier enters the arena to win freedom for himself and his sister, only to realize it's not just a fight but a revolution."
+          },
+          "genre": "Action"
+        }
+      ]
+    }
+  ]
+}

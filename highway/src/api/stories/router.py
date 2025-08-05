@@ -32,6 +32,8 @@ class StoryCreate(BaseModel):
     title: dict | None = None
     story_desc: dict | None = None
     genre: str | None = None
+    visual_style: dict | None = None
+    npc_characters: list[dict] | None = None
     character: dict | None = None
     story_frame: dict | None = None
     is_public: bool | None = None

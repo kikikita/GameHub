@@ -17,7 +17,7 @@ export function Topbar({ selectedScreen }: TopbarProps) {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border h-12 flex items-end justify-between px-4 pt-0 pb-4">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border h-12 flex items-end justify-between px-4 pt-0 pb-4">
         <span className="text-foreground text-2xl font-medium">
           {t(selectedScreen)}
         </span>
