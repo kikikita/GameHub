@@ -8,8 +8,8 @@
         "en": "Abyss of Shadows"
       },
       "world_desc": {
-        "ru": "Мрачный прибрежный городок, затерянный в густом тумане и резких скалах. Заброшенные дома, ржавые рыбацкие лодки, некогда яркий маяк теперь окружён легендами о сущности, пожирающей души. Ночью по улицам гуляют полупрозрачные силуэты, а море шепчет на забытом языке.",
-        "en": "A bleak coastal town lost in thick fog and jagged cliffs. Abandoned houses, rusty fishing boats and a once bright lighthouse now shrouded in legends of a soul‑devouring entity. At night translucent figures wander the streets and the sea whispers in a forgotten tongue."
+        "ru": "Мрачный прибрежный городок, затерянный в густом тумане и резких скалах.",
+        "en": "A bleak coastal town lost in thick fog and jagged cliffs."
       },
       "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/horror/Horror_world.png",
       "is_free": true,
@@ -110,8 +110,8 @@
         "en": "Gardens of Luminaria"
       },
       "world_desc": {
-        "ru": "Парящие острова, соединённые мостами из света, где цветы светятся собственным сиянием. В этом высокотехнологичном городе эмоции регулируются имплантами, а любовь считается болезнью. Скрытые сады служат прибежищем для тех, кто ищет подлинных чувств.",
-        "en": "Floating islands connected by bridges of light, where flowers glow with their own radiance. In this advanced city, emotions are regulated by implants and love is considered a disease. Hidden gardens serve as sanctuaries for those seeking genuine feelings."
+        "ru": "Парящие острова, соединённые мостами из света, где цветы светятся собственным сиянием.",
+        "en": "Floating islands connected by bridges of light, where flowers glow with their own radiance."
       },
       "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/romantic/Romantic_world.png",
       "is_free": true,
@@ -212,8 +212,8 @@
         "en": "Hidden Archipelago"
       },
       "world_desc": {
-        "ru": "Далеко в океане раскинулся архипелаг, скрытый плотными туманами и непредсказуемыми течениями. На островах спрятаны руины древней цивилизации, испещрённые ловушками и загадками, а легенды гласят, что под каждым островом спит механизм, управляющий погодой.",
-        "en": "Far out at sea lies an archipelago cloaked in heavy mists and unpredictable currents. The islands hide the ruins of an ancient civilization riddled with traps and puzzles, and legends say that beneath each island sleeps a mechanism that controls the weather."
+        "ru": "На островах спрятаны руины древней цивилизации, испещрённые ловушками и загадками.",
+        "en": "The islands hide the ruins of an ancient civilization riddled with traps and puzzles."
       },
       "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/adventure/Adventure_world.png",
       "is_free": true,
@@ -314,8 +314,8 @@
         "en": "Station Eos"
       },
       "world_desc": {
-        "ru": "На краю чёрной дыры парит научная станция Эос – автономный городок в космосе. Здесь ученые занимаются исследованиями времени и гравитации, испытывая влияние сингулярности. Жизнь подчинена строгому графику, а системы безопасности управляются ИИ Сентинелом.",
-        "en": "Hovering at the edge of a black hole is the scientific outpost Eos—an autonomous city in space. Scientists here study time and gravity, experimenting with the effects of the singularity. Life is governed by a strict schedule, and security systems are controlled by the Sentinel AI."
+        "ru": "На краю чёрной дыры парит научная станция Эос – автономный городок в космосе.",
+        "en": "Hovering at the edge of a black hole is the scientific outpost Eos—an autonomous city in space."
       },
       "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/sci-fi/Sci-Fi_world.png",
       "is_free": true,
@@ -416,8 +416,8 @@
         "en": "Labyrinth City"
       },
       "world_desc": {
-        "ru": "Мегаполис, построенный как лабиринт, где улицы меняют направление, а дома растут один на другом. Здесь постоянно идёт дождь, и неоновые вывески отражаются в лужах. Каждая тень скрывает тайну, а закон преподносит сюрпризы.",
-        "en": "A metropolis built like a labyrinth where streets change direction and houses grow atop each other. It is constantly raining and neon signs reflect in the puddles. Every shadow hides a secret and the law delivers surprises."
+        "ru": "Мегаполис, построенный как лабиринт. Каждая тень скрывает тайну, а закон преподносит сюрпризы.",
+        "en": "A metropolis built like a labyrinth. Every shadow hides a secret and the law delivers surprises."
       },
       "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/detective/Detective_world_.png",
       "is_free": true,
@@ -518,8 +518,8 @@
         "en": "Island of Ashes"
       },
       "world_desc": {
-        "ru": "Утопический туристический остров превращается в серую wasteland после внезапного извержения вулкана. Немногие выжившие укрываются в подземных бункерах, где всё больше растёт напряжение из‑за дефицита еды и кислорода. Внешний мир непригоден для жизни, но многие не верят в это.",
-        "en": "A utopian tourist island turns into a gray wasteland after a sudden volcanic eruption. The few survivors take shelter in underground bunkers where tension grows due to dwindling food and oxygen. The outside world is uninhabitable, but many refuse to believe it."
+        "ru": "Утопический туристический остров превращается в серую пустошь после внезапного извержения вулкана.",
+        "en": "A utopian tourist island turns into a gray wasteland after a sudden volcanic eruption."
       },
       "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/drama/Drama_world_.png",
       "is_free": true,
@@ -620,8 +620,8 @@
         "en": "Steel Arena"
       },
       "world_desc": {
-        "ru": "В постапокалиптическом мегаполисе крупные корпорации превратили борьбу за выживание в зрелище. Огромная арена из стали и бетона стоит среди руин, где гладиаторы сражаются за свободу под рев толпы и голографическую трансляцию.",
-        "en": "In a post‑apocalyptic megacity, corporations have turned the fight for survival into a spectacle. A massive arena of steel and concrete rises among the ruins, where gladiators fight for freedom under the roar of the crowd and holographic broadcasts."
+        "ru": "В постапокалиптическом мегаполисе крупные корпорации превратили борьбу за выживание в зрелище.",
+        "en": "In a post‑apocalyptic megacity, corporations have turned the fight for survival into a spectacle."
       },
       "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/action/Action_world.png",
       "is_free": true,
