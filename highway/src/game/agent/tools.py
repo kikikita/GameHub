@@ -176,4 +176,14 @@ async def check_ending(
         endings=",".join(f"{e.id}:{e.condition}" for e in state.story_frame.endings),
     )
     resp: EndingCheckResult = await with_retries(lambda: llm.ainvoke(prompt))
+
+    if resp.ending_reached and resp.ending is not None:
+        # Use the ending definition from the original story frame so the
+        # description and other fields are accurate instead of the LLM's guess.
+        ending = next(
+            (e for e in state.story_frame.endings if e.id == resp.ending.id),
+            resp.ending,
+        )
+        resp.ending = ending
+
     return resp
