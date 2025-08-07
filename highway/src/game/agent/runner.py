@@ -41,7 +41,7 @@ async def process_step(
     next_scene_task = generate_scene_step(choice_text, state)
     maybe_ending, next_scene = await asyncio.gather(ending_task, next_scene_task)
 
-    if maybe_ending.ending_reached:
+    if maybe_ending.ending_reached and maybe_ending.ending is not None:
         state.ending = maybe_ending.ending
         scene = await generate_ending_scene(state, maybe_ending.ending)
 
@@ -51,6 +51,10 @@ async def process_step(
             ending=maybe_ending.ending,
         )
     else:
+        if maybe_ending.ending_reached and maybe_ending.ending is None:
+            logger.error(
+                "Ending was reported as reached but no ending data was provided; continuing the game"
+            )
         response = SceneResponse(
             scene=next_scene,
             game_over=False,
