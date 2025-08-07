@@ -26,6 +26,7 @@ class Bots:
     app_url: str
     web_url: str
     debug: bool
+    service_chat: int
 
 
 @dataclass
@@ -49,7 +50,8 @@ def get_settings(path: str) -> Settings:
             admin_id=[int(x) for x in env.list("ADMIN_ID")],
             app_url=env.str("APP_URL", "http://highway:8000"),
             web_url=env.str("WEB_URL", "https://app.immersia.fun/"),
-            debug=env.bool("DEBUG", False)
+            debug=env.bool("DEBUG", False),
+            service_chat=env.int("SERVICE_CHAT"),
         ),
         create_story_cost=env.int("CREATE_STORY_COST", 5),
     )
