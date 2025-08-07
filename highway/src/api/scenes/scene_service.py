@@ -101,6 +101,8 @@ async def create_and_store_scene(
         initial_scene = await generate_initial_scene(state)
         result = SceneResponse(scene=initial_scene, game_over=False)
     else:
+        if choice_text is None:
+            raise ValueError("choice_text_required")
         logger.info("[Runner] Step %s for user %s", state.current_scene_id, user_hash)
         result = await process_step(state, choice_text)
 
@@ -110,6 +112,23 @@ async def create_and_store_scene(
             db.add(session)
             await db.commit()
             await db.refresh(session)
+
+            # Persist generated story frame and related data to the Story
+            if story:
+                story.story_frame = state.story_frame.model_dump()
+                if state.story_frame.visual_style:
+                    current_style = story.visual_style or {}
+                    if not isinstance(current_style, dict):
+                        current_style = {}
+                    current_style[state.language] = state.story_frame.visual_style
+                    story.visual_style = current_style
+                if state.story_frame.npc_characters:
+                    story.npc_characters = [
+                        c.model_dump() for c in state.story_frame.npc_characters
+                    ]
+                db.add(story)
+                await db.commit()
+                await db.refresh(story)
 
     if result.game_over:
         ending = result.ending
