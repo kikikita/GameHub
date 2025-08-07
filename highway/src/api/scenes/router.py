@@ -42,12 +42,17 @@ async def generate_scene(
         story = await db.get(Story, res.story_id)
         if story:
             await db.refresh(story, ["world"])
-    scene = await create_and_store_scene(
-        db,
-        res,
-        payload.choice_text if payload else None,
-        story,
-    )
+    try:
+        scene = await create_and_store_scene(
+            db,
+            res,
+            payload.choice_text if payload else None,
+            story,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
     return scene_to_out(scene)
 
 
@@ -65,6 +70,10 @@ async def choose_and_generate(
     """Generate the next scene using the chosen option."""
     user_id = await resolve_user_id(tg_id, db)
     user = await db.get(User, user_id)
+    if payload.choice_text is None:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY, detail="choice_text_required"
+        )
     cost = payload.energy_cost or 1
     if not user or user.energy < cost:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="not_enough_energy")

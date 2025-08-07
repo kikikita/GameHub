@@ -27,19 +27,30 @@ async def create_session(
     """Create a new gameplay session."""
 
     user_id = await resolve_user_id(tg_id, db)
-    story_id = (
-        uuid.UUID(payload.story_id) if payload.story_id else None
-    )
+    story_id = uuid.UUID(payload.story_id) if payload.story_id else None
+
+    # For custom sessions without explicit story_id, use the most recently
+    # created story of the user. This prevents mixing prompts and descriptions
+    # from different stories in one session.
+    if story_id is None:
+        res = await db.execute(
+            select(Story.id)
+            .where(Story.user_id == user_id)
+            .order_by(Story.created_at.desc())
+        )
+        story_id = res.scalars().first()
+        if not story_id:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="story_not_found")
+
     session_obj = GameSession(user_id=user_id, story_id=story_id)
     db.add(session_obj)
     await db.commit()
     await db.refresh(session_obj)
 
-    if story_id:
-        story = await db.get(Story, story_id)
-        if story:
-            await db.refresh(story, ["world"])
-            await create_and_store_scene(db, session_obj, None, story)
+    story = await db.get(Story, story_id)
+    if story:
+        await db.refresh(story, ["world"])
+        await create_and_store_scene(db, session_obj, None, story)
 
     return SessionOut(
         id=str(session_obj.id),
