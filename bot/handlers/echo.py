@@ -3,11 +3,12 @@
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
+from filters.chat_filters import ChatTypeFilter
 
 router = Router()
 
 
-@router.message(F.text)
+@router.message(F.text, ChatTypeFilter(chat_type=["private"]))
 async def unknown_message(message: Message, state: FSMContext):
     """Reply when user input is not recognized by any handler."""
 

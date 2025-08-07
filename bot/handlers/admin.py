@@ -1,11 +1,11 @@
 """Administrative bot command handlers."""
 
 import httpx
-from aiogram import Router
+from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from filters.chat_filters import AdminFilter
+from filters.chat_filters import AdminFilter, ChatTypeFilter
 from settings import settings
 
 
@@ -34,7 +34,8 @@ async def admin_cmd(msg: Message):
         "/change_plan_pro - Включить Pro\n"
         "/change_plan_free - Включить Free\n"        
         "/grant_wishes - Выдать желания пользователю\n"
-        "/upload_presets - Загрузить пресеты из JSON"
+        "/upload_presets - Загрузить пресеты из JSON\n"
+        "/chat_info - Получить информацию о чате\n"
     )
     await msg.answer(txt)
 
@@ -126,3 +127,9 @@ async def grant_wishes_cmd(message: Message):
         await message.answer("✅ Желания успешно выданы")
     else:
         await message.answer(f"❌ Ошибка: {resp.text}")
+
+
+@router.message(AdminFilter(), Command(commands=["chat_info"]))
+async def get_chat_info(message: Message, bot: Bot):
+    await message.answer(f'Chat_id: {message.chat.id}')
+    await message.delete()
