@@ -120,12 +120,6 @@ async def _import_presets(db: AsyncSession, data: dict) -> None:
     if not isinstance(data, dict) or "worlds" not in data:
         raise ValueError("invalid structure")
 
-    # Remove previously imported preset data so that the JSON file can be
-    # treated as the single source of truth. Because several tables are
-    # linked together via foreign keys, we have to remove the dependent
-    # records (choices -> scenes -> sessions) before deleting stories and
-    # worlds to avoid integrity errors.
-
     preset_story_ids = (
         select(Story.id).where(Story.is_preset.is_(True)).scalar_subquery()
     )
