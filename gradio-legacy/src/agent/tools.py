@@ -171,7 +171,13 @@ async def check_ending(
     )
     resp: EndingCheckResult = await with_retries(lambda: llm.ainvoke(prompt))
     if resp.ending_reached and resp.ending:
-        state.ending = resp.ending
+        # Look up the full ending details from the story frame so that the
+        # description returned to the player matches the original design.
+        ending = next(
+            (e for e in state.story_frame.endings if e.id == resp.ending.id),
+            resp.ending,
+        )
+        state.ending = ending
         await set_user_state(user_hash, state)
-        return {"ending_reached": True, "ending": resp.ending.dict()}
+        return {"ending_reached": True, "ending": ending.dict()}
     return {"ending_reached": False}
