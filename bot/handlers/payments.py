@@ -14,6 +14,22 @@ http_client = httpx.AsyncClient(
     timeout=httpx.Timeout(60.0),
 )
 
+
+async def notify_service(msg: types.Message, item: str, success: bool = True) -> None:
+    """Send a purchase notification to the service chat."""
+    user = msg.from_user
+    username = f"@{user.username}" if user.username else user.full_name
+    amount = msg.successful_payment.total_amount / 100
+    currency = msg.successful_payment.currency
+    title = "💸 <b>New purchase</b>" if success else "❌ <b>Purchase failed</b>"
+    text = (
+        f"{title}\n"
+        f"👤 {username} (id: {user.id})\n"
+        f"📦 {item}\n"
+        f"💰 {amount} {currency}"
+    )
+    await msg.bot.send_message(settings.bots.service_chat, text, parse_mode="HTML")
+
 @router.pre_checkout_query()
 async def pre_checkout(pcq: types.PreCheckoutQuery):
     if pcq.invoice_payload.startswith("wishes"):
@@ -70,6 +86,9 @@ async def wishes_paid(msg: types.Message):
             "Something went wrong with your payment. Please contact our support 🙏",
             parse_mode="Markdown",
         )
+        bundle_id = msg.successful_payment.invoice_payload.split(":", 1)[0]
+        pretty = bundle_id.replace("_", " ").title()
+        await notify_service(msg, f"Wishes bundle: {pretty}", success=False)
     else:
         logger.info(f"Payment confirmed for {msg.from_user.id}!")
         await msg.answer(
@@ -80,6 +99,9 @@ async def wishes_paid(msg: types.Message):
             ),
             parse_mode="Markdown",
         )
+        bundle_id = msg.successful_payment.invoice_payload.split(":", 1)[0]
+        pretty = bundle_id.replace("_", " ").title()
+        await notify_service(msg, f"Wishes bundle: {pretty}")
         
 async def subscription_paid(msg: types.Message):
     resp = await http_client.post("/api/v1/subscription/confirm/", json={"invoice_payload": msg.successful_payment.invoice_payload})
@@ -89,6 +111,9 @@ async def subscription_paid(msg: types.Message):
             "Something went wrong with your payment. Please contact our support 🙏",
             parse_mode="Markdown",
         )
+        plan_id = msg.successful_payment.invoice_payload.split(":", 1)[0]
+        pretty = plan_id.replace("_", " ").title()
+        await notify_service(msg, f"Subscription plan: {pretty}", success=False)
     else:
         logger.info(f"Payment confirmed for {msg.from_user.id}!")
         await msg.answer(
@@ -99,3 +124,6 @@ async def subscription_paid(msg: types.Message):
             ),
             parse_mode="Markdown",
         )
+        plan_id = msg.successful_payment.invoice_payload.split(":", 1)[0]
+        pretty = plan_id.replace("_", " ").title()
+        await notify_service(msg, f"Subscription plan: {pretty}")
