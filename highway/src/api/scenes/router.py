@@ -11,6 +11,7 @@ from src.models.scene import Scene
 from src.models.game_session import GameSession
 from src.models.story import Story
 from src.models.user import User
+from src.models.subscription import Subscription
 from .schemas import SceneCreate, SceneOut, scene_to_out
 from .scene_service import create_and_store_scene
 from src.api.utils import resolve_user_id
@@ -75,11 +76,18 @@ async def choose_and_generate(
             status.HTTP_422_UNPROCESSABLE_ENTITY, detail="choice_text_required"
         )
     cost = payload.energy_cost or 1
-    if not user or user.energy < cost:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="not_enough_energy")
-    user.energy -= cost
-    await db.commit()
-    await db.refresh(user)
+    sub_res = await db.execute(
+        select(Subscription).where(
+            Subscription.user_id == user_id, Subscription.status == "active"
+        )
+    )
+    subscription = sub_res.scalars().first()
+    if not subscription:
+        if not user or user.energy < cost:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, detail="not_enough_energy")
+        user.energy -= cost
+        await db.commit()
+        await db.refresh(user)
     payload_dict = payload.model_dump()
     payload_dict.pop("energy_cost", None)
     return await generate_scene(id, SceneCreate(**payload_dict), tg_id, db)

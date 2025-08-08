@@ -12,6 +12,7 @@ from src.models.subscription import Subscription
 from src.api.utils import resolve_user_id, ensure_admin
 from src.utils.tg_invoice import export_tg_invoice
 from src.models.user import User
+from src.cron import MAX_ENERGY
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +165,7 @@ async def confirm_subscription(
     user = await db.get(User, sub.user_id)
     if user and plan_data:
         user.wishes += plan_data.wishes
+        user.energy = MAX_ENERGY
 
     sub.status = "active"
     await db.commit()

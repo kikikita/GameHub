@@ -6,7 +6,7 @@ from typing import Literal, Optional, Union
 import datetime
 import asyncio
 from pydantic import BaseModel
-from src.game.agent.models import Ending, Scene, UserState, UserChoice
+from src.game.agent.models import Ending, EndingCheckResult, Scene, UserState, UserChoice
 from src.game.agent.tools import check_ending, generate_ending_scene, generate_scene_step
 
 logger = logging.getLogger(__name__)
@@ -40,6 +40,10 @@ async def process_step(
     ending_task = check_ending(state)
     next_scene_task = generate_scene_step(choice_text, state)
     maybe_ending, next_scene = await asyncio.gather(ending_task, next_scene_task)
+
+    if maybe_ending is None:
+        logger.error("check_ending returned None; continuing the game")
+        maybe_ending = EndingCheckResult(ending_reached=False, ending=None)
 
     if maybe_ending.ending_reached and maybe_ending.ending is not None:
         state.ending = maybe_ending.ending
