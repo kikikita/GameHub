@@ -33,7 +33,8 @@ async def admin_cmd(msg: Message):
         "/status - Статус подписки\n"
         "/change_plan_pro - Включить Pro\n"
         "/change_plan_free - Включить Free\n"        
-        "/grant_wishes - Выдать желания пользователю\n"
+        "/grant_wishes - Установить желания пользователю\n"
+        "/grant_energy - Установить энергию пользователю\n"
         "/upload_presets - Загрузить пресеты из JSON\n"
         "/chat_info - Получить информацию о чате\n"
     )
@@ -99,7 +100,7 @@ async def change_plan_cmd(message: Message):
 
 @router.message(AdminFilter(), Command("grant_wishes"))
 async def grant_wishes_cmd(message: Message):
-    """Grant wishes to a user by their Telegram username.
+    """Set wishes for a user by their Telegram username.
 
     Usage: /grant_wishes <username> <count>
     """
@@ -124,7 +125,39 @@ async def grant_wishes_cmd(message: Message):
     )
 
     if resp.status_code == 200:
-        await message.answer("✅ Желания успешно выданы")
+        await message.answer("✅ Количество желаний установлено")
+    else:
+        await message.answer(f"❌ Ошибка: {resp.text}")
+
+
+@router.message(AdminFilter(), Command("grant_energy"))
+async def grant_energy_cmd(message: Message):
+    """Set energy for a user by their Telegram username.
+
+    Usage: /grant_energy <username> <count>
+    """
+
+    parts = message.text.split()
+    if len(parts) < 3:
+        await message.answer("Использование: /grant_energy <username> <count>")
+        return
+
+    username = parts[1].lstrip("@")
+    try:
+        energy = int(parts[2])
+    except ValueError:
+        await message.answer("Количество энергии должно быть числом")
+        return
+
+    url = "/api/v1/admin/grant_energy/"
+    resp = await client.post(
+        url,
+        json={"username": username, "energy": energy},
+        headers={"X-User-Id": str(message.from_user.id)},
+    )
+
+    if resp.status_code == 200:
+        await message.answer("✅ Количество энергии установлено")
     else:
         await message.answer(f"❌ Ошибка: {resp.text}")
 
