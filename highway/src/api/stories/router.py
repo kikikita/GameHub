@@ -17,7 +17,7 @@ from src.models.user import User
 from src.models.game_session import GameSession
 from src.models.scene import Scene
 from src.models.choice import Choice
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/api/v1", tags=["stories"])
 
@@ -38,7 +38,7 @@ class StoryCreate(BaseModel):
     visual_style: dict | None = None
     npc_characters: list[dict] | None = None
     character: dict | None = None
-    story_frame: dict | None = None
+    story_frame: dict | None = Field(default=None, exclude=True)
     is_public: bool | None = None
     is_free: bool | None = None
 
