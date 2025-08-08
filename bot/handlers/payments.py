@@ -12,6 +12,9 @@ router = Router()
 http_client = httpx.AsyncClient(
     base_url=settings.bots.app_url,
     timeout=httpx.Timeout(60.0),
+    headers={
+        "X-Server-Auth": settings.bots.server_auth_token.get_secret_value()
+    },
 )
 
 

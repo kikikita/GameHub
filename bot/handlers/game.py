@@ -504,9 +504,20 @@ async def make_choice(call: CallbackQuery, state: FSMContext):
     )
 
 
-@router.message(GamePlay.waiting_choice)
+@router.message(
+    GamePlay.waiting_choice,
+    F.text,
+    ~F.text.startswith("/"),
+    ~F.invoice,
+    ~F.successful_payment,
+)
 async def choice_text(message: Message, state: FSMContext):
-    """Handle text choice input during gameplay."""
+    """Handle text choice input during gameplay.
+
+    The extra filters ensure that payment- or command-related messages are
+    processed by their dedicated handlers rather than being interpreted as a
+    story choice when the user is in ``waiting_choice`` state.
+    """
     lang = await get_user_language(message.from_user.id)
     choice = message.text
     data = await state.get_data()
