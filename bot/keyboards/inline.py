@@ -30,11 +30,12 @@ def setup_keyboard(
     kb.button(text=t(lang, "setup_setting"), callback_data="edit:story_desc")
     kb.button(text=t(lang, "setup_char"), callback_data="edit:char_desc")
     kb.button(text=t(lang, "setup_genre"), callback_data="edit:genre")
+    kb.button(text=t(lang, "setup_visual_style"), callback_data="edit:visual_style")
     kb.button(
         text=t(lang, "create_story_btn", cost=wishes_cost),
         callback_data="start_game",
     )
-    kb.adjust(3, 1)
+    kb.adjust(2, 2, 1)
     return kb.as_markup()
 
 

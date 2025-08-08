@@ -83,7 +83,8 @@ def _build_setup_text(data: dict, lang: str) -> str:
         f"{data.get('story_settings') or '🎲 Story settings'}:      \n\n"
         f"{t(lang, 'label_setting_desc')}:\n{data.get('story_desc') or '-'}\n\n"
         f"{t(lang, 'label_char')}:\n{data.get('char_desc') or '-'}\n\n"
-        f"{t(lang, 'label_genre')}: {data.get('genre') or '-'}"
+        f"{t(lang, 'label_genre')}: {data.get('genre') or '-'}\n\n"
+        f"{t(lang, 'label_visual_style')}:\n{data.get('visual_style') or '-'}"
     )
 
 
@@ -186,6 +187,7 @@ async def edit_field(call: CallbackQuery, state: FSMContext):
         "story_desc": t(lang, "enter_setting_desc"),
         "char_desc": t(lang, "enter_char_desc"),
         "genre": t(lang, "enter_genre"),
+        "visual_style": t(lang, "enter_visual_style"),
     }
     msg = await call.message.answer(
         prompts[field],
@@ -256,7 +258,7 @@ async def start_game(call: CallbackQuery, state: FSMContext):
                     "char_desc": {lang: template.get("char_desc")},
                 },
                 "npc_characters": [],
-                "visual_style": {lang: template.get("visual_style")},
+                "visual_style": template.get("visual_style"),
                 "is_free": False,
             },
             headers={"X-User-Id": str(call.from_user.id)},

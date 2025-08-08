@@ -29,13 +29,14 @@ class StoryOut(BaseModel):
     story_desc: str | None = None
     genre: str | None = None
     image_url: str | None = None
+    visual_style: str | None = None
 
 
 class StoryCreate(BaseModel):
     title: dict | None = None
     story_desc: dict | None = None
     genre: str | None = None
-    visual_style: dict | None = None
+    visual_style: str | None = None
     npc_characters: list[dict] | None = None
     character: dict | None = None
     story_frame: dict | None = Field(default=None, exclude=True)
@@ -51,6 +52,7 @@ def story_to_out(story: Story, lang: str) -> StoryOut:
         story_desc=get_localized(story.story_desc, lang),
         genre=story.genre,
         image_url=story.image_url,
+        visual_style=story.visual_style,
     )
 
 
@@ -103,8 +105,8 @@ async def create_story(
     if not world:
         world = World(
             user_id=user_id,
-            title=payload.title,
-            world_desc=payload.story_desc,
+            title={"en": "User's world", "ru": "User's world"},
+            world_desc={"en": "-", "ru": "-"},
         )
         db.add(world)
         await db.flush()

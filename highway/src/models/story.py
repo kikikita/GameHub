@@ -27,7 +27,7 @@ class Story(Base):
     genre: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     character: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    visual_style: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    visual_style: Mapped[str | None] = mapped_column(Text, nullable=True)
     npc_characters: Mapped[list[dict] | None] = mapped_column(JSONB, nullable=True)
     story_frame: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     is_public: Mapped[bool] = mapped_column(Boolean, default=False)

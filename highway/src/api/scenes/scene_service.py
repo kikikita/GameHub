@@ -41,7 +41,7 @@ async def create_and_store_scene(
                 and session.story
             ):
                 await db.refresh(session.story, ["world"])
-                sf_data.setdefault("setting", session.story.world.world_desc)
+                sf_data.setdefault("setting", session.story.story_desc)
                 sf_data.setdefault("character", session.story.character or {})
                 sf_data.setdefault("genre", session.story.genre)
             sf_data.setdefault("language", state.language)
@@ -50,7 +50,7 @@ async def create_and_store_scene(
         elif session.story and session.story.story_frame:
             await db.refresh(session.story, ["world"])
             sf_data = dict(session.story.story_frame)
-            sf_data.setdefault("setting", session.story.world.world_desc)
+            sf_data.setdefault("setting", session.story.story_desc)
             sf_data.setdefault("npc_characters", session.story.npc_characters or [])
             sf_data.setdefault("character", session.story.character or {})
             sf_data.setdefault("visual_style", session.story.visual_style)
@@ -84,14 +84,13 @@ async def create_and_store_scene(
                 await db.refresh(story, ["world"])
         if not story:
             raise ValueError("Story not found for session")
-        world = story.world
         if not state.story_frame:
             story_frame = await generate_story_frame(
-                setting=get_localized(world.world_desc, state.language),
+                setting=get_localized(story.story_desc, state.language),
                 character=get_localized(story.character or {}, state.language),
                 genre=story.genre,
                 language=state.language,
-                visual_style=get_localized(story.visual_style, state.language),
+                visual_style=story.visual_style or "",
                 npc_characters=story.npc_characters or [],
             )
             state.story_frame = story_frame
@@ -109,7 +108,14 @@ async def create_and_store_scene(
     if order_num == 1 and not session.story_frame:
         if state.story_frame:
             session.story_frame = state.story_frame.model_dump(
-                exclude={"visual_style", "npc_characters"}
+                exclude={
+                    "visual_style",
+                    "npc_characters",
+                    "setting",
+                    "character",
+                    "genre",
+                    "language",
+                }
             )
             db.add(session)
             await db.commit()
@@ -118,14 +124,17 @@ async def create_and_store_scene(
             # Persist generated story frame and related data to the Story
             if story:
                 story.story_frame = state.story_frame.model_dump(
-                    exclude={"visual_style", "npc_characters"}
+                    exclude={
+                        "visual_style",
+                        "npc_characters",
+                        "setting",
+                        "character",
+                        "genre",
+                        "language",
+                    }
                 )
                 if state.story_frame.visual_style:
-                    current_style = story.visual_style or {}
-                    if not isinstance(current_style, dict):
-                        current_style = {}
-                    current_style[state.language] = state.story_frame.visual_style
-                    story.visual_style = current_style
+                    story.visual_style = state.story_frame.visual_style
                 if state.story_frame.npc_characters:
                     story.npc_characters = [
                         c.model_dump() for c in state.story_frame.npc_characters
