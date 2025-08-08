@@ -182,4 +182,3 @@ async def upload_presets(
     content = await file.read()
     data = json.loads(content.decode())
     await _import_presets(db, data)
-
