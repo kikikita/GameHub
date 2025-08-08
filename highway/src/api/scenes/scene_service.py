@@ -108,14 +108,18 @@ async def create_and_store_scene(
 
     if order_num == 1 and not session.story_frame:
         if state.story_frame:
-            session.story_frame = state.story_frame.model_dump()
+            session.story_frame = state.story_frame.model_dump(
+                exclude={"visual_style", "npc_characters"}
+            )
             db.add(session)
             await db.commit()
             await db.refresh(session)
 
             # Persist generated story frame and related data to the Story
             if story:
-                story.story_frame = state.story_frame.model_dump()
+                story.story_frame = state.story_frame.model_dump(
+                    exclude={"visual_style", "npc_characters"}
+                )
                 if state.story_frame.visual_style:
                     current_style = story.visual_style or {}
                     if not isinstance(current_style, dict):
