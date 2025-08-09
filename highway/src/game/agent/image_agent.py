@@ -82,7 +82,10 @@ async def generate_image_prompt(state: UserState, scene_description: str, last_c
         scene_description=scene_description,
         image_description=state.last_image_prompt or "No image description yet",
         visual_style=state.story_frame.visual_style,
-        npc_characters="\n".join(f"{c.char_name}: {c.visual_description}" for c in state.story_frame.npc_characters)
+        npc_characters="\n".join(
+            f"{c.char_name}: {c.visual_description}" for c in state.story_frame.npc_characters
+        ),
+        image_format=state.image_format,
     )
     
     image_prompt_generator_llm = create_light_llm(0.1).with_structured_output(ChangeScene)

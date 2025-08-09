@@ -33,6 +33,7 @@ async def create_and_store_scene(
     state = await get_user_state(user_hash)
     await db.refresh(session, ["user"])
     state.language = session.user.language or state.language or "en"
+    state.image_format = session.user.image_format or state.image_format or "vertical"
     if not state.story_frame:
         if session.story_frame:
             sf_data = dict(session.story_frame)

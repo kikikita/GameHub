@@ -23,6 +23,7 @@ Goal: {goal}
 Milestones: {milestones}
 Endings: {endings}
 World visual style: {visual_style}
+Image format: {image_format}
 NPC characters: {npc_characters}
 ---Game Settings END---
 

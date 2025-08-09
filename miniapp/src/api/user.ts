@@ -4,14 +4,16 @@ import { getInitData } from "@/telegram/init";
 
 export interface UserDTO {
   language: string | null;
+  image_format: string | null;
   wishes: number;
   energy: number;
 }
 
 interface User {
     language: string;
+    image_format: "vertical" | "horizontal";
     wishes: number;
-    energy: number; 
+    energy: number;
 }
 
 export function getUser(): Promise<User> {
@@ -25,6 +27,7 @@ export function getUser(): Promise<User> {
         if (!res.ok) {
             return {
                 language: "en",
+                image_format: "vertical",
                 wishes: 0,
                 energy: 0,
             }
@@ -33,6 +36,7 @@ export function getUser(): Promise<User> {
     }
   ).then<User>((data) => ({
     language: data.language ?? "en",
+    image_format: data.image_format ?? "vertical",
     wishes: data.wishes ?? 0,
     energy: data.energy ?? 0,
   }));
@@ -46,7 +50,8 @@ export function useUser() {
 }
 
 interface UserUpdate {
-  language: string;
+  language?: string;
+  image_format?: "vertical" | "horizontal";
 }
 
 export function updateUser(user: UserUpdate): Promise<User> {

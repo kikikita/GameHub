@@ -22,7 +22,7 @@ const languages: Record<string, string> = {
 export function SettingsPage() {
   const { t } = useTranslation('settings');
   const { data: { plan } } = useSubscriptionPlan();
-  const { data: { language } } = useUser();
+  const { data: { language, image_format } } = useUser();
   const { mutate: updateUser } = useUpdateUser();
 
   return (
@@ -65,6 +65,31 @@ export function SettingsPage() {
           </SelectContent>
         </Select>
       </section>
+
+      <section className="bg-background/60 backdrop-blur-sm border border-border rounded-2xl">
+        <Select
+          value={image_format}
+          onValueChange={(format) => {
+            updateUser({ image_format: format as "vertical" | "horizontal" });
+          }}
+        >
+          <SelectTrigger className="w-full flex items-center justify-between px-4 py-3 text-foreground text-sm focus:outline-none rounded-2xl bg-transparent border-none hover:bg-muted/10 [&>svg]:hidden cursor-pointer">
+            <span>{t("imageFormat")}</span>
+            <span className="flex items-center gap-1 text-muted-foreground">
+              <SelectValue placeholder={t(image_format)} />
+              <ChevronRight className="w-4 h-4" />
+            </span>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="vertical" className="cursor-pointer">
+              {t("vertical")}
+            </SelectItem>
+            <SelectItem value="horizontal" className="cursor-pointer">
+              {t("horizontal")}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </section>
     </div>
   );
-} 
+}

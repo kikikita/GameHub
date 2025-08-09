@@ -23,6 +23,7 @@ class User(Base):
     )
     username: Mapped[str | None] = mapped_column(Text, nullable=True)
     language: Mapped[str | None] = mapped_column(Text, nullable=True)
+    image_format: Mapped[str] = mapped_column(Text, nullable=False, default="vertical")
     energy: Mapped[int] = mapped_column(Integer, default=50)
     wishes: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(

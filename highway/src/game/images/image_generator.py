@@ -32,7 +32,7 @@ safety_settings = [
 image_negative_prompt = """"""
 
 
-async def generate_image(prompt: str) -> tuple[str, str] | None:
+async def generate_image(prompt: str, image_format: str) -> tuple[str, str] | None:
     """
     Generate an image using Google's Gemini model and save it to generated/images directory.
 
@@ -47,6 +47,7 @@ async def generate_image(prompt: str) -> tuple[str, str] | None:
     os.makedirs(output_dir, exist_ok=True)
 
     logger.info(f"Generating image with prompt: {prompt}")
+    aspect_ratio = "9:16" if image_format == "vertical" else "16:9"
 
     try:
         async with GoogleClientFactory.image() as client:
@@ -57,7 +58,7 @@ async def generate_image(prompt: str) -> tuple[str, str] | None:
                     config=types.GenerateImagesConfig(
                         number_of_images=1,
                         negative_prompt=image_negative_prompt,
-                        aspect_ratio="9:16",
+                        aspect_ratio=aspect_ratio,
                     ),
                 )
             )
