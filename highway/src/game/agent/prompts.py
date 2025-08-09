@@ -1,5 +1,5 @@
 STORY_FRAME_PROMPT = """
-You are an experienced narrative designer. Use the player profile below
+You are an experienced narrative designer. Use the player data below
 to create a concise framework for an interactive adventure that moves
 at a brisk pace.
 
@@ -13,7 +13,7 @@ Return ONLY a JSON object with:
 - milestones: 2-4 escalating key events (id, description)
 - endings: good/bad endings (id, type, condition, description)
 
-All returned text must be in {language}.
+All returned text must be translated into {language}.
 """
 
 GAME_STATE_PROMPT = """
@@ -59,10 +59,10 @@ Guidelines for the scene:
 - Show a noticeable change in stakes, location, or knowledge.
 - If the last choice is absurd or off-plot, respond in-world and gently
   steer back toward the main narrative.
-- Each choice text must be ≤12 words and lead to distinct outcomes.
+- Each choice text must be ≤10 words and lead to distinct outcomes.
 
 Respond ONLY with JSON containing:
-- description: scene description
+- description: current scene description based on the user's actions and the game settings
 - choices: exactly two dicts {{"text": ..., "next_scene_short_desc": ...}}
 """
 

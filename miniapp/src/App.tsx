@@ -9,9 +9,10 @@ import { navigationStore } from "@/stores/NavigationStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { Suspense } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { usePrefetchData } from "./hooks/usePrefetchData";
 import { useSyncLanguageToApp } from "./hooks/useSetInitialLanguage";
+import type { CurrentScreen } from "@/components/Topbar/topbar.model";
 
 const screens = {
   realms: RealmsPage,
@@ -34,23 +35,43 @@ function AppWithProviders() {
 const AppBase = observer(() => {
   const screen = navigationStore.currentScreen;
 
-  const Screen = screens[screen];
-
   usePrefetchData();
   useSyncLanguageToApp();
+
+  // Keep previously visited screens mounted to prevent image re-mount flashes
+  const [mountedScreens, setMountedScreens] = useState<CurrentScreen[]>([screen]);
+
+  useEffect(() => {
+    setMountedScreens((prev) => (prev.includes(screen) ? prev : [...prev, screen]));
+  }, [screen]);
+
+  const fallback = useMemo(
+    () => (
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <Loader2 className="w-16 h-16 animate-spin" />
+      </div>
+    ),
+    []
+  );
 
   return (
     <>
       <Topbar selectedScreen={screen} />
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center min-h-[80vh]">
-            <Loader2 className="w-16 h-16 animate-spin" />
-          </div>
-        }
-      >
-        <Screen />
-      </Suspense>
+
+      <div className="relative">
+        {mountedScreens.map((key) => {
+          const ScreenComponent = screens[key];
+          const isActive = key === screen;
+          return (
+            <div key={key} style={{ display: isActive ? "block" : "none" }}>
+              <Suspense fallback={fallback}>
+                <ScreenComponent />
+              </Suspense>
+            </div>
+          );
+        })}
+      </div>
+
       {screen !== "story" && <BottomBar />}
     </>
   );

@@ -31,7 +31,7 @@ export function useRealms() {
   const { i18n } = useTranslation();
 
   return useSuspenseQuery({
-    queryKey: ["worlds"],
+    queryKey: ["worlds", i18n.language],
     queryFn: () => getRealms(i18n.language),
   });
 }

@@ -11,14 +11,17 @@ from src.game.agent.tools import check_ending, generate_ending_scene, generate_s
 
 logger = logging.getLogger(__name__)
 
+
 class EndingResponse(BaseModel):
     ending: Ending
     scene: Scene
     game_over: Literal[True]
-    
+
+
 class SceneResponse(BaseModel):
     scene: Scene
     game_over: Literal[False]
+
 
 ProcessStepResponse = Union[EndingResponse, SceneResponse]
 

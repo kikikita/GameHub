@@ -89,4 +89,13 @@ i18n.use(initReactI18next).init({
   },
 });
 
+// Persist language to localStorage on change so app restarts with correct language
+i18n.on('languageChanged', (lng) => {
+  try {
+    localStorage.setItem('language', lng);
+  } catch {
+    // ignore storage errors (e.g., private mode)
+  }
+});
+
 export default i18n; 
