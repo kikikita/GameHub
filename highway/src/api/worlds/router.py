@@ -35,7 +35,7 @@ class WorldCreate(BaseModel):
 async def list_worlds(
     lang: str = "ru", db: AsyncSession = Depends(get_session)
 ) -> list[WorldOut]:
-    res = await db.execute(select(World))
+    res = await db.execute(select(World).where(World.is_preset.is_(True)))
     worlds = list(res.scalars())
     return [
         WorldOut(
