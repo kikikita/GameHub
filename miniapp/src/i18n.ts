@@ -13,6 +13,9 @@ const resources = {
     settings: {
       yourPlan: 'Your plan',
       language: 'Language',
+      imageFormat: 'Image format',
+      vertical: 'Vertical',
+      horizontal: 'Horizontal',
       free: 'Free',
       pro: 'PRO⚡',
       upgrade: 'Upgrade',
@@ -48,6 +51,9 @@ const resources = {
     settings: {
       yourPlan: 'Ваш план',
       language: 'Язык',
+      imageFormat: 'Формат изображений',
+      vertical: 'Вертикальный',
+      horizontal: 'Горизонтальный',
       free: 'Бесплатный',
       pro: 'PRO⚡',
       upgrade: 'Улучшить',

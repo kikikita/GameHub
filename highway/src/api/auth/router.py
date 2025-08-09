@@ -26,6 +26,7 @@ class RegisterIn(BaseModel):
     tg_id: int
     username: str | None = None
     language: str | None = None
+    image_format: str | None = None
 
 
 class UserOut(BaseModel):
@@ -35,6 +36,7 @@ class UserOut(BaseModel):
     tg_id: int
     username: str | None = None
     language: str | None = None
+    image_format: str
     energy: int
     wishes: int
 
@@ -62,6 +64,7 @@ async def register_user(
         tg_id=payload.tg_id,
         username=payload.username,
         language=payload.language,
+        image_format=payload.image_format or "vertical",
     )
     session.add(user)
     await session.commit()
@@ -87,6 +90,7 @@ async def get_me(
 
 class UserUpdate(BaseModel):
     language: str | None = None
+    image_format: str | None = None
 
 
 @router.patch("/users/me/", response_model=UserOut)
@@ -105,6 +109,8 @@ async def update_me(
             json={"language": payload.language, "user_id": tg_id},
         )
         user.language = payload.language
+    if payload.image_format is not None:
+        user.image_format = payload.image_format
     await session.commit()
     await session.refresh(user)
     return user
