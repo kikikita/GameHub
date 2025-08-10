@@ -33,9 +33,16 @@ class WorldCreate(BaseModel):
 
 @router.get("/", response_model=list[WorldOut])
 async def list_worlds(
-    lang: str = "ru", db: AsyncSession = Depends(get_session)
+    lang: str = "ru",
+    tg_id: int = Depends(authenticated_user),
+    db: AsyncSession = Depends(get_session),
 ) -> list[WorldOut]:
-    res = await db.execute(select(World).where(World.is_preset.is_(True)))
+    user_id = await resolve_user_id(tg_id, db)
+    res = await db.execute(
+        select(World).where(
+            (World.is_preset.is_(True)) | (World.user_id == user_id)
+        )
+    )
     worlds = list(res.scalars())
     return [
         WorldOut(
