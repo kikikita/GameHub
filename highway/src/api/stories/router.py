@@ -106,8 +106,8 @@ async def create_story(
         world = World(
             user_id=user_id,
             title={"en": "Your Stories", "ru": "Твои истории"},
-            world_desc={"en": "-", "ru": "-"},
-            image_url="https://storage.yandexcloud.net/immersia-static-images/worlds/user%20stories/user_stories.png",
+            world_desc={"en": "", "ru": ""},
+            image_url=settings.user_stories_picture,
         )
         db.add(world)
         await db.flush()

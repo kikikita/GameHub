@@ -36,12 +36,15 @@ class AppSettings(BaseAppSettings):
     # Cost in wishes to create a custom story
     create_story_cost: int = 5
 
+    # Path to the image used for user stories in the app
+    user_stories_picture: str
+
     # Path to JSON file with default preset worlds and stories
     presets_file_path: str = "/app/stories/golden_set.json"
 
     tg_payment_provider_token: SecretStr | None = None      # @BotFather → “Payment” tab
     tg_payment_currency: str = "XTR"           # Stars’ pseudo-currency code
-    tg_webapp_bot_username: str = "@aimmersia_bot"               
+    tg_webapp_bot_username: str = "@aimmersia_bot"
 
 
 settings = AppSettings()
