@@ -1,6 +1,6 @@
 import { getBundles } from "@/api/payments";
 import { getPlans, getSubscriptionPlan } from "@/api/plans";
-import { useRealms } from "@/api/realms";
+import { getRealms, useRealms } from "@/api/realms";
 import { getStories } from "@/api/stories";
 import { getUser } from "@/api/user";
 import { usePrefetchQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +11,11 @@ export function usePrefetchData() {
 
   const queryClient = useQueryClient();
   const { i18n } = useTranslation();
+
+  usePrefetchQuery({
+    queryKey: ["realms"],
+    queryFn: () => window.prefetchedRealms ?? getRealms(i18n.language),
+  });
 
   const { data: realms } = useRealms();
 

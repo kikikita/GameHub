@@ -82,7 +82,7 @@ const resources = {
   },
 } as const;
 
-const storedLng = localStorage.getItem('language') || 'en';
+const storedLng = localStorage.getItem('language') ?? 'en';
 
 i18n.use(initReactI18next).init({
   resources,

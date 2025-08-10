@@ -1,23 +1,12 @@
 import { useSubscriptionPlan } from "@/api/plans";
 import { useUpdateUser, useUser } from "@/api/user";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { navigationStore } from "@/stores/NavigationStore";
-import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "./LanguageSelector";
+import { ImageFormatSelector } from "./ImageFormatSelector";
 
 export type Plan = "free" | "pro";
-
-const languages: Record<string, string> = {
-  en: "English",
-  ru: "Русский",
-};
 
 export function SettingsPage() {
   const { t } = useTranslation('settings');
@@ -43,52 +32,21 @@ export function SettingsPage() {
       </section>
 
       <section className="bg-background/60 backdrop-blur-sm border border-border rounded-2xl">
-        <Select
+        <LanguageSelector
           value={language}
-          onValueChange={(code) => {
+          onChange={(code) => {
             updateUser({ language: code });
           }}
-        >
-          <SelectTrigger className="w-full flex items-center justify-between px-4 py-3 text-foreground text-sm focus:outline-none rounded-2xl bg-transparent border-none hover:bg-muted/10 [&>svg]:hidden cursor-pointer">
-            <span>{t("language")}</span>
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <SelectValue placeholder={languages[language]} />
-              <ChevronRight className="w-4 h-4" />
-            </span>
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(languages).map(([code, label]) => (
-              <SelectItem key={code} value={code} className="cursor-pointer">
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       </section>
 
       <section className="bg-background/60 backdrop-blur-sm border border-border rounded-2xl">
-        <Select
+        <ImageFormatSelector
           value={image_format}
-          onValueChange={(format) => {
+          onChange={(format) => {
             updateUser({ image_format: format as "vertical" | "horizontal" });
           }}
-        >
-          <SelectTrigger className="w-full flex items-center justify-between px-4 py-3 text-foreground text-sm focus:outline-none rounded-2xl bg-transparent border-none hover:bg-muted/10 [&>svg]:hidden cursor-pointer">
-            <span>{t("imageFormat")}</span>
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <SelectValue placeholder={t(image_format)} />
-              <ChevronRight className="w-4 h-4" />
-            </span>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="vertical" className="cursor-pointer">
-              {t("vertical")}
-            </SelectItem>
-            <SelectItem value="horizontal" className="cursor-pointer">
-              {t("horizontal")}
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        />
       </section>
     </div>
   );

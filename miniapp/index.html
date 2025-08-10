@@ -3,7 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Preload world and story images from golden_set.json -->
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/horror/Horror_world.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/horror/Horror_story.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/romantic/Romantic_world.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/romantic/Romantic_story.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/adventure/Adventure_world.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/adventure/Adventure_story.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/detective/Detective_world.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/detective/Detective_story.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/drama/Drama_world_.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/drama/Drama_story.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/action/Action_world.webp" as="image" type="image/webp" />
+    <link rel="preload" href="https://storage.yandexcloud.net/immersia-static-images/worlds/action/Action_story.webp" as="image" type="image/webp" />
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+      const storedLng = localStorage.getItem("language") ?? "en";
+      window.prefetchedRealms = fetch(`https://api.immersia.fun/api/v1/worlds/?lang=${storedLng}`)
+        .then((res) => res.json())
+        .then((data) =>
+          data.map((item) => ({
+            id: item.id,
+            title: item.title,
+            description: item.world_desc,
+            imageUrl: item.image_url,
+          }))
+        );
+    </script>
     <title>Immersia</title>
   </head>
   <body>

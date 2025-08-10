@@ -22,6 +22,8 @@ const screens = {
   store: StorePage,
 };
 
+const screensToMount = Object.keys(screens).filter((key) => key !== "story") as CurrentScreen[];
+
 const queryClient = new QueryClient();
 
 function AppWithProviders() {
@@ -44,6 +46,10 @@ const AppBase = observer(() => {
   useEffect(() => {
     setMountedScreens((prev) => (prev.includes(screen) ? prev : [...prev, screen]));
   }, [screen]);
+
+  useEffect(() => {
+    setMountedScreens(screensToMount);
+  }, []);
 
   const fallback = useMemo(
     () => (

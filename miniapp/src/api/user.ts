@@ -77,7 +77,7 @@ export function useUpdateUser() {
 
       // Optimistically update the user data
       queryClient.setQueryData<User>(["user"], (old) => {
-        if (!old) return { ...newUser, wishes: 0, energy: 0 };
+        if (!old) return { ...newUser, wishes: 0, energy: 0, language: "en", image_format: "vertical" };
         return {
           ...old,
           ...newUser,
