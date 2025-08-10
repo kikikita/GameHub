@@ -9,7 +9,7 @@ from src.game.services.google import ApiKeyPool
 logger = logging.getLogger(__name__)
 
 _pool = ApiKeyPool()
-MODEL_NAME = "gemini-2.5-flash-lite"
+MODEL_NAME = "gemini-2.5-flash"
 
 
 def _get_api_key() -> str:
@@ -37,7 +37,7 @@ def create_llm(
 def create_light_llm(temperature: float = settings.temperature, top_p: float = settings.top_p):
     """Create a light LLM instance with a shorter timeout."""
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
+        model=MODEL_NAME,
         google_api_key=_get_api_key(),
         temperature=temperature,
         top_p=top_p,

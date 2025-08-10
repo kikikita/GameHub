@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { API_URL } from "./common";
 import { useTranslation } from "react-i18next";
+import { getInitData } from "@/telegram/init";
 
 export interface Realm {
   id: string;
@@ -17,7 +18,11 @@ export interface WorldDTO {
 }
 
 export function getRealms(lang: string = "en"): Promise<Realm[]> {
-  return fetch(`${API_URL}/api/v1/worlds/?lang=${lang}`).then((res) =>
+  return fetch(`${API_URL}/api/v1/worlds/?lang=${lang}`, {
+    headers: {
+      'Authorization': `tma ${getInitData()}`,
+    },
+  }).then((res) =>
     res.json()
   ).then<Realm[]>((data) => data.map((item: WorldDTO) => ({
     id: item.id,

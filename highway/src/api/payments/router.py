@@ -208,8 +208,15 @@ async def change_plan(
             detail="Invalid plan",
         )
 
+    # Activate subscription (idempotent-ish: we simply add a new active row)
     sub = Subscription(user_id=user_id, plan=plan, status="active")
     db.add(sub)
+
+    # Refill energy for the user immediately
+    user = await db.get(User, user_id)
+    if user:
+        user.energy = MAX_ENERGY
+
     await db.commit()
     await db.refresh(sub)
     return {"id": str(sub.id), "plan": sub.plan, "status": sub.status}

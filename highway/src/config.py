@@ -25,7 +25,9 @@ class AppSettings(BaseAppSettings):
     debug: bool = False
     database_url: str
     gemini_api_keys: SecretStr | None = None
-    redis_url: str = "redis://redis"
+    mongodb_uri: str = "mongodb://mongo:27017"
+    mongodb_db: str = "immersia"
+    mongodb_collection: str = "user_states"
     top_p: float = 0.95
     temperature: float = 0.5
     pregenerate_next_scene: bool = True

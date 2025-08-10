@@ -29,7 +29,11 @@ export function useStories(realmId: string) {
 }
 
 export async function getStories(realmId: string, lang: string = "en"): Promise<Story[]> {
-  return fetch(`${API_URL}/api/v1/worlds/${realmId}/stories/?lang=${lang}`).then((res) => res.json()).then((data) => data.map((item: StoryDTO) => ({
+  return fetch(`${API_URL}/api/v1/worlds/${realmId}/stories/?lang=${lang}`, {
+    headers: {
+      'Authorization': `tma ${getInitData()}`,
+    },
+  }).then((res) => res.json()).then((data) => data.map((item: StoryDTO) => ({
     id: item.id,
     title: item.title,
     description: item.story_desc,

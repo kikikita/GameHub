@@ -45,8 +45,6 @@ async def generate_image(prompt: str, image_format: str) -> tuple[str, str] | No
     # Ensure the generated/images directory exists
     output_dir = "generated/images"
     os.makedirs(output_dir, exist_ok=True)
-
-    logger.info(f"Generating image with prompt: {prompt}")
     aspect_ratio = "9:16" if image_format == "vertical" else "16:9"
 
     try:

@@ -8,7 +8,7 @@ from src.models.choice import Choice
 from src.models.game_session import GameSession
 from src.models.story import Story
 from src.game.agent.runner import process_step, SceneResponse
-from src.game.agent.redis_state import get_user_state, set_user_state
+from src.game.agent.mongo_state import get_user_state, set_user_state
 from src.game.agent.models import StoryFrame, UserChoice, UserState
 from src.game.agent.tools import generate_story_frame, generate_initial_scene
 from src.api.utils import get_localized
@@ -29,7 +29,8 @@ async def create_and_store_scene(
     choice_text: str | None,
     story: Story | None = None,
 ) -> Scene:
-    user_hash = str(session.id)
+    # Ensure single in-progress state per user by keying state by user_id
+    user_hash = str(session.user_id)
     state = await get_user_state(user_hash)
     await db.refresh(session, ["user"])
     state.language = session.user.language or state.language or "en"

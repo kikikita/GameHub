@@ -3,7 +3,7 @@ from src.game.agent.llm import create_light_llm
 from src.game.agent.prompts import GAME_STATE_PROMPT
 from langchain_core.messages import SystemMessage, HumanMessage
 import logging
-from src.game.agent.redis_state import get_user_state
+from src.game.agent.mongo_state import get_user_state
 from src.game.agent.utils import with_retries
 
 logger = logging.getLogger(__name__)

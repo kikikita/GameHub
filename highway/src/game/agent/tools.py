@@ -1,5 +1,6 @@
 """LLM tools used by the game graph."""
 
+import asyncio
 import logging
 import uuid
 from typing import Annotated, Dict
@@ -19,6 +20,7 @@ from src.game.agent.prompts import ENDING_CHECK_PROMPT, SCENE_PROMPT, STORY_FRAM
 from src.game.agent.utils import with_retries
 from src.game.images.image_generator import generate_image
 from src.game.agent.image_agent import generate_image_prompt
+from src.game.agent.npc_agent import maybe_update_npcs
 
 logger = logging.getLogger(__name__)
 
@@ -69,13 +71,25 @@ async def generate_initial_scene(
         f"{first_scene.description}\n"
         "NOTE FOR THE ASSISTANT: YOU MUST GENERATE A NEW IMAGE FOR THE STARTING SCENE. DO NOT DESCRIBE THE PLAYER CHARACTER IN THE IMAGE PROMPT."
     )
+
+    # Run NPC updates in parallel with image prompt + image generation
+    npc_task = asyncio.create_task(
+        maybe_update_npcs(state, first_scene.description, "No choice yet")
+    )
     image_prompt = await generate_image_prompt(state, init_description)
     logger.info(f"Generated initial scene image prompt: {image_prompt}")
 
+    image_path = None
     if image_prompt.change_scene:
         image_path, _ = await generate_image(
             image_prompt.scene_description, state.image_format
         )
+
+    # Ensure NPC updates (if any) are applied before returning
+    try:
+        await npc_task
+    except Exception:
+        logger.exception("NPC update task failed on initial scene")
 
     scene_id = str(uuid.uuid4())
     scene = Scene(
@@ -92,12 +106,21 @@ async def generate_initial_scene(
 async def generate_ending_scene(
     state: UserState,
     ending: Ending,
+    choice_text: str,
+    last_scene_id: str,
 ) -> Scene:
     """Generate the ending scene for the user."""
     ending_description = (
         f"Ending ID: {ending.id}\n"
         f"{ending.condition}\n"
         f"{ending.description}\n"
+        f"World state:"
+        f"{state.story_frame.npc_characters}\n"
+        f"{state.story_frame.goal}\n"
+        f"{state.story_frame.character}\n"
+        f"{state.story_frame.visual_style}\n"
+        f"{state.scenes.get(last_scene_id, '')}\n"
+        f"Last choice: {choice_text}\n\n"
         "NOTE FOR THE ASSISTANT: YOU MUST GENERATE A NEW IMAGE FOR THE ENDING SCENE"
     )
     image_prompt = await generate_image_prompt(state, ending_description)
@@ -140,6 +163,7 @@ async def generate_scene(
             f"{c.char_name}: {c.visual_description}"
             for c in state.story_frame.npc_characters
         ),
+        main_character=state.story_frame.character,
     )
     resp: SceneLLM = await with_retries(lambda: llm.ainvoke(prompt))
     return resp
@@ -148,6 +172,13 @@ async def generate_scene(
 async def generate_scene_step(last_choice: str, state: UserState) -> Scene:
     """Generate a new scene based on the current user state."""
     scene = await generate_scene(last_choice, state)
+
+    logger.info(f"Generated scene step: {scene}")
+
+    # Kick off NPC update in parallel with image prompt + image generation
+    npc_task = asyncio.create_task(
+        maybe_update_npcs(state, scene.description, last_choice)
+    )
     image_prompt = await generate_image_prompt(state, scene.description)
     logger.info(f"Generated scene step image prompt: {image_prompt}")
 
@@ -156,6 +187,12 @@ async def generate_scene_step(last_choice: str, state: UserState) -> Scene:
         image_path, _ = await generate_image(
             image_prompt.scene_description, state.image_format
         )
+
+    # Ensure NPC update is applied before returning so persistence sees it
+    try:
+        await npc_task
+    except Exception:
+        logger.exception("NPC update task failed on scene step")
 
     scene_id = str(uuid.uuid4())
     scene = Scene(

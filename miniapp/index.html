@@ -19,7 +19,11 @@
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
       const storedLng = localStorage.getItem("language") ?? "en";
-      window.prefetchedRealms = fetch(`https://api.immersia.fun/api/v1/worlds/?lang=${storedLng}`)
+      window.prefetchedRealms = fetch(`https://api.immersia.fun/api/v1/worlds/?lang=${storedLng}`, {
+        headers: {
+          'Authorization': `tma ${window.Telegram?.WebApp?.initData}`,
+        },
+      })
         .then((res) => res.json())
         .then((data) =>
           data.map((item) => ({

@@ -15,7 +15,7 @@ Your role is to process an incoming scene description and determine if the visua
 If it does, you will generate a new `scene_description`. This `scene_description` MUST BE a highly detailed image prompt, specifically engineered for an AI image generation model.
 
 **Guidelines for Crafting the Image Prompt (for `scene_description` field):**
-When generating the image prompt, ensure it's detailed and considers the following aspects. IMPORTANT: The final description must be written objectively, with NO first-person perspective or references (e.g., "I", "me", "my", "in front of me"). Describe the scene as though captured in a photograph, observing only what is visible on screen.
+When generating the image prompt, ensure it's detailed and considers the following aspects. IMPORTANT: The final description must be written objectively, with NO first-person perspective or references (e.g., "I", "me", "my", "in front of me"). If the input mentions the protagonist/player by name or presence (e.g., "Kolobok stands..."), REWRITE to exclude the protagonist and instead describe only the surroundings and any visible NPCs. Describe the scene as though captured in a photograph, observing only what is visible on screen.
 
 1.  **Subject & Focus:**
     *   What is the primary subject or point of interest directly in the character's view?
@@ -43,11 +43,7 @@ When generating the image prompt, ensure it's detailed and considers the followi
 6.  **Color Palette:**
     *   Specify dominant colors or a color scheme relevant to what the character sees.
 
-7.  **Camera & Lens Details (optional but recommended):**
-    *   To influence the field of view and photographic feel, you may specify a lens type and focal length—e.g., "macro 60 mm" for detailed close-ups, "telephoto zoom 250 mm" for distant action, or "wide-angle 14 mm" for sweeping vistas. These values follow the guidance in Google’s Gemini image-generation documentation [link](https://ai.google.dev/gemini-api/docs/image-generation).
-    *   Mention camera style or sensor type if it helps (e.g., "35 mm film, Portra 400" or "full-frame DSLR").
-
-8.  **Details & Keywords:**
+7.  **Details & Keywords:**
     *   Include crucial details from the input scene description that the character would notice.
     *   Use evocative adjectives and strong, domain-specific keywords.
 
@@ -58,6 +54,9 @@ When generating the image prompt, ensure it's detailed and considers the followi
 *IMPORTANT*: Please pay attention to last image description and make sure you reuse the same visual style and elements when updating the image in order to avoid generating a completely different scene.
 
 If you are describing other character and the player is interacting with them, make sure to prompt this character to look into the camera.
+Do NOT show or reference the Main character.
+Do NOT show or reference the Main character.
+Do NOT show or reference the Main character.
 """
 
 
@@ -85,7 +84,7 @@ async def generate_image_prompt(state: UserState, scene_description: str, last_c
         npc_characters="\n".join(
             f"{c.char_name}: {c.visual_description}" for c in state.story_frame.npc_characters
         ),
-        image_format=state.image_format,
+        main_character=state.story_frame.character,
     )
     
     image_prompt_generator_llm = create_light_llm(0.1).with_structured_output(ChangeScene)

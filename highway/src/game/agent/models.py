@@ -24,9 +24,11 @@ class Ending(BaseModel):
     """Possible game ending."""
 
     id: str
-    type: str  # "good" or "bad"
+    type: Literal["good", "neutral", "bad"]
     condition: str
-    description: Optional[str] = None
+    description: str = Field(
+        description="Highly detailed description of the ending, it should contain at least 50 words."
+    )
 
 
 class StoryFrame(BaseModel):
@@ -57,7 +59,6 @@ class SceneChoice(BaseModel):
     """User choice leading to another scene."""
 
     text: str
-    next_scene_short_desc: str
 
 
 class PlayerOption(BaseModel):

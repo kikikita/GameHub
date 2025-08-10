@@ -14,6 +14,7 @@ from src.api.scenes.scene_service import create_and_store_scene
 from .schemas import SessionCreate, SessionOut
 from src.api.scenes.schemas import SceneOut, scene_to_out
 from src.api.utils import resolve_user_id
+from src.game.agent.mongo_state import reset_user_state
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
 
@@ -46,6 +47,9 @@ async def create_session(
     db.add(session_obj)
     await db.commit()
     await db.refresh(session_obj)
+
+    # Ensure a fresh per-user in-progress state
+    await reset_user_state(str(user_id))
 
     story = await db.get(Story, story_id)
     if story:
