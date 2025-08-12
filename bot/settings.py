@@ -26,7 +26,11 @@ class Bots:
     app_url: str
     web_url: str
     debug: bool
-    service_chat: int
+    service_chat: int | None = None
+    # Mongo settings for FSM storage
+    mongo_uri: str = "mongodb://mongo:27017"
+    mongo_db: str = "aiogram_fsm"
+    mongo_collection: str = "states_and_data"
 
 
 @dataclass
@@ -51,7 +55,7 @@ def get_settings(path: str) -> Settings:
             app_url=env.str("APP_URL", "http://highway:8000"),
             web_url=env.str("WEB_URL", "https://app.immersia.fun/"),
             debug=env.bool("DEBUG", False),
-            service_chat=env.int("SERVICE_CHAT"),
+            service_chat=env.int("SERVICE_CHAT", None),
         ),
         create_story_cost=env.int("CREATE_STORY_COST", 5),
     )

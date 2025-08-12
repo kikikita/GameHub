@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
-
+import logging
 import base64
 import httpx
 from aiogram import Bot, F, Router
@@ -23,6 +23,9 @@ from keyboards.inline import (
 from settings import settings
 from utils.i18n import get_user_language, t
 from utils.states import GamePlay, GameSetup
+
+
+logger = logging.getLogger(__name__)
 
 http_client = httpx.AsyncClient(
     base_url=settings.bots.app_url,
@@ -242,6 +245,14 @@ async def start_game(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     template = data.get("template") or _get_default_template(lang)
 
+    # Immediately update UI: edit setup message text to include creation notice and remove buttons
+    with suppress(TelegramBadRequest):
+        await call.bot.edit_message_text(
+            text=f"{call.message.text}\n\n{t(lang, 'creating_story')}",
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=None,
+        )
     await call.answer()
     stop = asyncio.Event()
     typing_task = asyncio.create_task(
@@ -319,7 +330,7 @@ async def handle_external_game_start(story_id: str, user_id: int):
         await bot_instance.send_message(user_id, t(lang, "error_generic"))
         return
     story = resp.json()
-    image_url = story.get("image_url")
+    image_url = f"{settings.bots.web_url}{story.get('image_url')}"
     if image_url:
         try:
             await bot_instance.send_photo(user_id, image_url, caption=story.get("story_desc", ""))
@@ -378,11 +389,12 @@ async def select_preset(call: CallbackQuery | Message, state: FSMContext):
     )
     image_url = None
     if world_resp.status_code == 200:
-        image_url = story.get("image_url")
+        image_url = f"{settings.bots.web_url}{story.get('image_url')}"
     if image_url:
         try:
             await call.message.answer_photo(image_url, caption=story.get("story_desc", ""))
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error sending photo on select story: {e}")
             await call.message.answer(text=story.get("story_desc", ""))
     else:
         await call.message.answer(story.get("story_desc", ""))

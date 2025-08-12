@@ -31,8 +31,10 @@ safety_settings = [
 
 image_negative_prompt = """"""
 
+def get_image_model(is_pro: bool) -> str:
+    return "imagen-4.0-fast-generate-preview-06-06" if not is_pro else "imagen-4.0-ultra-generate-preview-06-06"
 
-async def generate_image(prompt: str, image_format: str) -> tuple[str, str] | None:
+async def generate_image(prompt: str, image_format: str, model: str = get_image_model(False)) -> tuple[str, str] | None:
     """
     Generate an image using Google's Gemini model and save it to generated/images directory.
 
@@ -46,12 +48,14 @@ async def generate_image(prompt: str, image_format: str) -> tuple[str, str] | No
     output_dir = "generated/images"
     os.makedirs(output_dir, exist_ok=True)
     aspect_ratio = "9:16" if image_format == "vertical" else "16:9"
+    
+    logger.info(f"Generating image with model: {model}")
 
     try:
         async with GoogleClientFactory.image() as client:
             response = await with_retries(
                 lambda: client.models.generate_images(
-                    model="imagen-4.0-fast-generate-preview-06-06",
+                    model=model,
                     prompt=prompt,
                     config=types.GenerateImagesConfig(
                         number_of_images=1,

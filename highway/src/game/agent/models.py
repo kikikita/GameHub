@@ -116,3 +116,4 @@ class UserState(BaseModel):
     assets: Dict[str, str] = Field(default_factory=dict)
     language: str = "en"
     image_format: str = "vertical"
+    is_pro: bool = False

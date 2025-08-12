@@ -39,7 +39,7 @@ class AppSettings(BaseAppSettings):
     create_story_cost: int = 5
 
     # Path to the image used for user stories in the app
-    user_stories_picture: str
+    user_stories_picture: str = "images/worlds/user stories/user_stories.webp"
 
     # Path to JSON file with default preset worlds and stories
     presets_file_path: str = "/app/stories/golden_set.json"
@@ -47,6 +47,13 @@ class AppSettings(BaseAppSettings):
     tg_payment_provider_token: SecretStr | None = None      # @BotFather → “Payment” tab
     tg_payment_currency: str = "XTR"           # Stars’ pseudo-currency code
     tg_webapp_bot_username: str = "@aimmersia_bot"
+
+    # In-process caching controls
+    cache_enabled: bool = True
+    cache_max_items: int = 1024
+    # Set to 0 for unlimited (no TTL expiration)
+    worlds_cache_ttl_seconds: int = 0
+    stories_cache_ttl_seconds: int = 0
 
 
 settings = AppSettings()

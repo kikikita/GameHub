@@ -5,6 +5,8 @@ from typing import Any, Awaitable, Callable
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
 
 
 class TypingMiddleware(BaseMiddleware):
@@ -24,6 +26,17 @@ class TypingMiddleware(BaseMiddleware):
         """Forward update while periodically sending typing status."""
         if not isinstance(event, Message):
             return await handler(event, data)
+
+        # Do not show typing while user is editing new game settings
+        # Detect FSM state `GameSetup.waiting_input` without importing handler module
+        fsm: FSMContext | None = data.get("state")  # provided by aiogram
+        if fsm is not None:
+            try:
+                current = await fsm.get_state()
+                if current and current.endswith(":GameSetup:waiting_input"):
+                    return await handler(event, data)
+            except Exception:
+                pass
 
         stop_event = asyncio.Event()
 

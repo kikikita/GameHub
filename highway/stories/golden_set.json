@@ -11,14 +11,14 @@
         "ru": "Мрачный прибрежный городок, затерянный в густом тумане и резких скалах.",
         "en": "A bleak coastal town lost in thick fog and jagged cliffs."
       },
-      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/horror/Horror_world.webp",
+      "image_url": "images/worlds/horror/Horror_world.webp",
       "is_free": true,
       "is_preset": true,
       "created_at": "2025-08-01T12:00:00Z",
       "stories": [
         {
           "id": "264fe478-2716-44a3-a379-c02baf9cfc7c",
-          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/horror/Horror_story.webp",
+          "image_url": "images/worlds/horror/Horror_story.webp",
           "user_id": null,
           "title": {
             "ru": "Голоса Чёрной Воды",
@@ -113,14 +113,14 @@
         "ru": "Парящие острова, соединённые мостами из света, где цветы светятся собственным сиянием.",
         "en": "Floating islands connected by bridges of light, where flowers glow with their own radiance."
       },
-      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/romantic/Romantic_world.webp",
+      "image_url": "images/worlds/romantic/Romantic_world.webp",
       "is_free": true,
       "is_preset": true,
       "created_at": "2025-08-01T12:00:00Z",
       "stories": [
         {
           "id": "445b37b1-f28d-46e9-93fb-54c8ea2471e9",
-          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/romantic/Romantic_story.webp",
+          "image_url": "images/worlds/romantic/Romantic_story.webp",
           "user_id": null,
           "title": {
             "ru": "Мелодия Света",
@@ -215,14 +215,14 @@
         "ru": "На островах спрятаны руины древней цивилизации, испещрённые ловушками и загадками.",
         "en": "The islands hide the ruins of an ancient civilization riddled with traps and puzzles."
       },
-      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/adventure/Adventure_world.webp",
+      "image_url": "images/worlds/adventure/Adventure_world.webp",
       "is_free": true,
       "is_preset": true,
       "created_at": "2025-08-01T12:00:00Z",
       "stories": [
         {
           "id": "b6fc6f0c-8e47-4837-80cf-8a2bda4f8130",
-          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/adventure/Adventure_story.webp",
+          "image_url": "images/worlds/adventure/Adventure_story.webp",
           "user_id": null,
           "title": {
             "ru": "Карты из Молний",
@@ -317,14 +317,14 @@
         "ru": "На краю чёрной дыры парит научная станция Эос – автономный городок в космосе.",
         "en": "Hovering at the edge of a black hole is the scientific outpost Eos—an autonomous city in space."
       },
-      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/sci-fi/Sci-Fi_world.webp",
+      "image_url": "images/worlds/sci-fi/Sci-Fi_world.webp",
       "is_free": true,
       "is_preset": true,
       "created_at": "2025-08-01T12:00:00Z",
       "stories": [
         {
           "id": "6cf81dce-1339-455f-a616-b2843584d19f",
-          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/sci-fi/Sci-fi_story.webp",
+          "image_url": "images/worlds/sci-fi/Sci-fi_story.webp",
           "user_id": null,
           "title": {
             "ru": "Петля Сентинела",
@@ -419,14 +419,14 @@
         "ru": "Мегаполис, построенный как лабиринт. Каждая тень скрывает тайну, а закон преподносит сюрпризы.",
         "en": "A metropolis built like a labyrinth. Every shadow hides a secret and the law delivers surprises."
       },
-      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/detective/Detective_world_.webp",
+      "image_url": "images/worlds/detective/Detective_world_.webp",
       "is_free": true,
       "is_preset": true,
       "created_at": "2025-08-01T12:00:00Z",
       "stories": [
         {
           "id": "0e1b9302-dbc6-4141-a74d-ce652e0e2058",
-          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/detective/Detective_story.webp",
+          "image_url": "images/worlds/detective/Detective_story.webp",
           "user_id": null,
           "title": {
             "ru": "Цвета Лжи",
@@ -521,14 +521,14 @@
         "ru": "Утопический туристический остров превращается в серую пустошь после внезапного извержения вулкана.",
         "en": "A utopian tourist island turns into a gray wasteland after a sudden volcanic eruption."
       },
-      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/drama/Drama_world_.webp",
+      "image_url": "images/worlds/drama/Drama_world_.webp",
       "is_free": true,
       "is_preset": true,
       "created_at": "2025-08-01T12:00:00Z",
       "stories": [
         {
           "id": "a816aa7c-e0f6-4788-abf3-5ed7cd7ff9dc",
-          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/drama/Drama_story.webp",
+          "image_url": "images/worlds/drama/Drama_story.webp",
           "user_id": null,
           "title": {
             "ru": "Пепел Надежды",
@@ -623,14 +623,14 @@
         "ru": "В постапокалиптическом мегаполисе крупные корпорации превратили борьбу за выживание в зрелище.",
         "en": "In a post‑apocalyptic megacity, corporations have turned the fight for survival into a spectacle."
       },
-      "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/action/Action_world.webp",
+      "image_url": "images/worlds/action/Action_world.webp",
       "is_free": true,
       "is_preset": true,
       "created_at": "2025-08-01T12:00:00Z",
       "stories": [
         {
           "id": "b9030940-d097-4cc7-a9ea-27e05f32bb2c",
-          "image_url": "https://storage.yandexcloud.net/immersia-static-images/worlds/action/Action_story.webp",
+          "image_url": "images/worlds/action/Action_story.webp",
           "user_id": null,
           "title": {
             "ru": "Кровь и Искра",

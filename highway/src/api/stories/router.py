@@ -18,8 +18,24 @@ from src.models.game_session import GameSession
 from src.models.scene import Scene
 from src.models.choice import Choice
 from pydantic import BaseModel, Field
+from src.utils.cache import AsyncTTLCache, cached, invalidate_prefix
 
 router = APIRouter(prefix="/api/v1", tags=["stories"])
+
+# In-process cache for stories lists and individual stories
+_stories_cache: AsyncTTLCache | None = None
+
+
+def _get_stories_cache() -> AsyncTTLCache | None:
+    global _stories_cache
+    if not settings.cache_enabled:
+        return None
+    if _stories_cache is None:
+        _stories_cache = AsyncTTLCache(
+            max_items=settings.cache_max_items,
+            ttl_seconds=settings.stories_cache_ttl_seconds,
+        )
+    return _stories_cache
 
 
 class StoryOut(BaseModel):
@@ -57,6 +73,7 @@ def story_to_out(story: Story, lang: str) -> StoryOut:
 
 
 @router.get("/worlds/{world_id}/stories/", response_model=list[StoryOut])
+@cached(_get_stories_cache, include=["lang", "world_id"], prefix="stories:list")
 async def list_stories(
     world_id: str, lang: str = "ru", db: AsyncSession = Depends(get_session)
 ) -> list[StoryOut]:
@@ -64,10 +81,12 @@ async def list_stories(
         select(Story).where(Story.world_id == uuid.UUID(world_id))
     )
     stories = list(res.scalars())
-    return [story_to_out(s, lang) for s in stories]
+    result = [story_to_out(s, lang) for s in stories]
+    return result
 
 
 @router.get("/stories/preset/", response_model=list[StoryOut])
+@cached(_get_stories_cache, include=["lang"], prefix="stories:list_preset")
 async def list_preset_stories(
     lang: str = "ru", db: AsyncSession = Depends(get_session)
 ) -> list[StoryOut]:
@@ -75,17 +94,20 @@ async def list_preset_stories(
         select(Story).where(Story.is_preset.is_(True), Story.is_free.is_(True))
     )
     stories = list(res.scalars())
-    return [story_to_out(s, lang) for s in stories]
+    result = [story_to_out(s, lang) for s in stories]
+    return result
 
 
 @router.get("/stories/{story_id}/", response_model=StoryOut)
+@cached(_get_stories_cache, include=["lang", "story_id"], prefix="stories:get")
 async def get_story(
     story_id: str, lang: str = "ru", db: AsyncSession = Depends(get_session)
 ) -> StoryOut:
     obj = await db.get(Story, uuid.UUID(story_id))
     if not obj:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return story_to_out(obj, lang)
+    result = story_to_out(obj, lang)
+    return result
 
 
 @router.post("/stories/", response_model=StoryOut, status_code=status.HTTP_201_CREATED)
@@ -116,6 +138,8 @@ async def create_story(
     db.add(story)
     await db.commit()
     await db.refresh(story)
+    # Invalidate relevant caches
+    await invalidate_prefix(_get_stories_cache, "stories:")
     return story_to_out(story, lang)
 
 
@@ -141,6 +165,8 @@ async def _import_presets(db: AsyncSession, data: dict) -> None:
     await db.execute(delete(Story).where(Story.id.in_(preset_story_ids)))
     await db.execute(delete(World).where(World.is_preset.is_(True)))
     await db.commit()
+    # Invalidate all stories cache after full preset import
+    await invalidate_prefix(_get_stories_cache, "stories:")
 
     for w in data["worlds"]:
         world = World(

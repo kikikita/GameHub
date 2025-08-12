@@ -31,7 +31,10 @@ async def notify_service(msg: types.Message, item: str, success: bool = True) ->
         f"📦 {item}\n"
         f"💰 {amount} {currency} ({amount / 100}$)"
     )
-    await msg.bot.send_message(settings.bots.service_chat, text, parse_mode="HTML")
+    if settings.bots.service_chat:
+        await msg.bot.send_message(settings.bots.service_chat, text, parse_mode="HTML")
+    else:
+        logger.info(f"Service chat is not set, skipping notification for {username}")
 
 
 @router.pre_checkout_query()

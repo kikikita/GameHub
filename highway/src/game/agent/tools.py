@@ -18,7 +18,7 @@ from src.game.agent.models import (
 
 from src.game.agent.prompts import ENDING_CHECK_PROMPT, SCENE_PROMPT, STORY_FRAME_PROMPT
 from src.game.agent.utils import with_retries
-from src.game.images.image_generator import generate_image
+from src.game.images.image_generator import generate_image, get_image_model
 from src.game.agent.image_agent import generate_image_prompt
 from src.game.agent.npc_agent import maybe_update_npcs
 
@@ -82,7 +82,7 @@ async def generate_initial_scene(
     image_path = None
     if image_prompt.change_scene:
         image_path, _ = await generate_image(
-            image_prompt.scene_description, state.image_format
+            image_prompt.scene_description, state.image_format, get_image_model(state.is_pro)
         )
 
     # Ensure NPC updates (if any) are applied before returning
@@ -128,7 +128,7 @@ async def generate_ending_scene(
 
     if image_prompt.change_scene:
         image_path, _ = await generate_image(
-            image_prompt.scene_description, state.image_format
+            image_prompt.scene_description, state.image_format, get_image_model(state.is_pro)
         )
 
     scene_id = str(uuid.uuid4())
@@ -185,7 +185,7 @@ async def generate_scene_step(last_choice: str, state: UserState) -> Scene:
     image_path = None
     if image_prompt.change_scene:
         image_path, _ = await generate_image(
-            image_prompt.scene_description, state.image_format
+            image_prompt.scene_description, state.image_format, get_image_model(state.is_pro)
         )
 
     # Ensure NPC update is applied before returning so persistence sees it
@@ -216,6 +216,7 @@ async def check_ending(
     history = "; ".join(f"{c.scene_id}:{c.choice_text}" for c in state.user_choices)
     prompt = ENDING_CHECK_PROMPT.format(
         history=history,
+        language=state.language,
         endings=",".join(f"{e.id}:{e.condition}" for e in state.story_frame.endings),
     )
     resp: EndingCheckResult = await with_retries(lambda: llm.ainvoke(prompt))

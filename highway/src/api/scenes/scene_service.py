@@ -11,7 +11,7 @@ from src.game.agent.runner import process_step, SceneResponse
 from src.game.agent.mongo_state import get_user_state, set_user_state
 from src.game.agent.models import StoryFrame, UserChoice, UserState
 from src.game.agent.tools import generate_story_frame, generate_initial_scene
-from src.api.utils import get_localized
+from src.api.utils import get_localized, has_pro_plan
 import logging
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,7 @@ async def create_and_store_scene(
     # Ensure single in-progress state per user by keying state by user_id
     user_hash = str(session.user_id)
     state = await get_user_state(user_hash)
+    state.is_pro = await has_pro_plan(db, session.user_id)
     await db.refresh(session, ["user"])
     state.language = session.user.language or state.language or "en"
     state.image_format = session.user.image_format or state.image_format or "vertical"

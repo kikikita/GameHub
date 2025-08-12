@@ -202,21 +202,33 @@ async def change_plan(
     """Force change of the user's subscription plan."""
     user_id = await resolve_user_id(tg_id, db)
     ensure_admin(tg_id)
-    if plan not in {"pro"}:
+    if plan not in {"pro", "free"}:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid plan",
         )
 
-    # Activate subscription (idempotent-ish: we simply add a new active row)
-    sub = Subscription(user_id=user_id, plan=plan, status="active")
-    db.add(sub)
+    if plan == "free":
+        # For free plan, set all existing subscriptions to inactive
+        res = await db.execute(
+            select(Subscription).where(Subscription.user_id == user_id)
+        )
+        existing_subs = res.scalars().all()
+        for sub in existing_subs:
+            sub.status = "inactive"
 
-    # Refill energy for the user immediately
-    user = await db.get(User, user_id)
-    if user:
-        user.energy = MAX_ENERGY
+        await db.commit()
+        return {"plan": "free", "status": "active"}
+    else:
+        # For pro plan, activate subscription (idempotent-ish: we simply add a new active row)
+        sub = Subscription(user_id=user_id, plan=plan, status="active")
+        db.add(sub)
 
-    await db.commit()
-    await db.refresh(sub)
-    return {"id": str(sub.id), "plan": sub.plan, "status": sub.status}
+        # Refill energy for the user immediately
+        user = await db.get(User, user_id)
+        if user:
+            user.energy = MAX_ENERGY
+
+        await db.commit()
+        await db.refresh(sub)
+        return {"id": str(sub.id), "plan": sub.plan, "status": sub.status}

@@ -1,17 +1,23 @@
 STORY_FRAME_PROMPT = """
 You are an experienced narrative designer. Use the player data below
 to create a concise framework for an interactive adventure that moves
-at a brisk pace.
+at a brisk pace, maintains strict internal logic, and rewards bold,
+nonstandard decisions with meaningful consequences.
 
 Setting: {setting}
 Character: {character}
 Genre: {genre}
 
 Return ONLY a JSON object with:
-- lore: 2-3 sentence world description
-- goal: clear main player objective
-- milestones: 2-4 escalating key events (id, description)
-- endings: good/bad endings (id, type, condition, description)
+- lore: 2-3 sentence world description that establishes conflict, tone, an implicit rule or constraint, and a hook (antagonistic force or looming pressure).
+- goal: clear main player objective with success criteria, stakes for failure, and any constraints (time limit, resource, taboo).
+- milestones: 2-4 escalating key events (id, description). In each description, specify a trigger, the core dilemma, the main obstacle, and what success vs. failure changes in the world (fail-forward, no dead ends).
+- endings: 4-6 endings (id, type ["good"|"bad"], condition, description). Design endings so they cannot be triggered by a single mistake. Bad endings must require catastrophic irreversible failure or multiple compounded failures tied to milestones. Good endings should require completing milestones and resolving the core conflict; avoid early resolution. Conditions should reference milestone ids and the stated goal.
+
+Quality rules:
+- Ensure cause-effect continuity and avoid deus ex machina.
+- Seed at least one setup in lore that pays off in a later milestone.
+- Make the arc cinematic: reversals, rising stakes, and a decisive final confrontation or choice.
 
 All returned text must be translated into {language}.
 """
@@ -38,7 +44,8 @@ Game response to user's action: {scene_description}
 SCENE_PROMPT = """You are an AI writer for a branching visual novel.
 Process the data below and craft the next scene and two meaningful
 player choices. The story must react to the player's last action and
-always push the plot forward with new information or consequences.
+always push the plot forward with new information, consequences, or a
+clear shift in stakes.
 
 Translate the scene description and choices into {language}.
 
@@ -57,11 +64,11 @@ Last choice: {last_choice}
 ---User's actions END---
 
 Guidelines for the scene:
-- 2-4 sentences, max 120 words, no filler or repetition.
-- Show a noticeable change in stakes, location, or knowledge.
-- If the last choice is absurd or off-plot, respond in-world and gently
-  steer back toward the main narrative.
-- Each choice text must be ≤10 words and lead to distinct outcomes.
+- 2-4 sentences, max 120 words, active voice, no filler or repetition.
+- Show a noticeable change in stakes, location, or knowledge; end with a hook or immediate pressure.
+- If the last choice is absurd or off-plot, respond in-world, convert it into a complication, and gently steer back toward the main narrative without breaking tone.
+- If a milestone is completed or failed, reflect it clearly in the description (fail-forward consequences).
+- Each choice text must be ≤10 words, verb-led, mutually distinct in approach (e.g., diplomacy vs. force, caution vs. risk), and avoid yes/no or duplicate outcomes.
 
 Respond ONLY with JSON containing:
 - description: current scene description based on the user's actions and the game settings
@@ -72,18 +79,24 @@ ENDING_CHECK_PROMPT = """
 History of choices: {history}
 
 Endings: {endings}
-Check if any ending conditions are met.
-If none are met return ending_reached: false.
-If an ending is reached return ending_reached: true and provide the
-ending object (id, type, description).
+Decide if an ending should trigger. Default to not ending.
 
-NOTE: you can generate a new bad ending if user's choice leaves him in a bad state OR if the user's choice is absurd and off-plot.
-Also feel free to change description of the existing endings if you think it's more appropriate.
+Rules:
+- The game should not end too early. Aim for 15–30 scenes for good endings; do not trigger good endings before at least 10 scenes unless the story clearly completes all milestones.
+- Do NOT end the game on a single mistake or an off-plot action. Convert mistakes into setbacks, complications, or delays that raise stakes.
+- Only trigger a bad ending if:
+  1. The failure is catastrophic and clearly irreversible (e.g., main character dies with no plausible rescue, the world is irrevocably destroyed, or the main goal becomes impossible).
+  2. There are multiple compounded failures relevant to the goal (at least two major failures, especially consecutive), and reasonable escape routes are exhausted.
+- If a choice is absurd or off-plot, do not end. Treat it as a complication and gently steer back to the main narrative. Consider a humorous/curiosity bad ending only after repeated (≥3) persistent off-plot attempts.
+- Prefer to wait until milestone conditions are met or definitively failed. Endings must reference the conditions from {endings}; you may adjust descriptions to better fit the exact situation, but avoid inventing new endings unless truly necessary.
+- If none of the criteria are satisfied, return ending_reached: false.
 
-The game shouldn't end too early - the target duration for good endings is 15-30 scenes. But the game can end earlier if the player deserves a bad ending.
+If an ending is reached:
+- Return ending_reached: true and the ending object (id, type, description).
+- Provide a highly detailed description (≥70 words) reflecting recent choices and consequences.
+- Only create a new bad ending if the situation is truly catastrophic and not covered by existing endings, and it still follows the rules above.
 
-If you decided that ending is reached, you will have to provide highly detailed description of the ending, it should contain at least 50 words.
-
+All returned text must be translated into {language}.
 Respond ONLY with JSON.
 """
 

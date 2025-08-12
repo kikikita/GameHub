@@ -20,6 +20,16 @@ async def resolve_user_id(tg_id: int | None, db: AsyncSession) -> int:
         )
     return user.id
 
+async def has_pro_plan(db: AsyncSession, user_id: int) -> bool:
+    """Check if the user has an active Pro subscription."""
+    res = await db.execute(
+        select(Subscription)
+        .where(Subscription.user_id == user_id)
+        .order_by(Subscription.started_at.desc())
+    )
+    sub = res.scalars().first()
+    return sub and sub.plan == "pro" and sub.status == "active"
+
 
 async def ensure_pro_plan(db: AsyncSession, user_id: int) -> None:
     """Raise 403 if the user doesn't have an active Pro subscription."""

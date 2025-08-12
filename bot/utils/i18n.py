@@ -11,7 +11,8 @@ TRANSLATIONS = {
         "start_welcome": "👋 Hello, <b>{name}</b>!\nWelcome to <b>Immersia</b>",
         "help_message": (
             "ℹ️ <b>Help</b>\n\n"
-            "<b>/new_game</b> — create a new game\n"
+            "<b>/start</b> — start a new game\n"
+            "<b>/my_game</b> — create a new your own game\n"
             "<b>/my_games</b> — list your active games\n"
             "<b>/end_game</b> — finish current session\n"
             "<b>/help</b> — show this message"
@@ -22,6 +23,7 @@ TRANSLATIONS = {
         "open_web_app": "✨ Open web app",
         "create_story_webapp": "Create your own story in the web app",
         "create_story_btn": "✨{cost} Create own story",
+        "creating_story": "🚧 Creating your story...",
         "setup_setting": "Setting",
         "setup_char": "Character",
         "setup_genre": "Genre",
@@ -37,7 +39,7 @@ TRANSLATIONS = {
         "error_scene": "Scene error",
         "error_generic": "Error",
         "you_chose": "You chose: {choice}",
-        "no_active_games": "You have no active games yet. Use /new_game to start.",
+        "no_active_games": "You have no active games yet. Use /start to start.",
         "resume_game_prompt": "You can continue one of your current games:",
         "no_active_game": "No active game",
         "session_finished": "Session finished",
@@ -79,7 +81,8 @@ TRANSLATIONS = {
         "start_welcome": "👋 Привет, <b>{name}</b>!\nДобро пожаловать в <b>Immersia</b>",
         "help_message": (
             "ℹ️ <b>Помощь</b>\n\n"
-            "<b>/new_game</b> — создать новую игру\n"
+            "<b>/start</b> — начать новую игру\n"
+            "<b>/my_game</b> — создать свою собственную игру\n"
             "<b>/my_games</b> — список ваших активных игр\n"
             "<b>/end_game</b> — завершить текущую сессию\n"
             "<b>/help</b> — показать это сообщение"
@@ -90,6 +93,7 @@ TRANSLATIONS = {
         "open_web_app": "✨ Откройте веб-приложение",
         "create_story_webapp": "Создай собственную историю в веб-приложении",
         "create_story_btn": "✨{cost} Создать свою историю",
+        "creating_story": "🚧 История создаётся...",
         "setup_setting": "Сеттинг",
         "setup_char": "Персонаж",
         "setup_genre": "Жанр",
@@ -105,7 +109,7 @@ TRANSLATIONS = {
         "error_scene": "Ошибка сцены",
         "error_generic": "Ошибка",
         "you_chose": "Вы выбрали: {choice}",
-        "no_active_games": "У вас пока нет активных игр. Используйте /new_game, чтобы начать.",
+        "no_active_games": "У вас пока нет активных игр. Используйте /start, чтобы начать.",
         "resume_game_prompt": "Вы можете продолжить одну из текущих игр:",
         "no_active_game": "Нет активной игры",
         "session_finished": "Сессия завершена",
